@@ -840,8 +840,8 @@ ixu = trueloc(xu < BOUNDMAX)
 ! 1. The treatment of the equality constraints is naive. One may choose to eliminate them instead.
 ! 2. The code below is quite inefficient in terms of memory, but we prefer readability.
 idmat = eye(n, n)
-amat = reshape(shape=shape(amat), source= &
-    & [-idmat(:, ixl), idmat(:, ixu), -transpose(Aeq), transpose(Aeq), transpose(Aineq)])
+! amat = reshape(shape=shape(amat), source= &
+!     & [-idmat(:, ixl), idmat(:, ixu), -transpose(Aeq), transpose(Aeq), transpose(Aineq)])
 bvec = [-xl(ixl), xu(ixu), -beq, beq, bineq]
 !!MATLAB code:
 !!amat = [-idmat(:, ixl), idmat(:, ixu), -Aeq', Aeq', Aineq'];

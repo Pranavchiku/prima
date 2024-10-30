@@ -755,7 +755,7 @@ else
         B(:, i) = (Q(:, i) - matprod(B(:, i + 1:n), R(i + 1:n, i))) / R(i, i)
     end do
     InvP(P) = linspace(1_IK, n, n) ! The inverse permutation
-    B = transpose(B(:, InvP))
+    !B = transpose(B(:, InvP))
 end if
 
 !====================!

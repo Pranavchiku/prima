@@ -259,7 +259,7 @@ call initxf(calfun, iprint, maxfun, Aeq, Aineq, amat, beq, bineq, ctol, ftarget,
 ! Report the current best value, and check if user asks for early termination.
 terminate = .false.
 if (present(callback_fcn)) then
-    call callback_fcn(xbase + xpt(:, kopt), fval(kopt), nf, 0_IK, cval(kopt), terminate=terminate)
+    ! call callback_fcn(xbase + xpt(:, kopt), fval(kopt), nf, 0_IK, cval(kopt), terminate=terminate)
     if (terminate) then
         subinfo = CALLBACK_TERMINATE
     end if
@@ -691,7 +691,7 @@ do tr = 1, maxtr
     ! Report the current best value, and check if user asks for early termination.
     if (present(callback_fcn)) then
         ! FIXME: CVAL(KOP) is WRONG! CVAL is not updated.
-        call callback_fcn(xbase + xpt(:, kopt), fval(kopt), nf, tr, cval(kopt), terminate=terminate)
+        ! call callback_fcn(xbase + xpt(:, kopt), fval(kopt), nf, tr, cval(kopt), terminate=terminate)
         if (terminate) then
             info = CALLBACK_TERMINATE
             exit

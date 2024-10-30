@@ -166,11 +166,11 @@ end if
 
 nfilt = int(count(keep), kind(nfilt))
 index_to_keep(1:nfilt) = trueloc(keep)
-xfilt(:, 1:nfilt) = xfilt(:, index_to_keep(1:nfilt))
+! xfilt(:, 1:nfilt) = xfilt(:, index_to_keep(1:nfilt))
 ffilt(1:nfilt) = ffilt(index_to_keep(1:nfilt))
 cfilt(1:nfilt) = cfilt(index_to_keep(1:nfilt))
 if (present(confilt) .and. present(constr)) then
-    confilt(:, 1:nfilt) = confilt(:, index_to_keep(1:nfilt))
+    ! confilt(:, 1:nfilt) = confilt(:, index_to_keep(1:nfilt))
 end if
 
 nfilt = nfilt + 1_IK

@@ -189,14 +189,14 @@ ij = setij(n, npt)
 ! on FVAL(2 : 2*N + 1), and it is the sole origin of the such dependency. If we remove the revision
 ! IJ, then the evaluations of FVAL(1 : NPT) can be merged, and they are totally PARALLELIZABLE; this
 ! can be beneficial if the function evaluations are expensive, which is likely the case.
-where (fval(ij(1, :) + n + 1) < fval(ij(1, :) + 1)) ij(1, :) = ij(1, :) + n
-where (fval(ij(2, :) + n + 1) < fval(ij(2, :) + 1)) ij(2, :) = ij(2, :) + n
+! where (fval(ij(1, :) + n + 1) < fval(ij(1, :) + 1)) ij(1, :) = ij(1, :) + n
+! where (fval(ij(2, :) + n + 1) < fval(ij(2, :) + 1)) ij(2, :) = ij(2, :) + n
 ! MATLAB (but not Fortran) can index a vector by a 2D array of indices, thus the MATLAB code is
 !!MATLAB: ij(fval(ij + n + 1) < fval(ij + 1)) = ij(fval(ij + n  + 1) < fval(ij + 1)) + n;
 
 ! Set XPT(:, 2*N + 2 : NPT). It depends on IJ and hence on FVAL(2 : 2*N + 1). Indeed, XPT(:, K) has
 ! only two nonzeros for each K >= 2*N+2.
-xpt(:, 2 * n + 2:npt) = xpt(:, ij(1, :) + 1) + xpt(:, ij(2, :) + 1)
+! xpt(:, 2 * n + 2:npt) = xpt(:, ij(1, :) + 1) + xpt(:, ij(2, :) + 1)
 
 ! Set FVAL(2*N + 2 : NPT) by evaluating F. Totally parallelizable except for FMSG.
 if (info == INFO_DFT) then

@@ -127,7 +127,7 @@ fval = REALMAX
 ! Set XPT(:, 1 : 2*N+1) and FVAL(:, 1 : 2*N+1).
 xpt = ZERO
 kk = linspace(2_IK, 2_IK * n, n)
-xpt(:, kk) = rhobeg * eye(n)
+! xpt(:, kk) = rhobeg * eye(n)
 do k = 1, 2_IK * n + 1_IK
     x = xpt(:, k) + xbase
     call evaluate(calfun, x, f)

@@ -14,7 +14,7 @@ contains
 
 subroutine cobyla_c(m_nlcon, cobjcon_ptr, data_ptr, n, x, f, cstrv, nlconstr, m_ineq, Aineq, bineq, m_eq, Aeq, beq, &
     & xl, xu, f0, nlconstr0, nf, rhobeg, rhoend, ftarget, maxfun, iprint, ctol, callback_ptr, info) bind(C)
-use, intrinsic :: iso_c_binding, only : C_DOUBLE, C_INT, C_FUNPTR, C_PTR, C_ASSOCIATED, C_F_PROCPOINTER, C_F_POINTER
+use, intrinsic :: iso_c_binding, only : C_DOUBLE, C_INT, C_FUNPTR, C_PTR, C_ASSOCIATED, C_F_POINTER
 use, non_intrinsic :: cintrf_mod, only : COBJCON, CCALLBACK
 use, non_intrinsic :: cobyla_mod, only : cobyla
 use, non_intrinsic :: consts_mod, only : RP, IK
@@ -90,7 +90,7 @@ real(RP), allocatable :: xu_loc(:)
 ! The following inputs correspond to compulsory arguments in the Fortran code.
 x_loc = real(x, kind(x_loc))
 m_nlcon_loc = int(m_nlcon, kind(m_nlcon_loc))
-call c_f_procpointer(cobjcon_ptr, objcon_ptr)
+! call c_f_procpointer(cobjcon_ptr, objcon_ptr)
 
 ! The following inputs correspond to optional arguments in the Fortran code.
 ! Since C does not support optional arguments, we use NaN to represent an absent real scalar, 0 to
@@ -137,7 +137,7 @@ ctol_loc = real(ctol, kind(ctol_loc))
 if (c_associated(callback_ptr)) then
     ! If a C callback function is provided, we convert it to a Fortran procedure pointer and capture
     ! that pointer in the closure below.
-    call c_f_procpointer(callback_ptr, cb_ptr)
+    ! call c_f_procpointer(callback_ptr, cb_ptr)
     ! We then provide the closure to the algorithm.
     call cobyla(calcfc, m_nlcon_loc, x_loc, f_loc, cstrv=cstrv_loc, nlconstr=nlconstr_loc, Aineq=Aineq_loc, &
         & bineq=bineq_loc, Aeq=Aeq_loc, beq=beq_loc, xl=xl_loc, xu=xu_loc, f0=f0_loc, nlconstr0=nlconstr0_loc, &

@@ -740,8 +740,8 @@ iineq = trueloc(Aineq_norm > 0)
 ! 1. The treatment of the equality constraints is naive. One may choose to eliminate them instead.
 ! 2. The code below is quite inefficient in terms of memory, but we prefer readability.
 idmat = eye(n, n)
-amat = reshape(shape=shape(amat), source= &
-    & [-idmat(:, ixl), idmat(:, ixu), -transpose(Aeq(ieq, :)), transpose(Aeq(ieq, :)), transpose(Aineq(iineq, :))])
+! amat = reshape(shape=shape(amat), source= &
+!     & [-idmat(:, ixl), idmat(:, ixu), -transpose(Aeq(ieq, :)), transpose(Aeq(ieq, :)), transpose(Aineq(iineq, :))])
 bvec = [-xl(ixl), xu(ixu), -beq(ieq), beq(ieq), bineq(iineq)]
 !!MATLAB code:
 !!amat = [-idmat(:, ixl), idmat(:, ixu), -Aeq(ieq, :)', Aeq(ieq, :)', Aineq(iineq, :)'];

@@ -416,7 +416,7 @@ do tr = 1, maxtr
     ! DNORM_REC records the DNORM of recent trust-region iterations. It will be used to decide
     ! whether we should improve the geometry of the interpolation set or reduce RHO when SHORTD
     ! is TRUE. Note that it does not record the geometry steps.
-    dnorm_rec = [dnorm_rec(2:size(dnorm_rec)), dnorm]
+    ! dnorm_rec = [dnorm_rec(2:size(dnorm_rec)), dnorm]
 
     ! In some cases, we reset DNORM_REC to REALMAX. This indicates a preference of improving the
     ! geometry of the interpolation set to reducing RHO in the subsequent three or more iterations.
@@ -474,7 +474,7 @@ do tr = 1, maxtr
         ! reasonable if the two values being compared are both ZERO or INF.
         moderr = f - fval(kopt) + qred
         moderr_alt = f - fval(kopt) - quadinc(d, xpt, galt, pqalt)
-        qalt_better = [qalt_better(2:size(qalt_better)), abs(moderr_alt) < TENTH * abs(moderr)]
+        ! qalt_better = [qalt_better(2:size(qalt_better)), abs(moderr_alt) < TENTH * abs(moderr)]
 
         ! Calculate the reduction ratio by REDRAT, which handles Inf/NaN carefully.
         ratio = redrat(fval(kopt) - f, qred, eta1)
@@ -632,7 +632,7 @@ do tr = 1, maxtr
         ! reasonable if the two values being compared are both ZERO or INF.
         moderr = f - fval(kopt) - quadinc(d, xpt, gopt, pq, hq)
         moderr_alt = f - fval(kopt) - quadinc(d, xpt, galt, pqalt)
-        qalt_better = [qalt_better(2:size(qalt_better)), abs(moderr_alt) < TENTH * abs(moderr)]
+        ! qalt_better = [qalt_better(2:size(qalt_better)), abs(moderr_alt) < TENTH * abs(moderr)]
 
         ! Is the newly generated X better than current best point?
         ximproved = (f < fval(kopt) .and. feasible)

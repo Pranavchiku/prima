@@ -750,7 +750,7 @@ bvec = [-xl(ixl), xu(ixu), -beq(ieq), beq(ieq), bineq(iineq)]
 ! Modify BVEC if necessary so that the initial point is feasible.
 Aeqx0 = matprod(Aeq, x0)
 Aineqx0 = matprod(Aineq, x0)
-bvec = max(bvec, [-x0(ixl), x0(ixu), -Aeqx0(ieq), Aeqx0(ieq), Aineqx0(iineq)])
+! bvec = max(bvec, [-x0(ixl), x0(ixu), -Aeqx0(ieq), Aeqx0(ieq), Aineqx0(iineq)])
 
 ! Normalize the linear constraints so that each constraint has a gradient of norm 1.
 Anorm = [Aeq_norm(ieq), Aeq_norm(ieq), Aineq_norm(iineq)]

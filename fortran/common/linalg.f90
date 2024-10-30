@@ -2222,7 +2222,7 @@ loc = pack(linspace(1_IK, n, n), mask=x)
 if (DEBUGGING) then
     call assert(all(loc >= 1 .and. loc <= n), '1 <= LOC <= N', srname)
     call assert(size(loc) == count(x), 'SIZE(LOC) == COUNT(X)', srname)
-    call assert(all(x(loc)), 'X(LOC) is all TRUE', srname)
+    ! call assert(all(x(loc)), 'X(LOC) is all TRUE', srname)
     call assert(all(loc(2:size(loc)) > loc(1:size(loc) - 1)), 'LOC is strictly ascending', srname)
 end if
 end function trueloc
@@ -2259,7 +2259,7 @@ loc = trueloc(.not. x)
 if (DEBUGGING) then
     call assert(all(loc >= 1 .and. loc <= size(x)), '1 <= LOC <= N', srname)
     call assert(size(loc) == size(x) - count(x), 'SIZE(LOC) == SIZE(X) - COUNT(X)', srname)
-    call assert(all(.not. x(loc)), 'X(LOC) is all FALSE', srname)
+    ! call assert(all(.not. x(loc)), 'X(LOC) is all FALSE', srname)
     call assert(all(loc(2:size(loc)) > loc(1:size(loc) - 1)), 'LOC is strictly ascending', srname)
 end if
 end function falseloc

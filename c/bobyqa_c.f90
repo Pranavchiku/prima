@@ -15,7 +15,7 @@ contains
 
 subroutine bobyqa_c(cobj_ptr, data_ptr, n, x, f, xl, xu, nf, rhobeg, rhoend, &
     & ftarget, maxfun, npt, iprint, callback_ptr, info) bind(C)
-use, intrinsic :: iso_c_binding, only : C_DOUBLE, C_INT, C_FUNPTR, C_PTR, C_ASSOCIATED, C_F_POINTER
+use, intrinsic :: iso_c_binding, only : C_DOUBLE, C_INT, C_FUNPTR, C_PTR, C_ASSOCIATED, C_F_PROCPOINTER, C_F_POINTER
 use, non_intrinsic :: bobyqa_mod, only : bobyqa
 use, non_intrinsic :: cintrf_mod, only : COBJ, CCALLBACK
 use, non_intrinsic :: consts_mod, only : RP, IK
@@ -67,7 +67,7 @@ real(RP), allocatable :: xu_loc(:)
 
 ! The following inputs correspond to compulsory arguments in the Fortran code.
 x_loc = real(x, kind(x_loc))
-! call c_f_procpointer(cobj_ptr, obj_ptr)
+call c_f_procpointer(cobj_ptr, obj_ptr)
 
 ! The following inputs correspond to optional arguments in the Fortran code.
 ! Since C does not support optional arguments, we use NaN to represent an absent real scalar, 0 to
@@ -105,7 +105,7 @@ iprint_loc = int(iprint, kind(iprint_loc))
 if (c_associated(callback_ptr)) then
     ! If a C callback function is provided, we convert it to a Fortran procedure pointer and capture
     ! that pointer in the closure below.
-    ! call c_f_procpointer(callback_ptr, cb_ptr)
+    call c_f_procpointer(callback_ptr, cb_ptr)
     ! We then provide the closure to the algorithm.
     call bobyqa(calfun, x_loc, f_loc, xl=xl_loc, xu=xu_loc, nf=nf_loc, rhobeg=rhobeg_loc, rhoend=rhoend_loc, &
         & ftarget=ftarget_loc, maxfun=maxfun_loc, npt=npt_loc, iprint=iprint_loc, callback_fcn=callback_fcn, info=info_loc)

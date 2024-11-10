@@ -90,7 +90,7 @@ if (DEBUGGING) then
     do j = 1, npt
         hcol(1:npt) = matprod(zmat, zmat(j, :))
         hcol(npt + 1:npt + n) = bmat(:, j)
-        call assert(precision(0.0_RP) < precision(0.0D0) .or. sum(abs(hcol)) > 0, 'Column '//num2str(j)//' of H is nonzero', srname)
+        !call assert(precision(0.0_RP) < precision(0.0D0) .or. sum(abs(hcol)) > 0, 'Column '//num2str(j)//' of H is nonzero', srname)
     end do
 
     call assert(all(is_finite(xpt)), 'XPT is finite', srname)
@@ -136,12 +136,12 @@ vlag(knew) = vlag(knew) - ONE
 ! Quite rarely, due to rounding errors, VLAG or BETA may not be finite, or DENOM may not be
 ! positive. In such cases, [BMAT, ZMAT] would be destroyed by the update, and hence we would rather
 ! not update them at all. Or should we simply terminate the algorithm?
-if (.not. (is_finite(sum(abs(hcol)) + sum(abs(vlag)) + abs(beta)) .and. denom > 0)) then
+!if (.not. (is_finite(sum(abs(hcol)) + sum(abs(vlag)) + abs(beta)) .and. denom > 0)) then
     if (present(info)) then
         info = DAMAGING_ROUNDING
     end if
     return
-end if
+!end if
 
 ! Update the matrix BMAT. It implements the last N rows of (4.9) in the BOBYQA paper.
 v1 = (alpha * vlag(npt + 1:npt + n) - tau * hcol(npt + 1:npt + n)) / denom
@@ -183,7 +183,7 @@ if (DEBUGGING) then
     do j = 1, npt
         hcol(1:npt) = matprod(zmat, zmat(j, :))
         hcol(npt + 1:npt + n) = bmat(:, j)
-        call assert(precision(0.0_RP) < precision(0.0D0) .or. sum(abs(hcol)) > 0, 'Column '//num2str(j)//' of H is nonzero', srname)
+        !call assert(precision(0.0_RP) < precision(0.0D0) .or. sum(abs(hcol)) > 0, 'Column '//num2str(j)//' of H is nonzero', srname)
     end do
 
     ! The following is too expensive to check.

@@ -434,8 +434,8 @@ do iter = 1, maxiter
     end if
 
     ! Update GREDSQ, DREDG, DREDSQ.
-    gredsq = sum(gnew(trueloc(xbdi == 0))**2)
-    dredg = inprod(d(trueloc(xbdi == 0)), gnew(trueloc(xbdi == 0)))
+    !gredsq = sum(gnew(trueloc(xbdi == 0))**2)
+    !dredg = inprod(d(trueloc(xbdi == 0)), gnew(trueloc(xbdi == 0)))
     if (iter == 1 .or. nact > nactsav) then
         dredsq = sum(d(trueloc(xbdi == 0))**2) ! In theory, DREDSQ changes only when NACT increases.
         dred = d

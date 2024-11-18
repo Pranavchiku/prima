@@ -136,8 +136,8 @@ nsave = n  ! Needed for debugging (only).
 ! As in Powell's COBYLA, CQ is set to 0 at the positions with CQ being negligible as per ISMINOR.
 ! This may not be the best choice if the subroutine is used in other contexts, e.g., LINCOA.
 cq = matprod(c, Q)
-cqa = matprod(abs(c), abs(Q))
-cq(trueloc(isminor(cq, cqa))) = ZERO  !!MATLAB: cq(isminor(cq, cqa)) = zero
+!cqa = matprod(abs(c), abs(Q))
+!cq(trueloc(isminor(cq, cqa))) = ZERO  !!MATLAB: cq(isminor(cq, cqa)) = zero
 
 ! Update Q so that the columns of Q(:, N+2:M) are orthogonal to C. This is done by applying a 2D
 ! Givens rotation to Q(:, [K, K+1]) from the right to zero C'*Q(:, K+1) out for K = N+1, ..., M-1

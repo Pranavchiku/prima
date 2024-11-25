@@ -184,6 +184,8 @@ real(RP) :: xopt(size(xpt, 1))
 real(RP) :: xp
 real(RP) :: xq
 real(RP) :: xxpt(size(xpt, 2))
+real(4) :: sum_sq
+integer :: i1, j1
 
 n = int(size(xpt, 1), kind(n))
 npt = int(size(xpt, 2), kind(npt))
@@ -319,7 +321,14 @@ ptsid(kopt) = ZERO
 ! but there is no square in the BOBYQA paper (see the paragraph between (5.9) and (5.10) of the
 ! BOBYQA paper). The latter seem to work better in a test on 20221125.
 !score = sum(xpt**2, dim=1)  ! Powell's BOBYQA code
-score = sqrt(sum(xpt**2, dim=1))  ! Powell's BOBYQA paper
+! score = sqrt(sum(xpt**2, dim=1))  ! Powell's BOBYQA paper
+sum_sq = 0.0
+do i1 = 1, size(xpt, dim=1)
+    do j1 = 1, size(xpt, dim=2)
+        sum_sq = sum_sq + xpt(i1, j1)**2  ! Square each element and accumulate
+    end do
+end do
+score = sqrt(sum_sq)
 ! In theory, SCORE(KOPT) = 0. Make sure this so that KOPT will be skipped when we choose KORIG below.
 score(kopt) = ZERO
 scoreinc = maxval(score)

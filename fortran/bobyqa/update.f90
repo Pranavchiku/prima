@@ -69,6 +69,7 @@ real(RP) :: tau
 real(RP) :: v1(size(bmat, 1))
 real(RP) :: v2(size(bmat, 1))
 real(RP) :: vlag(size(bmat, 2))
+real(RP) :: zmat_(2)
 
 ! Sizes.
 n = int(size(xpt, 1), kind(n))
@@ -153,7 +154,9 @@ call symmetrize(bmat(:, npt + 1:npt + n))
 ! only one nonzero at ZMAT(KNEW, 1). Entries of ZMAT are treated as 0 if the moduli are quite small.
 do j = 2, npt - n - 1_IK
     if (abs(zmat(knew, j)) > 1.0E-20 * maxval(abs(zmat))) then  ! This threshold is by Powell
-        grot = planerot(zmat(knew, [1_IK, j]))
+        zmat_(1) = zmat(knew, 1_IK)
+        zmat_(2) = zmat(knew, j)
+        grot = planerot(zmat_)
         zmat(:, [1_IK, j]) = matprod(zmat(:, [1_IK, j]), transpose(grot))
     end if
     zmat(knew, j) = ZERO

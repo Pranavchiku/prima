@@ -667,7 +667,7 @@ end if
 call rangehist(nf, xhist, fhist)
 
 ! Print a return message according to IPRINT.
-!call retmsg(solver, info, iprint, nf, f, x)
+call retmsg(solver, info, iprint, nf, f, x)
 
 !====================!
 !  Calculation ends  !

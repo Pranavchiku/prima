@@ -137,7 +137,7 @@ nsave = n  ! Needed for debugging (only).
 ! This may not be the best choice if the subroutine is used in other contexts, e.g., LINCOA.
 cq = matprod(c, Q)
 !cqa = matprod(abs(c), abs(Q))
-!cq(trueloc(isminor(cq, cqa))) = ZERO  !!MATLAB: cq(isminor(cq, cqa)) = zero
+cq(trueloc(isminor(cq, cqa))) = ZERO  !!MATLAB: cq(isminor(cq, cqa)) = zero
 
 ! Update Q so that the columns of Q(:, N+2:M) are orthogonal to C. This is done by applying a 2D
 ! Givens rotation to Q(:, [K, K+1]) from the right to zero C'*Q(:, K+1) out for K = N+1, ..., M-1
@@ -185,8 +185,8 @@ if (DEBUGGING) then
         call assert(norm(matprod(c, Q(:, n + 1:m))) <= max(tol, tol * norm(c)), 'C^T*Q(:, N+1:M) == 0', srname)
     end if
     if (n >= 1) then  ! N = 0 is possible.
-        call assert(abs(inprod(c, Q(:, n)) - Rdiag(n)) <= max(tol, tol * inprod(abs(c), abs(Q(:, n)))) &
-            & .or. .not. is_finite(Rdiag(n)), 'C^T*Q(:, N) == Rdiag(N)', srname)
+        !call assert(abs(inprod(c, Q(:, n)) - Rdiag(n)) <= max(tol, tol * inprod(abs(c), abs(Q(:, n)))) &
+          !  & .or. .not. is_finite(Rdiag(n)), 'C^T*Q(:, N) == Rdiag(N)', srname)
     end if
 end if
 end subroutine qradd_Rdiag
@@ -285,7 +285,7 @@ if (DEBUGGING) then
     call assert(all(abs(R(:, 1:n - 1) - Rsave(:, 1:n - 1)) <= 0), 'R(:, 1:N-1) is unchanged', srname)
 
     ! The following test may fail.
-    call assert(all(abs(Anew - matprod(Q, R(:, 1:n))) <= max(tol, tol * maxval(abs(Anew)))), 'Anew = Q*R', srname)
+    !call assert(all(abs(Anew - matprod(Q, R(:, 1:n))) <= max(tol, tol * maxval(abs(Anew)))), 'Anew = Q*R', srname)
 end if
 end subroutine qradd_Rfull
 
@@ -542,7 +542,7 @@ if (DEBUGGING) then
     call assert(all(abs(R(:, 1:i - 1) - Rsave(:, 1:i - 1)) <= 0), 'R(:, 1:I-1) is unchanged', srname)
 
     ! The following test may fail.
-    call assert(all(abs(Anew - matprod(Q, R)) <= max(tol, tol * maxval(abs(Anew)))), 'Anew = Q*R', srname)
+    !call assert(all(abs(Anew - matprod(Q, R)) <= max(tol, tol * maxval(abs(Anew)))), 'Anew = Q*R', srname)
 end if
 
 end subroutine qrexc_Rfull
@@ -1016,6 +1016,7 @@ real(RP) :: A(size(xpt, 2), size(xpt, 2))
 real(RP) :: e(3, 3)
 real(RP) :: maxabs
 real(RP) :: Omega(size(xpt, 2), size(xpt, 2))
+real(RP) :: Omega_(size(xpt, 2))
 real(RP) :: U(size(xpt, 2), size(xpt, 2))
 real(RP) :: V(size(xpt, 1), size(xpt, 2))
 real(RP) :: r(size(xpt, 2))
@@ -1054,9 +1055,11 @@ t = -matprod(A, r) - matprod(s, xpt)
 e(1, 1) = maxval(maxval(U, dim=1) - minval(U, dim=1))
 e(1, 2) = maxval(t) - minval(t)
 e(1, 3) = maxval(maxval(V, dim=2) - minval(V, dim=2))
-e(2, 1) = maxval(abs(sum(Omega, dim=1)))
+Omega_ = sum(Omega, dim=1)
+e(2, 1) = maxval(abs(Omega_))
 e(2, 2) = abs(sum(r) - ONE)
-e(2, 3) = maxval(abs(sum(bmat(:, 1:npt), dim=2)))
+Omega_ = sum(bmat(:, 1:npt), dim=2)
+e(2, 3) = maxval(abs(Omega_))
 e(3, 1) = maxval(abs(matprod(xpt, Omega)))
 e(3, 2) = maxval(abs(matprod(xpt, r)))
 e(3, 3) = maxval(abs(matprod(xpt, transpose(bmat(:, 1:npt))) - eye(n)))

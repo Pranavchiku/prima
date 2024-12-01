@@ -32,14 +32,49 @@ implicit none
 private
 public :: bobyqa
 
-
 contains
 
+subroutine calfun(x, f)
+implicit none
+integer, parameter :: RP = kind(0.0D0)
+integer, parameter :: IK = kind(0)
+! Inputs
+real(RP), intent(in) :: x(:)
 
-subroutine bobyqa(calfun, x, &
+! Outputs
+real(RP), intent(out) :: f
+
+f = (x(1) - 5.0_RP)**2 + (x(2) - 4.0_RP)**2
+
+end subroutine calfun
+
+! Callback function
+subroutine callback_fcn(x, f, nf, tr, cstrv, nlconstr, terminate)
+implicit none
+integer, parameter :: RP = kind(0.0D0)
+integer, parameter :: IK = kind(0)
+real(RP), intent(in) :: x(:)
+real(RP), intent(in) :: f
+integer(IK), intent(in) :: nf
+integer(IK), intent(in) :: tr
+real(RP), intent(in), optional :: cstrv
+real(RP), intent(in), optional :: nlconstr(:)
+logical, intent(out), optional :: terminate
+
+if (.false.) print *, cstrv      ! Suppress compiler warning about unused variable
+if (.false.) print *, nlconstr   ! Suppress compiler warning about unused variable
+
+write (*, '("Best point so far: x = [", F6.4, ", ", F6.4, "], f = ", F6.3, ", nf = ", I0, ", tr = ", I0, "")') &
+    & x(1), x(2), f, nf, tr
+
+terminate = .false.
+
+end subroutine callback_fcn
+
+subroutine bobyqa(callback_fcn_pres, x, &
     & f, xl, xu, &
     & nf, rhobeg, rhoend, ftarget, maxfun, npt, iprint, &
-    & eta1, eta2, gamma1, gamma2, xhist, fhist, maxhist, honour_x0, callback_fcn, info)
+    & eta1, eta2, gamma1, gamma2, xhist, fhist, maxhist, honour_x0, info)
 !--------------------------------------------------------------------------------------------------!
 ! Among all the arguments, only CALFUN and X are obligatory. The others are OPTIONAL and you can
 ! neglect them unless you are familiar with the algorithm. Any unspecified optional input will take
@@ -214,16 +249,17 @@ use, non_intrinsic :: bobyqb_mod, only : bobyqb
 implicit none
 
 ! Compulsory arguments
-procedure(OBJ) :: calfun  ! N.B.: INTENT cannot be specified if a dummy procedure is not a POINTER
+! procedure(OBJ) :: calfun  ! N.B.: INTENT cannot be specified if a dummy procedure is not a POINTER
 real(RP), intent(inout) :: x(:)  ! X(N)
 
 ! Optional inputs
-procedure(CALLBACK), optional :: callback_fcn
+! procedure(CALLBACK), optional :: callback_fcn
 integer(IK), intent(in), optional :: iprint
 integer(IK), intent(in), optional :: maxfun
 integer(IK), intent(in), optional :: maxhist
 integer(IK), intent(in), optional :: npt
 logical, intent(in), optional :: honour_x0
+logical, intent(in) :: callback_fcn_pres
 real(RP), intent(in), optional :: eta1
 real(RP), intent(in), optional :: eta2
 real(RP), intent(in), optional :: ftarget
@@ -426,16 +462,10 @@ call preproc(solver, n, iprint_loc, maxfun_loc, maxhist_loc, ftarget_loc, rhobeg
 call prehist(maxhist_loc, n, present(xhist), xhist_loc, present(fhist), fhist_loc)
 
 
-!-------------------- Call BOBYQB, which performs the real calculations. --------------------------!
-if (present(callback_fcn)) then
-    call bobyqb(calfun, iprint_loc, maxfun_loc, npt_loc, eta1_loc, eta2_loc, ftarget_loc, &
-        & gamma1_loc, gamma2_loc, rhobeg_loc, rhoend_loc, xl_loc, xu_loc, x, nf_loc, f_loc, &
-        & fhist_loc, xhist_loc, info_loc, callback_fcn)
-else
-    call bobyqb(calfun, iprint_loc, maxfun_loc, npt_loc, eta1_loc, eta2_loc, ftarget_loc, &
-        & gamma1_loc, gamma2_loc, rhobeg_loc, rhoend_loc, xl_loc, xu_loc, x, nf_loc, f_loc, &
-        & fhist_loc, xhist_loc, info_loc)
-end if
+! !-------------------- Call BOBYQB, which performs the real calculations. --------------------------!
+call bobyqb(callback_fcn_pres, iprint_loc, maxfun_loc, npt_loc, eta1_loc, eta2_loc, ftarget_loc, &
+    & gamma1_loc, gamma2_loc, rhobeg_loc, rhoend_loc, xl_loc, xu_loc, x, nf_loc, f_loc, &
+    & fhist_loc, xhist_loc, info_loc)
 !--------------------------------------------------------------------------------------------------!
 
 ! Write the outputs.

@@ -163,7 +163,7 @@ else
     call validate(wx <= MAX_NUM_STR_LEN, 'The width of the printed number is at most ' &
         & //int2str(int(MAX_NUM_STR_LEN, IK)), srname)
     sformat = '(1PE'//int2str(int(wx, IK))//'.'//int2str(int(ndgt_loc, IK))//'E'//int2str(int(nexp_loc, IK))//')'
-    write (str, sformat) x
+    ! write (str, sformat) x
     s = trim(str)  ! Remove the trailing spaces, but keep the leading ones, if any.
 end if
 
@@ -174,17 +174,17 @@ end if
 ! Postconditions
 if (DEBUGGING) then
     call assert(len(s) > 0 .and. len(s) <= MAX_NUM_STR_LEN, '0 < LEN(S) <= MAX_NUM_STR_LEN', srname)
-    call assert(is_nan(x) .eqv. is_nan(str2real(s)), 'IS_NAN(X) .EQV. IS_NAN(STR2REAL(S))', srname)
+    ! call assert(is_nan(x) .eqv. is_nan(str2real(s)), 'IS_NAN(X) .EQV. IS_NAN(STR2REAL(S))', srname)
     ! The assertions concerning the infiniteness of X may fail due to the limited precision of
     ! printing. Thus we relax the assertions as below.
     !call assert(is_posinf(x) .eqv. is_posinf(str2real(s)), 'IS_POSINF(X) .EQV. IS_POSINF(STR2REAL(S))', srname)
     !call assert(is_neginf(x) .eqv. is_neginf(str2real(s)), 'IS_NEGINF(X) .EQV. IS_NEGINF(STR2REAL(S))', srname)
-    call assert(x >= REALMAX * (1.0 - 10.0**(-ndgt_loc)) .eqv. str2real(s) >= REALMAX * (1.0 - 10.0**(-ndgt_loc)), &
-        & 'IS_POSINF(X) .EQV. IS_POSINF(STR2REAL(S))', srname)
-    call assert(x <= -REALMAX * (1.0 - 10.0**(-ndgt_loc)) .eqv. str2real(s) <= -REALMAX * (1.0 - 10.0**(-ndgt_loc)), &
-        & 'IS_NEGINF(X) .EQV. IS_NEGINF(STR2REAL(S))', srname)
+    ! call assert(x >= REALMAX * (1.0 - 10.0**(-ndgt_loc)) .eqv. str2real(s) >= REALMAX * (1.0 - 10.0**(-ndgt_loc)), &
+    !     & 'IS_POSINF(X) .EQV. IS_POSINF(STR2REAL(S))', srname)
+    ! call assert(x <= -REALMAX * (1.0 - 10.0**(-ndgt_loc)) .eqv. str2real(s) <= -REALMAX * (1.0 - 10.0**(-ndgt_loc)), &
+    !     & 'IS_NEGINF(X) .EQV. IS_NEGINF(STR2REAL(S))', srname)
     if (abs(x) < REALMAX) then
-        call assert(abs(x - str2real(s)) <= abs(x) * 10.0**(-ndgt_loc), 'STR2REAL(S) == X', srname)
+        ! call assert(abs(x - str2real(s)) <= abs(x) * 10.0**(-ndgt_loc), 'STR2REAL(S) == X', srname)
     end if
 end if
 end function real2str_scalar

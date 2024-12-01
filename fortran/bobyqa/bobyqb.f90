@@ -42,9 +42,45 @@ public :: bobyqb
 
 contains
 
+subroutine calfun(x, f)
+implicit none
+integer, parameter :: RP = kind(0.0D0)
+integer, parameter :: IK = kind(0)
+! Inputs
+real(RP), intent(in) :: x(:)
 
-subroutine bobyqb(calfun, iprint, maxfun, npt, eta1, eta2, ftarget, gamma1, gamma2, rhobeg, rhoend, &
-    & xl, xu, x, nf, f, fhist, xhist, info, callback_fcn)
+! Outputs
+real(RP), intent(out) :: f
+
+f = (x(1) - 5.0_RP)**2 + (x(2) - 4.0_RP)**2
+
+end subroutine calfun
+
+! Callback function
+subroutine callback_fcn(x, f, nf, tr, cstrv, nlconstr, terminate)
+implicit none
+integer, parameter :: RP = kind(0.0D0)
+integer, parameter :: IK = kind(0)
+real(RP), intent(in) :: x(:)
+real(RP), intent(in) :: f
+integer(IK), intent(in) :: nf
+integer(IK), intent(in) :: tr
+real(RP), intent(in), optional :: cstrv
+real(RP), intent(in), optional :: nlconstr(:)
+logical, intent(out), optional :: terminate
+
+if (.false.) print *, cstrv      ! Suppress compiler warning about unused variable
+if (.false.) print *, nlconstr   ! Suppress compiler warning about unused variable
+
+write (*, '("Best point so far: x = [", F6.4, ", ", F6.4, "], f = ", F6.3, ", nf = ", I0, ", tr = ", I0, "")') &
+    & x(1), x(2), f, nf, tr
+
+terminate = .false.
+
+end subroutine callback_fcn
+
+subroutine bobyqb(callback_fcn_pres, iprint, maxfun, npt, eta1, eta2, ftarget, gamma1, gamma2, rhobeg, rhoend, &
+    & xl, xu, x, nf, f, fhist, xhist, info)
 !--------------------------------------------------------------------------------------------------!
 ! This subroutine performs the major calculations of BOBYQA.
 !
@@ -103,8 +139,8 @@ use, non_intrinsic :: update_bobyqa_mod, only : updatexf, updateq, tryqalt, upda
 implicit none
 
 ! Inputs
-procedure(OBJ) :: calfun  ! N.B.: INTENT cannot be specified if a dummy procedure is not a POINTER
-procedure(CALLBACK), optional :: callback_fcn
+! procedure(OBJ) :: calfun  ! N.B.: INTENT cannot be specified if a dummy procedure is not a POINTER
+! procedure(CALLBACK), optional :: callback_fcn
 integer(IK), intent(in) :: iprint
 integer(IK), intent(in) :: maxfun
 integer(IK), intent(in) :: npt
@@ -117,9 +153,11 @@ real(RP), intent(in) :: rhobeg
 real(RP), intent(in) :: rhoend
 real(RP), intent(in) :: xl(:)  ! XL(N)
 real(RP), intent(in) :: xu(:)  ! XU(N)
+logical, intent(in) :: callback_fcn_pres
 
 ! In-outputs
 real(RP), intent(inout) :: x(:)  ! X(N)
+
 
 ! Outputs
 integer(IK), intent(out) :: info
@@ -222,8 +260,8 @@ call initxf(calfun, iprint, maxfun, ftarget, rhobeg, xl, xu, x, ij, kopt, nf, fh
 
 ! Report the current best value, and check if user asks for early termination.
 terminate = .false.
-if (present(callback_fcn)) then
-    call callback_fcn(xbase + xpt(:, kopt), fval(kopt), nf, 0_IK, terminate=terminate)
+if (callback_fcn_pres) then
+    !call callback_fcn(xbase + xpt(:, kopt), fval(kopt), nf, 0_IK, terminate=terminate)
     if (terminate) then
         subinfo = CALLBACK_TERMINATE
     end if
@@ -635,8 +673,8 @@ do tr = 1, maxtr
     end if
 
     ! Report the current best value, and check if user asks for early termination.
-    if (present(callback_fcn)) then
-        call callback_fcn(xbase + xpt(:, kopt), fval(kopt), nf, tr, terminate=terminate)
+    if (callback_fcn_pres) then
+        !call callback_fcn(xbase + xpt(:, kopt), fval(kopt), nf, tr, terminate=terminate)
         if (terminate) then
             info = CALLBACK_TERMINATE
             exit

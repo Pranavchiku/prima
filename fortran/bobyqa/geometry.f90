@@ -67,6 +67,7 @@ real(RP) :: den(size(xpt, 2))
 real(RP) :: distsq(size(xpt, 2))
 real(RP) :: score(size(xpt, 2))
 real(RP) :: weight(size(xpt, 2))
+real(RP) :: xpt_(size(xpt, 1),size(xpt, 2))
 
 ! Sizes
 n = int(size(xpt, 1), kind(npt))
@@ -103,8 +104,9 @@ end if
 ! knowing KNEW (see lines 332-344 and 404--431 of lincob.f). Hence Powell's LINCOA code picks KNEW
 ! based on the distance to the un-updated "optimal point", which is unreasonable. This has been
 ! corrected in our implementation of LINCOA, yet it does not boost the performance.
+xpt_ = spread(xpt(:, kopt) + d, dim=2, ncopies=npt)
 if (ximproved) then
-    distsq = sum((xpt - spread(xpt(:, kopt) + d, dim=2, ncopies=npt))**2, dim=1)
+    distsq = sum((xpt - xpt_)**2, dim=1)
     !!MATLAB: distsq = sum((xpt - (xpt(:, kopt) + d)).^2)  % d should be a column! Implicit expansion
 else
     distsq = sum((xpt - spread(xpt(:, kopt), dim=2, ncopies=npt))**2, dim=1)

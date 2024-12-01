@@ -23,6 +23,18 @@ end interface evaluate
 
 contains
 
+subroutine calfun1(x, f)
+implicit none
+integer, parameter :: RP = kind(0.0D0)
+! Inputs
+real(RP), intent(in) :: x(:)
+
+! Outputs
+real(RP), intent(out) :: f
+
+f = (x(1) - 5.0_RP)**2 + (x(2) - 4.0_RP)**2
+
+end subroutine calfun1
 
 function moderatex(x) result(y)
 !--------------------------------------------------------------------------------------------------!
@@ -127,8 +139,7 @@ if (any(is_nan(x))) then
     ! Although this should not happen unless there is a bug, we include this case for robustness.
     f = sum(x)  ! Set F to NaN
 else
-    call calfun(moderatex(x), f)  ! Evaluate F; We moderate X before doing so.
-
+    call calfun1(moderatex(x), f)  ! Evaluate F; We moderate X before doing so.
     ! Moderated extreme barrier: replace NaN/huge objective or constraint values with a large but
     ! finite value. This is naive. Better approaches surely exist.
     f = moderatef(f)

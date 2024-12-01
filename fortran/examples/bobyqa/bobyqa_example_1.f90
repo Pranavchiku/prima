@@ -75,11 +75,11 @@ program bobyqa_exmp
  ub = 4.5_RP
  ! The following lines illustrates how to call the solver.
  x = x0
- call bobyqa(calfun, x, f, lb, ub)  ! This call will not print anything.
+ call bobyqa(.false., x, f, lb, ub)  ! This call will not print anything.
  ! In addition to the compulsory arguments, the following illustration specifies also RHOBEG and
  ! IPRINT, which are optional. All the unspecified optional arguments (RHOEND, MAXFUN, etc.) will
  ! take their default values coded in the solver.
  x = x0
-call bobyqa(calfun, x, f, lb, ub, rhobeg=1.0_RP, iprint=1_IK, nf=nf, info=info, callback_fcn=callback_fcn)
+call bobyqa(.true., x, f, lb, ub, rhobeg=1.0_RP, iprint=1_IK, nf=nf, info=info)
 
 end program bobyqa_exmp

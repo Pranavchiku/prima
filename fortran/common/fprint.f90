@@ -108,7 +108,7 @@ if (len(fname_loc) > 0) then
         end select
     end if
     ! Check whether the file is already existing.
-    inquire (file=fname_loc, exist=fexist)
+    !inquire (file=fname_loc, exist=fexist)
     fstat = merge(tsource='old', fsource='new', mask=fexist)
     ! Open the file.
     if (present(funit)) then

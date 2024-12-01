@@ -196,6 +196,7 @@ logical :: trfail
 logical :: ximproved
 real(RP) :: bmat(size(x), npt + size(x))
 real(RP) :: crvmin
+real(RP) :: maxtemp
 real(RP) :: d(size(x))
 real(RP) :: delbar
 real(RP) :: delta
@@ -431,7 +432,8 @@ do tr = 1, maxtr
         ! improve the performance, especially when pursing high-precision solutions.
         vlag = calvlag(kopt, bmat, d, xpt, zmat)
         den = calden(kopt, bmat, d, xpt, zmat)
-        if (ximproved .and. .not. (is_finite(sum(abs(vlag))) .and. any(den > maxval(vlag(1:npt)**2)))) then
+        maxtemp = maxval(vlag(1:npt)**2)
+        if (ximproved .and. .not. (is_finite(sum(abs(vlag))) .and. any( den > maxtemp))) then
             ! Below are some alternatives conditions for calling RESCUE. They perform fairly well.
             ! !if (.false.) then  ! Do not call RESCUE at all.
             ! !if (ximproved .and. .not. any(den > 0.25_RP * maxval(vlag(1:npt)**2))) then

@@ -116,7 +116,7 @@ if (WIN32)
   set_target_properties(primaf PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 endif()
 
-install (DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/mod DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/prima)
+# install (DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/mod DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/prima)
 
 macro (prima_add_f_test name number)
   add_executable (example_${name}_fortran_${number}_exe EXCLUDE_FROM_ALL examples/${name}/${name}_example_${number}.f90)

@@ -439,6 +439,7 @@ character(len=*), parameter :: srname = 'QREXC_RFULL'
 integer(IK) :: k
 integer(IK) :: m
 integer(IK) :: n
+integer(IK) :: itr
 real(RP) :: G(2, 2)
 real(RP) :: hypt
 !------------------------------------------------------------!
@@ -466,7 +467,7 @@ if (DEBUGGING) then
     Anew = matprod(Q, R)
     Anew = reshape([Anew(:, 1:i - 1), Anew(:, i + 1:n), Anew(:, i)], shape(Anew))
     Qsave = Q  ! For debugging only.
-    Rsave = R(:, 1:i)  ! For debugging only.
+    Rsave = R(1:size(R,1), 1:i)  ! For debugging only.
 end if
 
 !====================!
@@ -493,11 +494,13 @@ do k = i, n - 1_IK
     hypt = hypotenuse(R(k + 1, k + 1), R(k, k + 1)) !hypt = sqrt(R(k, k + 1)**2 + R(k + 1, k + 1)**2)
 
     ! Update Q(:, [K, K+1]).
-    Q(:, [k, k + 1_IK]) = matprod(Q(:, [k + 1_IK, k]), transpose(G))
+    Q(1:size(Q,1), k+1_IK) = matprod(Q(1:size(Q,1), k+1_IK), transpose(G))
+    Q(1:size(Q,1), k) = matprod(Q(1:size(Q,1), k), transpose(G))
 
     ! Update R([K, K+1], :).
     R([k, k + 1_IK], k:n) = matprod(G, R([k + 1_IK, k], k:n))
-    R(1:k + 1, [k, k + 1_IK]) = R(1:k + 1, [k + 1_IK, k])
+    R(1:k + 1, k) = R(1:k + 1, k + 1_IK)
+    R(1:k + 1, k + 1_IK) = R(1:k + 1, k)
     ! N.B.: The above two lines implement the following while noting that R is upper triangular.
     ! !R([K, K + 1_IK], :) = MATPROD(G, R([K + 1_IK, K], :))  ! No need for R([K, K+1], 1:K-1) = 0
     ! !R(:, [K, K + 1_IK]) = R(:, [K + 1_IK, K])  ! No need for R(K+2:, [K, K+1]) = 0
@@ -1251,7 +1254,7 @@ v1 = (alpha * vlag(npt + 1:npt + n) - tau * hcol(npt + 1:npt + n)) / denom
 v2 = (-beta * hcol(npt + 1:npt + n) - tau * vlag(npt + 1:npt + n)) / denom
 bmat = bmat + outprod(v1, vlag) + outprod(v2, hcol) !call r2update(bmat, ONE, v1, vlag, ONE, v2, hcol)
 ! Numerically, the update above does not guarantee BMAT(:, NPT+1 : NPT+N) to be symmetric.
-call symmetrize(bmat(:, npt + 1:npt + n))
+call symmetrize(bmat(1:size(bmat,1), npt + 1:npt + n))
 
 ! Apply Givens rotations to put zeros in the KNEW-th row of ZMAT and set JL. After this,
 ! ZMAT(KNEW, :) contains at most two nonzero entries ZMAT(KNEW, 1) and ZMAT(KNEW, JL), one
@@ -1274,7 +1277,9 @@ do j = 2, npt - n - 1_IK
     if (.false.) then  ! Threshold comes from Powell's BOBYQA
         ! Multiply a Givens rotation to ZMAT from the right so that ZMAT(KNEW, [JL,J]) becomes [*,0].
         grot = planerot(zmat(knew, [jl, j]))  !!MATLAB: grot = planerot(zmat(knew, [jl, j])')
-        zmat(:, [jl, j]) = matprod(zmat(:, [jl, j]), transpose(grot))
+        zmat(1:size(zmat,1), jl) = matprod(zmat(1:size(zmat,1), jl), transpose(grot))
+        zmat(1:size(zmat,1), j) = matprod(zmat(1:size(zmat,1), j), transpose(grot))
+
     end if
     zmat(knew, j) = ZERO
 end do
@@ -1307,7 +1312,7 @@ if (jl == 1) then
     !----------------------------------------------------------------------------------------------!
 
     ! The following line updates ZMAT(:, 1) according to (4.18) of the NEWUOA paper.
-    zmat(:, 1) = tempa * zmat(:, 1) - tempb * vlag(1:npt)
+    zmat(1:size(zmat,1), 1) = tempa * zmat(1:size(zmat,1), 1) - tempb * vlag(1:npt)
 
     !----------------------------------------------------------------------------------------------!
     ! Zaikun 20220411: The update of IDZ is decoupled from the update of ZMAT, located after END IF.
@@ -1356,8 +1361,8 @@ else
     temp = zmat(knew, ja)
     scala = ONE / sqrt(abs(beta) * temp**2 + tau**2)  ! 1/SQRT(ZETA) in (4.19)-(4.20) of NEWUOA paper
     scalb = scala * sqrtdn
-    zmat(:, ja) = scala * (tau * zmat(:, ja) - temp * vlag(1:npt))
-    zmat(:, jb) = scalb * (zmat(:, jb) - tempa * hcol(1:npt) - tempb * vlag(1:npt))
+    zmat(1:size(zmat,1), ja) = scala * (tau * zmat(1:size(zmat,1), ja) - temp * vlag(1:npt))
+    zmat(1:size(zmat,1), jb) = scalb * (zmat(:, jb) - tempa * hcol(1:npt) - tempb * vlag(1:npt))
 
     !----------------------------------------------------------------------------------------------!
     ! Zaikun 20220411: The update of IDZ is decoupled from the update of ZMAT, located after END IF.
@@ -1401,7 +1406,8 @@ if (denom < 0) then
         ! Note that, in the case of (4.18), ZMAT(:, 1) (and implicitly S_1) rather than
         ! ZMAT(:, NPT-N-1) was updated by the code above.
         if (idz > 1) then
-            zmat(:, [1_IK, idz]) = zmat(:, [idz, 1_IK])
+            zmat(1:size(zmat,1), 1_IK) = zmat(1:size(zmat, 1), idz)
+            zmat(1:size(zmat,1), idz) = zmat(1:size(zmat, 1), 1_IK)
         end if
     end if
 end if

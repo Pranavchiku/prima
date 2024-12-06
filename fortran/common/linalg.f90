@@ -339,6 +339,7 @@ implicit none
 ! Inputs
 real(RP), intent(in) :: x(:)
 real(RP), intent(in) :: y(:, :)
+real(RP) :: tmp(size(x, 1))
 ! Outputs
 real(RP) :: z(size(y, 2))
 ! Local variables
@@ -358,7 +359,8 @@ do j = 1, int(size(y, 2), kind(j))
     ! When interfaced with MATLAB, the following seems more efficient than a loop, which is strange
     ! since inprod itself is implemented by a loop. This may depend on the machine (e.g., cache
     ! size), compiler, compiling options, and MATLAB version.
-    z(j) = inprod(x, y(:, j))
+    tmp = y(:, j)
+    z(j) = inprod(x, tmp)
 end do
 
 !====================!
@@ -384,6 +386,7 @@ implicit none
 ! Inputs
 real(RP), intent(in) :: x(:, :)
 real(RP), intent(in) :: y(:)
+real(RP) :: tmp(size(x, 1))
 ! Outputs
 real(RP) :: z(size(x, 1))
 ! Local variables
@@ -401,7 +404,8 @@ end if
 
 z = ZERO
 do j = 1, int(size(x, 2), kind(j))
-    z = z + x(:, j) * y(j)
+    tmp = x(:, j)
+    z = z + tmp * y(j)
 end do
 
 !====================!
@@ -427,8 +431,10 @@ implicit none
 ! Inputs
 real(RP), intent(in) :: x(:, :)
 real(RP), intent(in) :: y(:, :)
+real(RP) :: tmp_x(size(x, 1))
 ! Outputs
 real(RP) :: z(size(x, 1), size(y, 2))
+real(RP) :: tmp_z(size(x, 1))
 ! Local variables
 character(len=*), parameter :: srname = 'MATPROD22'
 integer(IK) :: i, j
@@ -445,7 +451,9 @@ end if
 z = ZERO
 do j = 1, int(size(y, 2), kind(j))
     do i = 1, int(size(x, 2), kind(i))
-        z(:, j) = z(:, j) + x(:, i) * y(i, j)
+        tmp_x = x(:, i)
+        tmp_z = z(:, j)
+        z(:, j) = tmp_z + tmp_x * y(i, j)
     end do
 end do
 
@@ -851,8 +859,10 @@ integer(IK) :: j
 integer(IK) :: k
 integer(IK) :: m
 integer(IK) :: n
+integer(IK) :: itr
 real(RP) :: G(2, 2)
 real(RP) :: Q_loc(size(A, 1), size(A, 1))
+real(RP) :: tmp_Q_loc(size(A,1))
 real(RP) :: T(size(A, 2), size(A, 1))
 real(RP) :: tol
 
@@ -899,19 +909,24 @@ do j = 1, n
         if (k > 1 .and. k <= n - j + 1) then
             k = k + j - 1_IK
             P([j, k]) = P([k, j])
-            T([j, k], :) = T([k, j], :)
+            ! T([j, k], :) = T([k, j], :)
+            do i = 1, m
+                T([j, k], i) = T([k, j], i)
+            end do
         end if
     end if
     do i = m, j + 1_IK, -1_IK
         G = transpose(planerot(T(j, [j, i])))
         T(j, [j, i]) = [hypotenuse(T(j, j), T(j, i)), ZERO]  !T(j, [j, i]) = [sqrt(T(j, j)**2 + T(j, i)**2), ZERO]
         T(j + 1:n, [j, i]) = matprod(T(j + 1:n, [j, i]), G)
-        Q_loc(:, [j, i]) = matprod(Q_loc(:, [j, i]), G)
+        Q_loc(:, j) = matprod(Q_loc(:, j), G)
+        Q_loc(:, i) = matprod(Q_loc(:, i), G)
+        ! Q_loc(:, [j, i]) = matprod(Q_loc(:, [j, i]), G)
     end do
 end do
 
 if (present(Q)) then
-    Q = Q_loc(:, 1:size(Q, 2))
+    Q = Q_loc(1:, 1:size(Q, 2))
 end if
 if (present(R)) then
     R = transpose(T(:, 1:size(R, 1)))

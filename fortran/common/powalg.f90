@@ -217,12 +217,13 @@ real(RP), intent(inout) :: R(:, :)  ! R(M, :), N+1 <= SIZE(R, 2) <= M
 
 ! Local variables
 character(len=*), parameter :: srname = 'QRADD_RFULL'
-integer(IK) :: k
+integer(IK) :: k, a1, b, c1
 integer(IK) :: m
 real(RP) :: cq(size(Q, 2))
 real(RP) :: G(2, 2)
 !------------------------------------------------------------!
 real(RP) :: Anew(size(Q, 1), n + 1)  ! Debugging only
+real(RP) :: flat_Anew(size(Q, 1) * (n + 1))  ! Debugging only
 real(RP) :: Qsave(size(Q, 1), n)  ! Debugging only
 real(RP) :: Rsave(size(R, 1), n)  ! Debugging only
 real(RP) :: tol  ! Debugging only
@@ -241,7 +242,15 @@ if (DEBUGGING) then
     call assert(isorth(Q, tol), 'The columns of Q are orthogonal', srname)
     call assert(istriu(R), 'R is upper triangular', srname)
     call assert(all(diag(R(:, 1:n)) > 0), 'DIAG(R(:, 1:N)) > 0', srname)
-    Anew = reshape([matprod(Q, R(:, 1:n)), c], shape(Anew))
+    ! Anew = reshape([matprod(Q, R(:, 1:n)), c], shape(Anew))
+    flat_Anew = [matprod(Q, R(:, 1:n)), c]
+    c1 = 1
+    do a1 = 1, size(Anew, 2)
+        do b = 1, size(Anew, 1)
+            Anew(b, a1) = flat_Anew(c1)
+            c1 = c1 + 1
+        end do
+    end do
     Qsave = Q(:, 1:n)  ! For debugging only.
     Rsave = R(:, 1:n)  ! For debugging only.
 end if
@@ -317,12 +326,13 @@ integer(IK), intent(in) :: i
 
 ! Local variables
 character(len=*), parameter :: srname = 'QREXC_RDIAG'
-integer(IK) :: k
+integer(IK) :: k, a1, b, c
 integer(IK) :: m
 integer(IK) :: n
 real(RP) :: G(2, 2)
 !------------------------------------------------------------!
 real(RP) :: Anew(size(A, 1), size(A, 2))  ! Debugging only
+real(RP) :: flat_Anew(size(A, 1) * size(A, 2))  ! Debugging only
 real(RP) :: Qsave(size(Q, 1), size(Q, 2))  ! Debugging only
 real(RP) :: QtAnew(size(Q, 2), size(A, 2))  ! Debugging only
 real(RP) :: Rdsave(i)  ! Debugging only
@@ -399,8 +409,15 @@ if (DEBUGGING) then
     Qsave(:, i:n) = Q(:, i:n)
     call assert(all(abs(Q - Qsave) <= 0), 'Q is unchanged except Q(:, I:N)', srname)
     call assert(all(abs(Rdiag(1:i - 1) - Rdsave(1:i - 1)) <= 0), 'Rdiag(1:I-1) is unchanged', srname)
-
-    Anew = reshape([A(:, 1:i - 1), A(:, i + 1:n), A(:, i)], shape(Anew))
+    ! Anew = reshape([A(:, 1:i - 1), A(:, i + 1:n), A(:, i)], shape(Anew))
+    flat_Anew = [A(:, 1:i - 1), A(:, i + 1:n), A(:, i)]
+    c = 1
+    do a1 = 1, size(Anew, 2)
+        do b = 1, size(Anew, 1)
+            Anew(b, a1) = flat_Anew(c)
+            c = c + 1
+        end do
+    end do
     QtAnew = matprod(transpose(Q), Anew)
     call assert(istriu(QtAnew, tol), 'Q^T*Anew is upper triangular', srname)
     ! The following test may fail if RDIAG is not calculated from scratch.
@@ -436,13 +453,14 @@ real(RP), intent(inout) :: R(:, :)  ! R(:, N), SIZE(R, 1) >= N
 
 ! Local variables
 character(len=*), parameter :: srname = 'QREXC_RFULL'
-integer(IK) :: k
+integer(IK) :: k, a1, b, c
 integer(IK) :: m
 integer(IK) :: n
 real(RP) :: G(2, 2)
 real(RP) :: hypt
 !------------------------------------------------------------!
 real(RP) :: Anew(size(Q, 1), size(R, 2))  ! Debugging only
+real(RP) :: flat_Anew(size(Q, 1) * size(R, 2))  ! Debugging only
 real(RP) :: Qsave(size(Q, 1), size(Q, 2))  ! Debugging only
 real(RP) :: Rsave(size(R, 1), i)  ! Debugging only
 real(RP) :: tol  ! Debugging only
@@ -464,7 +482,15 @@ if (DEBUGGING) then
     call assert(istriu(R), 'R is upper triangular', srname)
     call assert(all(diag(R(:, 1:n)) > 0), 'DIAG(R(:, 1:N)) > 0', srname)
     Anew = matprod(Q, R)
-    Anew = reshape([Anew(:, 1:i - 1), Anew(:, i + 1:n), Anew(:, i)], shape(Anew))
+    ! Anew = reshape([Anew(:, 1:i - 1), Anew(:, i + 1:n), Anew(:, i)], shape(Anew))
+    flat_Anew = [Anew(:, 1:i - 1), Anew(:, i + 1:n), Anew(:, i)]
+    c = 1
+    do a1 = 1, size(Anew, 2)
+        do b = 1, size(Anew, 1)
+            Anew(b, a1) = flat_Anew(c)
+            c = c + 1
+        end do
+    end do
     Qsave = Q  ! For debugging only.
     Rsave = R(:, 1:i)  ! For debugging only.
 end if

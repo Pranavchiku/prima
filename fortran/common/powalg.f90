@@ -217,12 +217,13 @@ real(RP), intent(inout) :: R(:, :)  ! R(M, :), N+1 <= SIZE(R, 2) <= M
 
 ! Local variables
 character(len=*), parameter :: srname = 'QRADD_RFULL'
-integer(IK) :: k
+integer(IK) :: k, a1, b, c1
 integer(IK) :: m
 real(RP) :: cq(size(Q, 2))
 real(RP) :: G(2, 2)
 !------------------------------------------------------------!
 real(RP) :: Anew(size(Q, 1), n + 1)  ! Debugging only
+real(RP) :: flat_Anew(size(Q, 1) * (n + 1))  ! Debugging only
 real(RP) :: Qsave(size(Q, 1), n)  ! Debugging only
 real(RP) :: Rsave(size(R, 1), n)  ! Debugging only
 real(RP) :: tol  ! Debugging only
@@ -241,7 +242,15 @@ if (DEBUGGING) then
     call assert(isorth(Q, tol), 'The columns of Q are orthogonal', srname)
     call assert(istriu(R), 'R is upper triangular', srname)
     call assert(all(diag(R(:, 1:n)) > 0), 'DIAG(R(:, 1:N)) > 0', srname)
-    Anew = reshape([matprod(Q, R(:, 1:n)), c], shape(Anew))
+    ! Anew = reshape([matprod(Q, R(:, 1:n)), c], shape(Anew))
+    flat_Anew = [matprod(Q, R(:, 1:n)), c]
+    c1 = 1
+    do a1 = 1, size(Anew, 2)
+        do b = 1, size(Anew, 1)
+            Anew(b, a1) = flat_Anew(c1)
+            c1 = c1 + 1
+        end do
+    end do
     Qsave = Q(:, 1:n)  ! For debugging only.
     Rsave = R(:, 1:n)  ! For debugging only.
 end if

@@ -335,6 +335,8 @@ real(RP), intent(inout), optional :: chist(:)
 real(RP), intent(inout), optional :: conhist(:, :)
 
 ! Local variables
+real(RP) :: new_xhist(size(xhist, 1), size(xhist, 2))
+real(RP), allocatable :: new_conhist(:, :)
 integer(IK) :: khist
 integer(IK) :: maxchist
 integer(IK) :: maxconhist
@@ -343,6 +345,7 @@ integer(IK) :: maxhist
 integer(IK) :: maxxhist
 integer(IK) :: m
 integer(IK) :: n
+integer(IK) :: i, j, k
 character(len=*), parameter :: srname = 'RANGEHIST'
 
 ! Sizes
@@ -357,6 +360,7 @@ end if
 if (present(conhist)) then
     m = int(size(conhist, 1), kind(m))
     maxconhist = int(size(conhist, 2), kind(maxconhist))
+    allocate(new_conhist(size(conhist, 1), size(conhist, 2)))
 else
     m = 0
     maxconhist = 0
@@ -399,7 +403,20 @@ if (maxxhist > 0 .and. maxxhist < nf) then
     ! We could replace MODULO(NF - 1_IK, MAXXHIST) + 1_IK) with MODULO(NF - 1_IK, MAXHIST) + 1_IK)
     ! based on the assumption that MAXXHIST == 0 or MAXHIST. For robustness, we do not do that.
     khist = modulo(nf - 1_IK, maxxhist) + 1_IK
-    xhist = reshape([xhist(:, khist + 1:maxxhist), xhist(:, 1:khist)], shape(xhist))
+    k = 1 
+    do j = khist + 1, maxxhist
+        do i = 1, size(xhist, 1)
+            new_xhist(i, k) = xhist(i, j)
+        end do
+        k = k + 1
+    end do
+    do j = 1, khist
+        do i = 1, size(xhist, 1)
+            new_xhist(i, k) = xhist(i, j)
+        end do
+        k = k + 1
+    end do
+    xhist = new_xhist
     ! N.B.:
     ! 1. The result of the array constructor is always a rank-1 array (e.g., vector), no matter what
     ! elements are used for the construction.
@@ -415,7 +432,20 @@ end if
 ! The ranging should be done only if 0 < MAXCONHIST < NF. Otherwise, it leads to errors/wrong results.
 if (maxconhist > 0 .and. maxconhist < nf) then
     khist = modulo(nf - 1_IK, maxconhist) + 1_IK
-    conhist = reshape([conhist(:, khist + 1:maxconhist), conhist(:, 1:khist)], shape(conhist))
+    k = 1 
+    do j = khist + 1, maxconhist
+        do i = 1, size(conhist, 1)
+            new_conhist(i, k) = conhist(i, j)
+        end do
+        k = k + 1
+    end do
+    do j = 1, khist
+        do i = 1, size(conhist, 1)
+            new_conhist(i, k) = conhist(i, j)
+        end do
+        k = k + 1
+    end do
+    conhist = new_conhist
 end if
 ! The ranging should be done only if 0 < MAXCHIST < NF. Otherwise, it leads to errors/wrong results.
 if (maxchist > 0 .and. maxchist < nf) then

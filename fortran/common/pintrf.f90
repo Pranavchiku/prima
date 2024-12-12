@@ -20,7 +20,7 @@ private
 public :: OBJ, OBJCON, CALLBACK
 
 
-abstract interface
+contains
 
     subroutine OBJ(x, f)
     use consts_mod, only : RP
@@ -50,7 +50,5 @@ abstract interface
     real(RP), intent(in), optional :: nlconstr(:)
     logical, intent(out), optional :: terminate
     end subroutine CALLBACK
-
-end interface
 
 end module pintrf_mod

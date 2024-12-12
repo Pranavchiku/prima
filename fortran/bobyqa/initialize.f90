@@ -474,6 +474,7 @@ integer(IK) :: k
 integer(IK) :: n
 integer(IK) :: ndiag
 integer(IK) :: npt
+integer(IK) :: itr
 real(RP) :: rhobeg
 real(RP) :: rhosq
 real(RP) :: xa(min(size(xpt, 1), size(xpt, 2) - size(xpt, 1) - 1))
@@ -534,7 +535,10 @@ end do
 do k = ndiag + 1_IK, npt - n - 1_IK
     zmat(1, k) = ONE / rhosq
     zmat(k + n + 1, k) = ONE / rhosq
-    zmat(ij(:, k - n) + 1, k) = -ONE / rhosq
+    ! zmat(ij(:, k - n) + 1, k) = -ONE / rhosq
+    do itr = lbound(ij, 1), ubound(ij, 1)
+        zmat(ij(itr, k - n) + 1, k) = -ONE / rhosq
+    end do
 end do
 
 if (present(info)) then

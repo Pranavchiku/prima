@@ -81,7 +81,7 @@ real(RP) :: d(size(A, 1))   ! D(N)
 
 ! Local variables
 character(len=*), parameter :: srname = 'TRSTLP'
-integer(IK) :: i
+integer(IK) :: i, j
 integer(IK) :: iact(size(b) + 1)
 integer(IK) :: m
 integer(IK) :: n
@@ -112,7 +112,13 @@ end if
 
 ! Form A_aug and B_aug. This allows the gradient of the objective function to be regarded as the
 ! gradient of a constraint in the second stage.
-A_aug = reshape([A, g], [n, m + 1_IK])  !!MATLAB: A_aug = [A, g];
+! A_aug = reshape([A, g], [n, m + 1_IK])  !!MATLAB: A_aug = [A, g];
+do i = 1, n
+    do j = 1, m
+        A_aug(i, j) = A(i, j)
+    end do
+    A_aug(i, m + 1) = g(i)    
+end do
 b_aug = [b, ZERO]  !!MATLAB: b_aug = [b; 0];
 
 ! Scale the problem if A_aug contains large values. Otherwise, floating point exceptions may occur.

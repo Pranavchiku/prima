@@ -189,7 +189,7 @@ do k = 1, n
 end do
 ! Set XPT(:, N+2 : MIN(2*N + 1, NPT)).
 do k = 1, min(npt - n - 1_IK, n)
-    ! xpt(k, k + n + 1) = -rhobeg
+    xpt(k, k + n) = -rhobeg
     if (sl(k) >= 0) then  ! SL(K) == 0
         xpt(k, k + n + 1) = min(TWO * rhobeg, su(k))
     end if
@@ -254,7 +254,7 @@ ij = setij(n, npt)
 ! N.B.: The 1 in IJ + 1 comes from the fact that XPT(:, 1) corresponds to XBASE.
 ! xpt(:, 2 * n + 2:npt) = xpt(:, ij(1, :) + 1) + xpt(:, ij(2, :) + 1)
 do itr1 = lbound(xpt, 1), ubound(xpt, 1)
-    ! xpt(itr1, 2 * n + 2:npt) = xpt(itr1, ij(1, :) + 1) + xpt(itr1, ij(2, :) + 1)
+    xpt(itr1, 2 * n + 2:npt) = xpt(itr1, ij(1, :) + 1)
 end do
 
 ! Set FVAL(2*N + 2 : NPT) by evaluating F. Totally parallelizable except for FMSG.

@@ -60,8 +60,8 @@ end if
 
 s = max(sl, min(su, step))
 x = max(xl, min(xu, xbase + s))
-x(trueloc(s <= sl)) = xl(trueloc(s <= sl))
-x(trueloc(s >= su)) = xu(trueloc(s >= su))
+! x(trueloc(s <= sl)) = xl(trueloc(s <= sl))
+! x(trueloc(s >= su)) = xu(trueloc(s >= su))
 
 !====================!
 !  Calculation ends  !

@@ -231,8 +231,8 @@ if (present(callback_fcn)) then
 end if
 
 ! Initialize X and F according to KOPT.
-x = xinbd(xbase, xpt(:, kopt), xl, xu, sl, su)  ! In precise arithmetic, X = XBASE + XOPT.
-f = fval(kopt)
+! x = xinbd(xbase, xpt(:, kopt), xl, xu, sl, su)  ! In precise arithmetic, X = XBASE + XOPT.
+! f = fval(kopt)
 
 ! Finish the initialization if INITXF completed normally and CALLBACK did not request termination;
 ! otherwise, do not proceed, as XPT etc may be uninitialized, leading to errors or exceptions.

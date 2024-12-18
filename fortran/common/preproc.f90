@@ -339,8 +339,8 @@ if (lower(solver) == 'bobyqa') then
     rhobeg_old = rhobeg
     lbx = (is_finite(xl) .and. x0 - xl <= EPS * max(ONE, abs(xl))) ! X0 essentially equals XL
     ubx = (is_finite(xu) .and. x0 - xu >= -EPS * max(ONE, abs(xu))) ! X0 essentially equals XU
-    x0(trueloc(lbx)) = xl(trueloc(lbx))
-    x0(trueloc(ubx)) = xu(trueloc(ubx))
+    ! x0(trueloc(lbx)) = xl(trueloc(lbx))
+    ! x0(trueloc(ubx)) = xu(trueloc(ubx))
     rhobeg = max(EPS, minval([rhobeg, x0(falseloc(lbx)) - xl(falseloc(lbx)), xu(falseloc(ubx)) - x0(falseloc(ubx))]))
     if (rhobeg_old - rhobeg > EPS * max(ONE, rhobeg_old)) then
         rhoend = max(EPS, min((rhoend / rhobeg_old) * rhobeg, rhoend)) ! We do not revise RHOEND unless RHOBEG is truly revised.

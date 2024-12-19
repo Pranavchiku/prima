@@ -222,6 +222,7 @@ real(RP) :: xbase(size(x))
 real(RP) :: xdrop(size(x))
 real(RP) :: xosav(size(x))
 real(RP) :: xpt(size(x), npt)
+real(RP) :: tmp(size(x))
 real(RP) :: zmat(npt, npt - size(x) - 1)
 real(RP), parameter :: trtol = 1.0E-2_RP  ! Convergence tolerance of trust-region subproblem solver
 
@@ -269,8 +270,9 @@ if (callback_fcn_pres) then
 end if
 
 ! Initialize X and F according to KOPT.
-! x = xinbd(xbase, xpt(:, kopt), xl, xu, sl, su)  ! In precise arithmetic, X = XBASE + XOPT.
-! f = fval(kopt)
+tmp = xpt(:, kopt)
+x = xinbd(xbase, tmp, xl, xu, sl, su)  ! In precise arithmetic, X = XBASE + XOPT.
+f = fval(kopt)
 
 ! Finish the initialization if INITXF completed normally and CALLBACK did not request termination;
 ! otherwise, do not proceed, as XPT etc may be uninitialized, leading to errors or exceptions.

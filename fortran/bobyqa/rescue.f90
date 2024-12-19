@@ -167,7 +167,10 @@ real(RP) :: hdiag(size(xpt, 2))
 real(RP) :: moderr
 real(RP) :: pqinc(size(xpt, 2))
 real(RP) :: ptsaux(2, size(xpt, 1))
+real(RP) :: ptsaux_(2, size(xpt, 1))
 real(RP) :: ptsid(size(xpt, 2))
+integer(IK) :: itr1, itr2
+integer(IK), allocatable :: tmp_output(:), mask_(:)
 real(RP) :: score(size(xpt, 2))
 real(RP) :: scoreinc
 real(RP) :: sfrac
@@ -176,7 +179,8 @@ real(RP) :: v(size(xpt, 1))
 real(RP) :: vlag(size(xpt, 1) + size(xpt, 2))
 real(RP) :: vlag_(size(xpt, 1) + size(xpt, 2))
 real(RP) :: bmat_(size(bmat,1), size(bmat,2))  
-real(RP) :: zmat_(size(zmat,1), size(zmat,2))  
+real(RP) :: zmat_(size(zmat,1), size(zmat,2))
+real(RP) :: zmat__(size(zmat, 2))
 real(RP) :: vquad
 real(RP) :: wmv(size(xpt, 1) + size(xpt, 2))
 real(RP) :: x(size(xpt, 1))
@@ -258,7 +262,13 @@ call r2update(hq, ONE, xopt, v)
 ptsaux(1, :) = min(delta, su)
 ptsaux(2, :) = max(-delta, sl)
 mask = (ptsaux(1, :) + ptsaux(2, :) < 0)
-ptsaux([1, 2], trueloc(mask)) = ptsaux([2, 1], trueloc(mask))
+! ptsaux([1, 2], trueloc(mask)) = ptsaux([2, 1], trueloc(mask))
+allocate(mask_(count(mask)))
+mask_ = trueloc(mask)
+ptsaux_ = ptsaux
+ptsaux(1, mask_) = ptsaux_(2, mask_)
+ptsaux(2, mask_) = ptsaux_(1, mask_)
+deallocate(mask_)
 mask = (abs(ptsaux(2, :)) < HALF * abs(ptsaux(1, :)))
 ptsaux(2, trueloc(mask)) = HALF * ptsaux(1, trueloc(mask))
 
@@ -403,8 +413,17 @@ do iter = 1, maxiter
     ! For all K with PTSID(K) > 0, calculate the denominator DEN(K) = SIGMA in the updating formula
     ! of H for XPT(:, KORIG) to replace XPT_PROV(:, K).
     den = ZERO
-    hdiag(trueloc(ptsid > 0)) = sum(zmat(trueloc(ptsid > 0), :)**2, dim=2)
-    den(trueloc(ptsid > 0)) = hdiag(trueloc(ptsid > 0)) * beta + vlag(trueloc(ptsid > 0))**2
+    allocate(tmp_output(count(ptsid > 0)))
+    tmp_output = trueloc(ptsid > 0)
+    ! hdiag(tmp_output) = sum(zmat(tmp_output, :)**2, dim=2)
+    do itr1 = lbound(tmp_output, 1), ubound(tmp_output, 1)
+        hdiag(tmp_output(itr1)) = ZERO
+        zmat__ = zmat(tmp_output(itr1), :)
+        hdiag(tmp_output(itr1)) = sum(zmat__**2)
+        den(tmp_output(itr1)) = hdiag(tmp_output(itr1)) * beta + vlag(tmp_output(itr1))**2
+    end do
+    deallocate(tmp_output)
+    ! den(trueloc(ptsid > 0)) = hdiag(trueloc(ptsid > 0)) * beta + vlag(trueloc(ptsid > 0))**2
 
     ! Attempt setting KPROV to the index of the provisional point to be replaced with the KORIG-th
     ! original interpolation point. We choose KPROV by maximizing DEN(KPROV), which will be the

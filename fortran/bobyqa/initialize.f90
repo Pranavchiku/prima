@@ -88,6 +88,7 @@ integer(IK) :: maxhist
 integer(IK) :: maxxhist
 integer(IK) :: n
 integer(IK) :: npt
+integer(IK) :: itr1, itr2
 integer(IK) :: subinfo
 logical :: evaluated(size(xpt, 2))
 real(RP) :: f
@@ -251,7 +252,10 @@ ij = setij(n, npt)
 ! Set XPT(:, 2*N + 2 : NPT). It depends on XPT(:, 1 : 2*N + 1) and hence on FVAL(1: 2*N + 1).
 ! Indeed, XPT(:, K) has only two nonzeros for each K >= 2*N+2.
 ! N.B.: The 1 in IJ + 1 comes from the fact that XPT(:, 1) corresponds to XBASE.
-xpt(:, 2 * n + 2:npt) = xpt(:, ij(1, :) + 1) + xpt(:, ij(2, :) + 1)
+! xpt(:, 2 * n + 2:npt) = xpt(:, ij(1, :) + 1) + xpt(:, ij(2, :) + 1)
+do itr1 = lbound(xpt, 1), ubound(xpt, 1)
+    xpt(itr1, 2 * n + 2:npt) = xpt(itr1, ij(1, :) + 1) + xpt(itr1, ij(2, :) + 1)
+end do
 
 ! Set FVAL(2*N + 2 : NPT) by evaluating F. Totally parallelizable except for FMSG.
 if (info == INFO_DFT) then

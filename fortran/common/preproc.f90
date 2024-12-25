@@ -80,6 +80,8 @@ logical :: lbx(n)
 logical :: ubx(n)
 real(RP) :: rhobeg_default
 real(RP) :: rhobeg_old
+real(RP) :: temp
+real(RP) :: temp2
 real(RP) :: rhoend_default
 real(RP) :: x0_old(n)
 integer(IK) :: i
@@ -353,7 +355,11 @@ if (lower(solver) == 'bobyqa') then
     do i = 1, count(ubx)
         x0(mask2(i)) = xu(mask2(i))
     end do
-    rhobeg = max(EPS, minval([rhobeg, x0(falseloc(lbx)) - xl(falseloc(lbx)), xu(falseloc(ubx)) - x0(falseloc(ubx))]))
+    mask = falseloc(lbx)
+    mask2 = falseloc(ubx)
+    temp = minval(x0(mask) - xl(mask))
+    temp2 = minval(xu(mask2) - x0(mask2))
+    rhobeg = max(EPS, minval([rhobeg, temp, temp2]))
     if (rhobeg_old - rhobeg > EPS * max(ONE, rhobeg_old)) then
         rhoend = max(EPS, min((rhoend / rhobeg_old) * rhobeg, rhoend)) ! We do not revise RHOEND unless RHOBEG is truly revised.
         if (has_rhobeg) then

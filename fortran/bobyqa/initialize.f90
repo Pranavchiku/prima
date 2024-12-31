@@ -87,7 +87,7 @@ integer(IK) :: maxfhist
 integer(IK) :: maxhist
 integer(IK) :: maxxhist
 integer(IK) :: n
-integer(IK) :: npt
+integer(IK) :: npt, itr
 integer(IK) :: itr1, itr2
 integer(IK) :: subinfo
 logical :: evaluated(size(xpt, 2))
@@ -95,6 +95,7 @@ real(RP) :: f
 real(RP) :: x(size(xpt, 1))
 real(RP) :: xpt_(size(xpt, 1), size(xpt, 2))  
 real(RP) :: fval_(size(fval)) 
+real(RP) :: tmp(size(xpt, 1))
 integer :: i, col
 integer :: source_col_1, source_col_2
 
@@ -189,7 +190,7 @@ do k = 1, n
 end do
 ! Set XPT(:, N+2 : MIN(2*N + 1, NPT)).
 do k = 1, min(npt - n - 1_IK, n)
-    ! xpt(k, k + n + 1) = -rhobeg
+    xpt(k, k + n + 1) = -rhobeg
     if (sl(k) >= 0) then  ! SL(K) == 0
         xpt(k, k + n + 1) = min(TWO * rhobeg, su(k))
     end if
@@ -200,7 +201,8 @@ end do
 
 ! Set FVAL(1 : MIN(2*N + 1, NPT)) by evaluating F. Totally parallelizable except for FMSG.
 do k = 1, min(npt, int(2 * n + 1, kind(npt)))
-    ! x = xinbd(xbase, xpt(:, k), xl, xu, sl, su)  ! In precise arithmetic, X = XBASE + XPT(:, K).
+    tmp = xpt(:, k)
+    x = xinbd(xbase, tmp, xl, xu, sl, su)  ! In precise arithmetic, X = XBASE + XPT(:, K).
     call evaluate(calfun, x, f)
 
     ! Print a message about the function evaluation according to IPRINT.
@@ -255,6 +257,11 @@ ij = setij(n, npt)
 ! xpt(:, 2 * n + 2:npt) = xpt(:, ij(1, :) + 1) + xpt(:, ij(2, :) + 1)
 do itr1 = lbound(xpt, 1), ubound(xpt, 1)
     ! xpt(itr1, 2 * n + 2:npt) = xpt(itr1, ij(1, :) + 1) + xpt(itr1, ij(2, :) + 1)
+    do itr = 2*n+2, npt
+        source_col_1 = ij(1, itr - 2*n - 1) + 1
+        source_col_2 = ij(2, itr - 2*n - 1) + 1
+        xpt(itr1, itr) = xpt(itr1, source_col_1) + xpt(itr1, source_col_2)
+    end do
 end do
 
 ! Set FVAL(2*N + 2 : NPT) by evaluating F. Totally parallelizable except for FMSG.

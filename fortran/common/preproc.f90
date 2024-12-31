@@ -82,6 +82,8 @@ real(RP) :: rhobeg_default
 real(RP) :: rhobeg_old
 real(RP) :: rhoend_default
 real(RP) :: x0_old(n)
+integer(IK) :: i
+integer(IK), allocatable :: mask(:), mask2(:)
 
 ! Preconditions
 if (DEBUGGING) then
@@ -339,8 +341,18 @@ if (lower(solver) == 'bobyqa') then
     rhobeg_old = rhobeg
     lbx = (is_finite(xl) .and. x0 - xl <= EPS * max(ONE, abs(xl))) ! X0 essentially equals XL
     ubx = (is_finite(xu) .and. x0 - xu >= -EPS * max(ONE, abs(xu))) ! X0 essentially equals XU
+    allocate(mask(count(lbx)))
+    mask = trueloc(lbx)
+    do i = 1, count(lbx)
+        x0(mask(i)) = xl(mask(i))
+    end do
     ! x0(trueloc(lbx)) = xl(trueloc(lbx))
     ! x0(trueloc(ubx)) = xu(trueloc(ubx))
+    allocate(mask2(count(ubx)))
+    mask2 = trueloc(ubx)
+    do i = 1, count(ubx)
+        x0(mask2(i)) = xu(mask2(i))
+    end do
     rhobeg = max(EPS, minval([rhobeg, x0(falseloc(lbx)) - xl(falseloc(lbx)), xu(falseloc(ubx)) - x0(falseloc(ubx))]))
     if (rhobeg_old - rhobeg > EPS * max(ONE, rhobeg_old)) then
         rhoend = max(EPS, min((rhoend / rhobeg_old) * rhobeg, rhoend)) ! We do not revise RHOEND unless RHOBEG is truly revised.

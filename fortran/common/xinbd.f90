@@ -20,7 +20,7 @@ function xinbd(xbase, step, xl, xu, sl, su) result(x)
 ! Common modules
 use, non_intrinsic :: consts_mod, only : RP, IK, ONE, EPS, DEBUGGING
 use, non_intrinsic :: debug_mod, only : assert
-use, non_intrinsic :: linalg_mod, only : trueloc
+use, non_intrinsic :: linalg_mod, only : trueloc, linspace
 use, non_intrinsic :: infnan_mod, only : is_finite
 
 implicit none
@@ -32,6 +32,10 @@ real(RP), intent(in) :: xl(:)
 real(RP), intent(in) :: xu(:)
 real(RP), intent(in) :: sl(:)
 real(RP), intent(in) :: su(:)
+integer(IK) :: i
+logical, allocatable :: mask(:)
+integer(IK), allocatable :: tmp(:)
+integer(IK), allocatable :: tmp2(:)
 
 ! Outputs
 real(RP) :: x(size(xbase))
@@ -60,8 +64,32 @@ end if
 
 s = max(sl, min(su, step))
 x = max(xl, min(xu, xbase + s))
-x(trueloc(s <= sl)) = xl(trueloc(s <= sl))
-x(trueloc(s >= su)) = xu(trueloc(s >= su))
+allocate(mask(size(s)))
+! mask = trueloc(s <= sl)
+mask = s<=sl
+allocate(tmp(count(mask)))
+tmp = trueloc(mask)
+! x(trueloc(s <= sl)) = xl(trueloc(s <= sl))
+! x(tmp) = xl(tmp)
+do i = 1, count(mask)
+    x(tmp(i)) = xl(tmp(i))
+end do
+
+mask = s >= su
+allocate(tmp2(count(mask)))
+tmp2 = trueloc(mask)
+! x(trueloc(s >= su)) = xu(trueloc(s >= su))
+! x(tmp) = xu(tmp)
+do i = 1, count(mask)
+    x(tmp2(i)) = xu(tmp2(i))
+end do
+
+! deallocate(tmp)
+! allocate(mask(count(s>=su)))
+! ! x(trueloc(s >= su)) = xu(trueloc(s >= su))
+! mask = trueloc(s >= su)
+! x(mask) = xu(mask)
+! deallocate(mask)
 
 !====================!
 !  Calculation ends  !

@@ -69,6 +69,7 @@ real(RP) :: tau
 real(RP) :: v1(size(bmat, 1))
 real(RP) :: v2(size(bmat, 1))
 real(RP) :: vlag(size(bmat, 2))
+real(RP) :: temp1(size(zmat,1), size(zmat,2))
 
 ! Sizes.
 n = int(size(xpt, 1), kind(n))
@@ -161,7 +162,8 @@ end do
 
 ! Complete the updating of ZMAT. See (4.14) of the BOBYQA paper.
 sqrtdn = sqrt(denom)
-zmat(:, 1) = (tau / sqrtdn) * zmat(:, 1) - (zmat(knew, 1) / sqrtdn) * vlag(1:npt)
+temp1 = zmat
+zmat(:, 1) = (tau / sqrtdn) * temp1(:, 1) - (temp1(knew, 1) / sqrtdn) * vlag(1:npt)
 ! Zaikun 20231012: Either of the following two lines worsens the performance of BOBYQA when the
 ! objective function is evaluated with 5 or less correct significance digits. Strange.
 ! !zmat(:, 1) = (tau * zmat(:, 1) - zmat(knew, 1) * vlag(1:npt)) / sqrtdn

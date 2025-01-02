@@ -339,7 +339,7 @@ implicit none
 ! Inputs
 real(RP), intent(in) :: x(:)
 real(RP), intent(in) :: y(:, :)
-real(RP) :: tmp(size(x, 1))
+real(RP) :: tmp(size(y, 1))
 ! Outputs
 ! real(RP) :: z(size(y, 2)) --> Original Code
 real(RP), allocatable :: z_(:)

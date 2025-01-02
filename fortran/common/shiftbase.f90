@@ -65,7 +65,7 @@ real(RP), intent(inout) :: xpt(:, :)    ! XPT(N, NPT)
 character(len=*), parameter :: srname = 'SHIFTBASE_LFQINT'
 integer(IK) :: idz_loc
 integer(IK) :: k
-integer(IK) :: n
+integer(IK) :: n, i, j
 integer(IK) :: npt
 real(RP) :: bymat(size(xbase), size(xbase))
 !real(RP) :: htol
@@ -78,6 +78,7 @@ real(RP) :: xoptsq
 real(RP) :: xptxav(size(xpt, 1), size(xpt, 2))
 real(RP) :: ymat(size(xpt, 1), size(xpt, 2))
 real(RP) :: yzmat(size(xbase), size(zmat, 2))
+real(RP) :: spread_xopt(size(xbase), size(xpt, 2))
 real(RP) :: yzmat_c(size(xbase), size(zmat, 2))
 
 ! Sizes
@@ -115,10 +116,14 @@ end if
 ! Read XOPT.
 xopt = xpt(:, kopt)
 xoptsq = inprod(xopt, xopt)
-
+do j = 1, npt
+    do i = 1, size(xpt, 1)
+        spread_xopt(i, j) = xopt(i)
+    end do
+end do
 ! Update BMAT. See (7.11)--(7.12) of the NEWUOA paper and the elaborations around.
 ! XPTXAV corresponds to XPT - XAV in the NEWUOA paper, with XAV = (X0 + XOPT)/2.
-xptxav = xpt - HALF * spread(xopt, dim=2, ncopies=npt)
+xptxav = xpt - HALF * spread_xopt
 !!MATLAB: xptxav = xpt - xopt/2  % xopt should be a column! Implicit expansion
 !sxpt = matprod(xopt, xptxav)
 sxpt = matprod(xopt, xpt) - HALF * xoptsq  ! This one seems to work better numerically.
@@ -148,7 +153,7 @@ hq = (vxopt + transpose(vxopt)) + hq !call r2update(hq, ONE, xopt, v)
 
 ! The following instructions complete the shift of XBASE.
 xbase = xbase + xopt
-xpt = xpt - spread(xopt, dim=2, ncopies=npt)
+xpt = xpt - spread_xopt
 xpt(:, kopt) = ZERO
 !!MATLAB: xpt = xpt - xopt; xpt(:, kopt) = 0;  % xopt should be a column! Implicit expansion
 
@@ -199,9 +204,10 @@ real(RP), intent(inout) :: pq(:)  ! PQ(NPT-1)
 ! Local variables
 character(len=*), parameter :: srname = 'SHIFTBASE_QINT'
 integer(IK) :: k
-integer(IK) :: n
+integer(IK) :: n, i, j
 integer(IK) :: npt
 real(RP) :: xopt(size(xbase))
+real(RP) :: spread_xopt(size(xbase), size(xpt, 2))
 
 ! Sizes
 n = int(size(xpt, 1), kind(n))
@@ -225,7 +231,12 @@ end if
 ! Shift the base point from XBASE to XBASE + XOPT.
 xopt = xpt(:, kopt)
 xbase = xbase + xopt
-xpt = xpt - spread(xopt, dim=2, ncopies=npt)
+do j = 1, npt
+    do i = 1, size(xpt, 1)
+        spread_xopt(i, j) = xopt(i)
+    end do
+end do
+xpt = xpt - spread_xopt
 xpt(:, kopt) = ZERO
 
 ! Update the gradient of the model

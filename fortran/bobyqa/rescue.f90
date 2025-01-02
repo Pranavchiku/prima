@@ -142,7 +142,7 @@ integer(IK) :: ij(2, max(0, size(xpt, 2) - 2 * size(xpt, 1) - 1))
 integer(IK) :: ip
 integer(IK) :: iq
 integer(IK) :: iter
-integer(IK) :: j
+integer(IK) :: j, i
 integer(IK) :: k
 integer(IK) :: kbase
 integer(IK) :: korig
@@ -185,6 +185,7 @@ real(RP) :: wmv(size(xpt, 1) + size(xpt, 2))
 real(RP) :: x(size(xpt, 1))
 real(RP) :: xnew(size(xpt, 1))
 real(RP) :: xopt(size(xpt, 1))
+real(RP) :: xpt_(size(xpt, 1), size(xpt, 2))
 real(RP) :: xp
 real(RP) :: xq
 real(RP) :: xxpt(size(xpt, 2))
@@ -249,7 +250,12 @@ xopt = xpt(:, kopt)
 sl = min(sl - xopt, ZERO)
 su = max(su - xopt, ZERO)
 xbase = min(max(xl, xbase + xopt), xu)
-xpt = xpt - spread(xopt, dim=2, ncopies=npt)
+do j = 1, npt
+    do i = 1, size(xopt)
+        xpt_(i, j) = xopt(i)
+    end do
+end do
+xpt = xpt - xpt_
 xpt(:, kopt) = ZERO
 
 ! Update HQ so that HQ and PQ define the second derivatives of the model after XBASE has been

@@ -80,6 +80,8 @@ real(RP) :: ymat(size(xpt, 1), size(xpt, 2))
 real(RP) :: yzmat(size(xbase), size(zmat, 2))
 real(RP) :: spread_xopt(size(xbase), size(xpt, 2))
 real(RP) :: yzmat_c(size(xbase), size(zmat, 2))
+real(RP) :: bmat_(size(bmat,1), size(bmat,1))  
+real(RP) :: bmat_2(size(bmat,1), size(xpt,2))  
 
 ! Sizes
 n = int(size(xpt, 1), kind(n))
@@ -141,9 +143,10 @@ bmat(:, npt + 1:npt + n) = bmat(:, npt + 1:npt + n) + (bymat + transpose(bymat))
 yzmat = matprod(ymat, zmat)
 yzmat_c = yzmat
 yzmat_c(:, 1:idz_loc - 1) = -yzmat(:, 1:idz_loc - 1)  ! IDZ_LOC is usually small. So this assignment is cheap.
-bmat(:, npt + 1:npt + n) = bmat(:, npt + 1:npt + n) + matprod(yzmat, transpose(yzmat_c))
-bmat(:, 1:npt) = bmat(:, 1:npt) + matprod(yzmat_c, transpose(zmat))
-
+bmat_ = matprod(yzmat, transpose(yzmat_c))
+bmat_2 = matprod(yzmat_c, transpose(zmat))
+bmat(:, npt + 1:npt + n) = bmat(:, npt + 1:npt + n) + bmat_
+bmat(:, 1:npt) = bmat(:, 1:npt) + bmat_2
 ! Update the quadratic model. Note that PQ remains unchanged. For HQ, see (7.14) of the NEWUOA paper.
 !v = matprod(xptxav, pq)  ! Vector V in (7.14) of the NEWUOA paper
 v = matprod(xpt, pq) - HALF * sum(pq) * xopt ! This one seems to work better numerically.

@@ -168,7 +168,8 @@ real(RP) :: moderr
 real(RP) :: pqinc(size(xpt, 2))
 real(RP) :: ptsaux(2, size(xpt, 1))
 real(RP) :: ptsid(size(xpt, 2))
-integer(IK) :: tmp_output(size(xpt, 2)), itr1, itr2
+integer(IK), allocatable :: tmp_output(:)
+integer(IK) :: itr1, itr2, itr3, tmp_val
 real(RP) :: score(size(xpt, 2))
 real(RP) :: scoreinc
 real(RP) :: sfrac
@@ -413,6 +414,7 @@ do iter = 1, maxiter
     ! For all K with PTSID(K) > 0, calculate the denominator DEN(K) = SIGMA in the updating formula
     ! of H for XPT(:, KORIG) to replace XPT_PROV(:, K).
     den = ZERO
+    allocate(tmp_output(count(ptsid > 0)))
     tmp_output = trueloc(ptsid > 0)
     ! hdiag(tmp_output) = sum(zmat(tmp_output, :)**2, dim=2)
     do itr1 = lbound(tmp_output, 1), ubound(tmp_output, 1)
@@ -420,6 +422,7 @@ do iter = 1, maxiter
         zmat__ = zmat(tmp_output(itr1), :)
         hdiag(trueloc(ptsid > 0)) = sum(zmat__**2)
     end do
+    deallocate(tmp_output)
     ! den(trueloc(ptsid > 0)) = hdiag(trueloc(ptsid > 0)) * beta + vlag(trueloc(ptsid > 0))**2
 
     ! Attempt setting KPROV to the index of the provisional point to be replaced with the KORIG-th

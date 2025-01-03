@@ -331,6 +331,7 @@ character(len=*), parameter :: srname = 'UPDATERES'
 integer(IK) :: m
 integer(IK) :: n
 logical :: mask(size(b))
+integer(IK), allocatable :: mask_(:)
 real(RP) :: ax(size(b))
 
 ! Sizes
@@ -361,7 +362,9 @@ if (.not. ximproved) then
 end if
 
 mask = (abs(rescon) < dnorm + delta)
-ax(trueloc(mask)) = matprod(xopt, amat(:, trueloc(mask)))
+allocate(mask_(count(mask)))
+mask_ = trueloc(mask)
+ax(mask_) = matprod(xopt, amat(:, mask_))
 where (mask)
     rescon = max(b - ax, ZERO)
 elsewhere

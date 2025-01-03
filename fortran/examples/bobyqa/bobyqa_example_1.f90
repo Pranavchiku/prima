@@ -82,4 +82,7 @@ program bobyqa_exmp
  x = x0
 call bobyqa(calfun, x, f, lb, ub, rhobeg=1.0_RP, iprint=1_IK, nf=nf, info=info, callback_fcn=callback_fcn)
 
+if (any(abs(x - [4.5_RP, 4.0_RP]) > 1.0e-12_RP)) error stop
+if (abs(f - 0.25_RP) > 1.0e-12_RP)  error stop
+if (nf /= 22) error stop
 end program bobyqa_exmp

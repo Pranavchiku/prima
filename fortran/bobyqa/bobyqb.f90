@@ -636,10 +636,11 @@ do tr = 1, maxtr
     ! 1. After a trust region step that is not short, shift XBASE if SUM(XOPT**2) >= 1.0E3*DNORM**2.
     ! In this case, it seems quite important for the performance to recalculate QRED.
     ! 2. Before a geometry step, shift XBASE if SUM(XOPT**2) >= 1.0E3*DELBAR**2.
-    if (sum(xpt(:, kopt)**2) >= 1.0E3_RP * delta**2) then
+    tmp = xpt(:, kopt) 
+    if (sum(tmp**2) >= 1.0E3_RP * delta**2) then
         ! Other possible criteria: SUM(XOPT**2) >= 1.0E4*DELTA**2, SUM(XOPT**2) >= 1.0E4*RHO**2.
-        sl = min(sl - xpt(:, kopt), ZERO)
-        su = max(su - xpt(:, kopt), ZERO)
+        sl = min(sl - tmp, ZERO)
+        su = max(su - tmp, ZERO)
         call shiftbase(kopt, xbase, xpt, zmat, bmat, pq, hq)
         xbase = max(xl, min(xu, xbase))
     end if

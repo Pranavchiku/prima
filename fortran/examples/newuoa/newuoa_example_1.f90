@@ -77,5 +77,8 @@ program newuoa_exmp
  ! take their default values coded in the solver.
  x = x0
  call newuoa(calfun, x, f, rhobeg=1.0_RP, iprint=1_IK, nf=nf, info=info, callback_fcn=callback_fcn)
-
+ 
+ if(nf /= 22) error stop  
+ if(abs(f - 1.5777218104420236e-30_RP) > 10e-12_RP) error stop
+ if(any(abs(x - [5.0_RP, 4.0_RP]) > 10e-12_RP)) error stop
 end program newuoa_exmp

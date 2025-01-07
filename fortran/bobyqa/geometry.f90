@@ -61,9 +61,10 @@ integer(IK) :: knew
 
 ! Local variables
 character(len=*), parameter :: srname = 'SETDROP_TR'
-integer(IK) :: n, i, j
+integer(IK) :: n, i, j, k
 integer(IK) :: npt
 real(RP) :: den(size(xpt, 2))
+real(RP) :: temp_xpt(size(xpt, 1))
 real(RP) :: distsq(size(xpt, 2))
 real(RP) :: score(size(xpt, 2))
 real(RP) :: weight(size(xpt, 2))
@@ -110,10 +111,18 @@ do j = 1, npt
     end do
 end do
 if (ximproved) then
-    distsq = sum((xpt - xpt_)**2, dim=1)
+    do k = 1, npt
+        temp_xpt = xpt(:, kopt) + d
+        distsq(k) = sum((xpt(:, k) - temp_xpt)**2)
+    end do
+    !distsq = sum((xpt - xpt_)**2, dim=1)
     !!MATLAB: distsq = sum((xpt - (xpt(:, kopt) + d)).^2)  % d should be a column! Implicit expansion
 else
-    distsq = sum((xpt - spread(xpt(:, kopt), dim=2, ncopies=npt))**2, dim=1)
+    do k = 1, npt
+        temp_xpt = xpt(:, kopt)
+        distsq(k) = sum((xpt(:, k) - temp_xpt)**2)
+    end do
+    !distsq = sum((xpt - spread(xpt(:, kopt), dim=2, ncopies=npt))**2, dim=1)
     !!MATLAB: distsq = sum((xpt - xpt(:, kopt)).^2)  % Implicit expansion
 end if
 

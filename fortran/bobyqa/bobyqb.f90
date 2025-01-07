@@ -141,7 +141,7 @@ integer(IK) :: maxfhist
 integer(IK) :: maxhist
 integer(IK) :: maxtr
 integer(IK) :: maxxhist
-integer(IK) :: n
+integer(IK) :: n, i, j
 integer(IK) :: subinfo
 integer(IK) :: tr
 logical :: accurate_mod
@@ -184,6 +184,7 @@ real(RP) :: xbase(size(x))
 real(RP) :: xdrop(size(x))
 real(RP) :: xosav(size(x))
 real(RP) :: xpt(size(x), npt)
+real(RP) :: spread_xopt(size(x), npt)
 real(RP) :: tmp(size(x))
 real(RP) :: zmat(npt, npt - size(x) - 1)
 real(RP), parameter :: trtol = 1.0E-2_RP  ! Convergence tolerance of trust-region subproblem solver
@@ -464,7 +465,12 @@ do tr = 1, maxtr
     ! ACCURATE_MOD: Are the recent models sufficiently accurate? Used only if SHORTD is TRUE.
     accurate_mod = all(abs(moderr_rec) <= ebound) .and. all(dnorm_rec <= rho)
     ! CLOSE_ITPSET: Are the interpolation points close to XOPT?
-    distsq = sum((xpt - spread(xpt(:, kopt), dim=2, ncopies=npt))**2, dim=1)
+    do j = 1, npt
+        do i = 1, size(xpt, 1)
+            spread_xopt(i, j) = xpt(i, kopt)
+        end do
+    end do
+    distsq = sum((xpt - spread_xopt)**2, dim=1)
     !!MATLAB: distsq = sum((xpt - xpt(:, kopt)).^2)  % Implicit expansion
     close_itpset = all(distsq <= max(delta**2, (TEN * rho)**2))
     ! Below are some alternative definitions of CLOSE_ITPSET.

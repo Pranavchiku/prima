@@ -51,7 +51,7 @@ integer(IK) :: jdrop
 
 ! Local variables
 character(len=*), parameter :: srname = 'SETDROP_TR'
-integer(IK) :: n
+integer(IK) :: n, i
 real(RP) :: distsq(size(sim, 2))
 real(RP) :: weight(size(sim, 2))
 real(RP) :: score(size(sim, 2))
@@ -141,7 +141,10 @@ end if
 ! DISTQ(J) is the square of the distance from the J-th vertex of the simplex to the "best" point so
 ! far, taking the trial point SIM(:, N+1) + D into account.
 if (ximproved) then
-    distsq(1:n) = sum((sim(:, 1:n) - spread(d, dim=2, ncopies=n))**2, dim=1)
+    !  distsq(1:n) = sum((sim(:, 1:n) - spread(d, dim=2, ncopies=n))**2, dim=1)
+    do i = 1, n
+        distsq(i) = sum((sim(:, i) - d)**2)
+    end do
     !!MATLAB: distsq = sum((sim(:, 1:n) - d).^2);  % d should be a column! Implicit expansion
     distsq(n + 1) = sum(d**2)
 else
@@ -231,8 +234,10 @@ real(RP) :: d(size(simi, 1))  ! D(N)
 character(len=*), parameter :: srname = 'GEOSTEP'
 integer(IK) :: m
 integer(IK) :: m_lcon
-integer(IK) :: n
+integer(IK) :: n, i, j
 real(RP) :: A(size(simi, 1), size(conmat, 1))
+real(RP) :: tmp_mtpr(size(conmat, 1) - size(bvec), size(simi, 1))
+real(RP) :: tmp_conmat(size(conmat, 1) - size(bvec), size(simi, 1))
 real(RP) :: cvnd
 real(RP) :: cvpd
 real(RP) :: g(size(simi, 1))
@@ -276,7 +281,14 @@ d = delbar * (d / norm(d))
 ! So we cannot pass G and A from outside.
 g = matprod(fval(1:n) - fval(n + 1), simi)
 A(:, 1:m_lcon) = amat
-A(:, m_lcon + 1:m) = transpose(matprod(conmat(m_lcon + 1:m, 1:n) - spread(conmat(m_lcon + 1:m, n + 1), dim=2, ncopies=n), simi))
+do i = m_lcon + 1, m         
+    do j = 1, n              
+        tmp_conmat(i, j) = conmat(i, j) - conmat(i, n + 1)
+    end do
+end do
+tmp_mtpr = matprod(tmp_conmat, simi) 
+A(:, m_lcon + 1:m) = transpose(tmp_mtpr)
+! A(:, m_lcon + 1:m) = transpose(matprod(conmat(m_lcon + 1:m, 1:n) - spread(conmat(m_lcon + 1:m, n + 1), dim=2, ncopies=n), simi))
 !!MATLAB: A(:, m_lcon+1:m) = simi'*(conmat(m_lcon+1:m, 1:n) - conmat(m_lcon+1:m, n+1))' % Implicit expansion for subtraction
 ! CVPD and CVND are the predicted constraint violation of D and -D by the linear models.
 cvpd = maximum([ZERO, conmat(:, n + 1) + matprod(d, A)])

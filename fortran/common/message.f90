@@ -130,26 +130,33 @@ case (CALLBACK_TERMINATE)
 case default
     reason = 'UNKNOWN EXIT FLAG'
 end select
-ret_message = newline//'Return from '//solver//' because '//strip(reason)
+! ret_message = newline//'Return from '//solver//' because '//strip(reason)
+print *, "Return from ", solver, " because ", reason
 
 if (size(x) <= 2) then
-    x_message = newline//'The corresponding X is: '//num2str(x)  ! Printed in one line
+    ! x_message = newline//'The corresponding X is: '//num2str(x)  ! Printed in one line
+    print *, "The corresponding X is: ", x
 else
-    x_message = newline//'The corresponding X is:'//newline//num2str(x)
+    ! x_message = newline//'The corresponding X is:'//newline//num2str(x)
+    print *, "The corresponding X is: ", x
 end if
 
 if (is_constrained) then
-    nf_message = newline//'Number of function values = '//num2str(nf)//spaces// &
-        & 'Least value of F = '//num2str(f)//spaces//'Constraint violation = '//num2str(cstrv_loc)
+    ! nf_message = newline//'Number of function values = '//num2str(nf)//spaces// &
+    !     & 'Least value of F = '//num2str(f)//spaces//'Constraint violation = '//num2str(cstrv_loc)
+    print *, "Number of function values = ", nf, " Least value of F = ", f, " Constraint violation = ", cstrv_loc
 else
-    nf_message = newline//'Number of function values = '//num2str(nf)//spaces//'Least value of F = '//num2str(f)
+    ! nf_message = newline//'Number of function values = '//num2str(nf)//spaces//'Least value of F = '//num2str(f)
+    print *, "Number of function values = ", nf, " Least value of F = ", f
 end if
 
 if (is_constrained .and. present(constr)) then
     if (size(constr) <= 2) then
-        constr_message = newline//'The constraint value is: '//num2str(constr)  ! Printed in one line
+        ! constr_message = newline//'The constraint value is: '//num2str(constr)  ! Printed in one line
+        print *, "The constraint value is: ", constr
     else
-        constr_message = newline//'The constraint value is:'//newline//num2str(constr)
+        ! constr_message = newline//'The constraint value is:'//newline//num2str(constr)
+        print *, "The constraint value is: ", constr
     end if
 else
     constr_message = ''
@@ -157,15 +164,19 @@ end if
 
 ! Print the message.
 if (abs(iprint) >= 2) then
-    message = newline//ret_message//nf_message//x_message//constr_message//newline
+    ! message = newline//ret_message//nf_message//x_message//constr_message//newline
+    print *, "Return message: ", ret_message, " Number of function values: ", &
+              nf, " The corresponding X: ", x
 else
-    message = ret_message//nf_message//x_message//constr_message//newline
+    ! message = ret_message//nf_message//x_message//constr_message//newline
+    print *, "Return message: ", ret_message, " Number of function values: ", & 
+              nf, " The corresponding X: ", x
 end if
-if (len(fname) > 0) then
-    call fprint(message, fname=fname, faction='append')
-else
-    call fprint(message, funit=funit, faction='append')
-end if
+! if (len(fname) > 0) then
+!     call fprint(message, fname=fname, faction='append')
+! else
+!     call fprint(message, funit=funit, faction='append')
+! end if
 
 !====================!
 !  Calculation ends  !

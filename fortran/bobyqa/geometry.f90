@@ -61,7 +61,7 @@ integer(IK) :: knew
 
 ! Local variables
 character(len=*), parameter :: srname = 'SETDROP_TR'
-integer(IK) :: n
+integer(IK) :: n, i, j
 integer(IK) :: npt
 real(RP) :: den(size(xpt, 2))
 real(RP) :: distsq(size(xpt, 2))
@@ -104,12 +104,23 @@ end if
 ! knowing KNEW (see lines 332-344 and 404--431 of lincob.f). Hence Powell's LINCOA code picks KNEW
 ! based on the distance to the un-updated "optimal point", which is unreasonable. This has been
 ! corrected in our implementation of LINCOA, yet it does not boost the performance.
-xpt_ = spread(xpt(:, kopt) + d, dim=2, ncopies=npt)
 if (ximproved) then
+    ! distsq = sum((xpt - spread(xpt(:, kopt) + d, dim=2, ncopies=npt))**2, dim=1)
+    do j = 1, npt
+        do i = 1, size(xpt, 1)
+            xpt_(i, j) = xpt(i, kopt) + d(i)
+        end do
+    end do
     distsq = sum((xpt - xpt_)**2, dim=1)
     !!MATLAB: distsq = sum((xpt - (xpt(:, kopt) + d)).^2)  % d should be a column! Implicit expansion
 else
-    distsq = sum((xpt - spread(xpt(:, kopt), dim=2, ncopies=npt))**2, dim=1)
+    ! distsq = sum((xpt - spread(xpt(:, kopt), dim=2, ncopies=npt))**2, dim=1)
+    do j = 1, npt
+        do i = 1, size(xpt, 1)
+            xpt_(i, j) = xpt(i, kopt)
+        end do
+    end do
+    distsq = sum((xpt - xpt_)**2, dim=1)
     !!MATLAB: distsq = sum((xpt - xpt(:, kopt)).^2)  % Implicit expansion
 end if
 
@@ -228,7 +239,7 @@ integer(IK) :: iubd
 integer(IK) :: k
 integer(IK) :: ksq
 integer(IK) :: ksqs(3)
-integer(IK) :: n
+integer(IK) :: n, i, j
 integer(IK) :: npt
 integer(IK) :: uphill
 logical :: mask_fixl(size(xpt, 1))
@@ -239,6 +250,7 @@ real(RP) :: betabd(3, size(xpt, 2))
 real(RP) :: bigstp
 real(RP) :: curv
 real(RP) :: dderiv(size(xpt, 2))
+real(RP) :: spread_dderiv(3, size(xpt, 2))
 real(RP) :: den_cauchy(size(xpt, 2))
 real(RP) :: den_line(size(xpt, 2))
 real(RP) :: distsq(size(xpt, 2))
@@ -271,6 +283,7 @@ real(RP) :: xcauchy(size(xpt, 1))
 real(RP) :: xdiff(size(xpt, 1))
 real(RP) :: xline(size(xpt, 1))
 real(RP) :: xopt(size(xpt, 1))
+real(RP) :: spread_xopt(size(xpt, 1), size(xpt, 2))
 real(RP) :: xtemp(size(xpt, 1))
 
 ! Sizes.
@@ -337,7 +350,12 @@ end if
 ! point on the K-th line attains the J-th upper bound, SBDI(I, K) = -J < 0 indicates reaching the
 ! J-th lower bound, and SBDI(I, K) = 0 means not touching any bound.
 dderiv = matprod(glag, xpt) - inprod(glag, xopt) ! The derivatives PHI_K'(0).
-distsq = sum((xpt - spread(xopt, dim=2, ncopies=npt))**2, dim=1)
+do j = 1, npt
+    do i = 1, size(xpt, 1)
+        spread_xopt(i, j) = xopt(i)
+    end do
+end do
+distsq = sum((xpt - spread_xopt)**2, dim=1)
 do k = 1, npt
     ! It does not make sense to consider "straight line through XOPT and XPT(:, KOPT)". Hence set
     ! STPLEN(:, KOPT) = 0 and ISBD(:, KOPT) = 0 so that VLAG(:, K) and PREDSQ(:, K) obtained after
@@ -427,7 +445,12 @@ end do
 ! First, compute VLAG = PHI(STPLEN). Using the fact that PHI_K(0) = 0, PHI_K(1) = delta_{K, KNEW}
 ! (Kronecker delta), and recalling the PHI_K is quadratic, we can find that
 ! PHI_K(t) = t*(1-t)*PHI_K'(0) for K /= KNEW, and PHI_KNEW = t*[t*(1-PHI_K'(0)) + PHI_K'(0)].
-vlag = stplen * (ONE - stplen) * spread(dderiv, dim=1, ncopies=3)
+do i = 1, 3
+    do j = 1, size(dderiv)
+        spread_dderiv(i, j) = dderiv(j)
+    end do
+end do
+vlag = stplen * (ONE - stplen) * spread_dderiv
 !!MATLAB: vlag = stplen .* (1 - stplen) .* dderiv; % Implicit expansion; dderiv is a row!
 vlag(:, knew) = stplen(:, knew) * (stplen(:, knew) * (ONE - dderiv(knew)) + dderiv(knew))
 ! Set NaNs in VLAG to 0 so that the behavior of MAXVAL(ABS(VLAG)) is predictable. VLAG does not have
@@ -435,7 +458,16 @@ vlag(:, knew) = stplen(:, knew) * (stplen(:, knew) * (ONE - dderiv(knew)) + dder
 where (is_nan(vlag)) vlag = ZERO  !!MATLAB: vlag(isnan(vlag)) = 0;
 !
 ! Second, BETABD is the upper bound of BETA given in (3.10) of the BOBYQA paper.
-betabd = HALF * (stplen * (ONE - stplen) * spread(distsq, dim=1, ncopies=3))**2
+do i = 1, 3
+    do j = 1, size(dderiv)
+        spread_dderiv(i, j) = distsq(j)
+    end do
+end do
+do i = 1, 3
+    do j = 1, size(distsq)
+        betabd(i, j) = HALF * (stplen(i, j) * (ONE - stplen(i, j)) * spread_dderiv(i, j))**2
+    end do
+end do
 !!MATLAB: betabd = 0.5 * (stplen .* (1-stplen) .* distsq).^2 % Implicit expansion; distsq is a row!
 !
 ! Finally, PREDSQ is the quantity defined in (3.11) of the BOBYQA paper.

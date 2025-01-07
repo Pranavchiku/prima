@@ -97,7 +97,7 @@ real(RP), intent(out) :: xhist(:, :)    ! XHIST(N, MAXXHIST)
 ! Local variables
 character(len=*), parameter :: solver = 'COBYLA'
 character(len=*), parameter :: srname = 'COBYLB'
-integer(IK) :: j
+integer(IK) :: j, i
 integer(IK) :: jdrop_geo
 integer(IK) :: jdrop_tr
 integer(IK) :: kopt
@@ -145,7 +145,9 @@ real(RP) :: prerem  ! Predicted reduction in merit function
 real(RP) :: ratio  ! Reduction ratio: ACTREM/PREREM
 real(RP) :: rho
 real(RP) :: sim(size(x), size(x) + 1)
+real(RP) :: tmp_conmat(size(constr) - size(bvec), size(x))
 real(RP) :: simi(size(x), size(x))
+real(RP) :: tmp_mtpr(size(constr) - size(bvec), size(x))
 real(RP) :: xfilt(size(x), size(cfilt))
 ! CPENMIN is the minimum of the penalty parameter CPEN for the L-infinity constraint violation in
 ! the merit function. Note that CPENMIN = 0 in Powell's implementation, which allows CPEN to be 0.
@@ -341,7 +343,14 @@ do tr = 1, maxtr
     ! (not necessarily a good algorithm). No preconditioning or scaling was used.
     g = matprod(fval(1:n) - fval(n + 1), simi)
     A(:, 1:m_lcon) = amat
-    A(:, m_lcon + 1:m) = transpose(matprod(conmat(m_lcon + 1:m, 1:n) - spread(conmat(m_lcon + 1:m, n + 1), dim=2, ncopies=n), simi))
+    do i = m_lcon + 1, m         
+        do j = 1, n              
+            tmp_conmat(i, j) = conmat(i, j) - conmat(i, n + 1)
+        end do
+    end do
+    tmp_mtpr = matprod(tmp_conmat, simi) 
+    A(:, m_lcon + 1:m) = transpose(tmp_mtpr)
+    ! A(:, m_lcon + 1:m) = transpose(matprod(conmat(m_lcon + 1:m, 1:n) - spread(conmat(m_lcon + 1:m, n + 1), dim=2, ncopies=n), simi))
     !!MATLAB: A(:, m_lcon+1:m) = simi'*(conmat(m_lcon+1:m, 1:n) - conmat(m_lcon+1:m, n+1))' % Implicit expansion for subtraction
 
     ! Calculate the trust-region trial step D. Note that D does NOT depend on CPEN.
@@ -764,7 +773,7 @@ integer(IK) :: info
 integer(IK) :: iter
 integer(IK) :: m
 integer(IK) :: m_lcon
-integer(IK) :: n
+integer(IK) :: n, i, j
 real(RP) :: A(size(sim_in, 1), size(conmat_in, 1))
 real(RP) :: conmat(size(conmat_in, 1), size(conmat_in, 2))
 real(RP) :: cval(size(cval_in))
@@ -774,6 +783,8 @@ real(RP) :: g(size(sim_in, 1))
 real(RP) :: prerec
 real(RP) :: preref
 real(RP) :: sim(size(sim_in, 1), size(sim_in, 2))
+real(RP) :: tmp_mtpr(size(conmat, 1) - size(bvec), size(sim, 1))
+real(RP) :: tmp_conmat(size(conmat, 1) - size(bvec), size(sim, 1))
 real(RP) :: simi(size(simi_in, 1), size(simi_in, 2))
 real(RP), parameter :: itol = ONE
 
@@ -842,7 +853,14 @@ do iter = 1, n + 1_IK
     ! Calculate the linear approximations to the objective and constraint functions.
     g = matprod(fval(1:n) - fval(n + 1), simi)
     A(:, 1:m_lcon) = amat
-    A(:, m_lcon + 1:m) = transpose(matprod(conmat(m_lcon + 1:m, 1:n) - spread(conmat(m_lcon + 1:m, n + 1), dim=2, ncopies=n), simi))
+    do i = m_lcon + 1, m         
+        do j = 1, n              
+            tmp_conmat(i, j) = conmat(i, j) - conmat(i, n + 1)
+        end do
+    end do
+    tmp_mtpr = matprod(tmp_conmat, simi) 
+    A(:, m_lcon + 1:m) = transpose(tmp_mtpr)
+    ! A(:, m_lcon + 1:m) = transpose(matprod(conmat(m_lcon + 1:m, 1:n) - spread(conmat(m_lcon + 1:m, n + 1), dim=2, ncopies=n), simi))
     !!MATLAB: A(:, m_lcon+1:m) = simi'*(conmat(m_lcon+1:m, 1:n) - conmat(m_lcon+1:m, n+1))' % Implicit expansion for subtraction
 
     ! Calculate the trust-region trial step D. Note that D does NOT depend on CPEN.

@@ -54,7 +54,7 @@ integer(IK), intent(out) :: info
 ! Local variables
 character(len=*), parameter :: srname = 'UPDATEXFC'
 integer(IK) :: m
-integer(IK) :: n
+integer(IK) :: n, i
 real(RP) :: erri
 real(RP) :: erri_test
 real(RP) :: sim_old(size(sim, 1), size(sim, 2))
@@ -111,7 +111,10 @@ if (jdrop <= n) then
     simi(jdrop, :) = simi_jdrop
 else  ! JDROP = N+1
     sim(:, n + 1) = sim(:, n + 1) + d
-    sim(:, 1:n) = sim(:, 1:n) - spread(d, dim=2, ncopies=n)
+    ! sim(:, 1:n) = sim(:, 1:n) - spread(d, dim=2, ncopies=n)
+    do i = 1, n
+        sim(:, i) = sim(:, i) - d
+    end do
     simid = matprod(simi, d)
     sum_simi = sum(simi, dim=1)
     simi = simi + outprod(simid, sum_simi / (ONE - sum(simid)))
@@ -219,7 +222,7 @@ integer(IK), intent(out) :: info
 character(len=*), parameter :: srname = 'UPDATEPOLE'
 integer(IK) :: jopt
 integer(IK) :: m
-integer(IK) :: n
+integer(IK) :: n, i
 real(RP) :: erri
 real(RP) :: erri_test
 real(RP) :: sim_jopt(size(sim, 1))
@@ -272,7 +275,10 @@ if (jopt >= 1 .and. jopt <= n) then
     sim(:, n + 1) = sim(:, n + 1) + sim(:, jopt)
     sim_jopt = sim(:, jopt)
     sim(:, jopt) = ZERO
-    sim(:, 1:n) = sim(:, 1:n) - spread(sim_jopt, dim=2, ncopies=n)
+    ! sim(:, 1:n) = sim(:, 1:n) - spread(sim_jopt, dim=2, ncopies=n)
+    do i = 1, n
+        sim(:, i) = sim(:, i) - sim_jopt
+    end do
     !!MATLAB: sim(:, 1:n) = sim(:, 1:n) - sim_jopt; % sim_jopt should be a column! Implicit expansion
     ! The above update is equivalent to multiply SIM(:, 1:N) from the right side by a matrix whose
     ! JOPT-th row is [-1, -1, ..., -1], while all the other rows are the same as those of the

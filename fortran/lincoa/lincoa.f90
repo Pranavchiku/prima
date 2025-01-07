@@ -689,6 +689,11 @@ real(RP) :: Aineqx0(size(Aineq, 1))
 real(RP) :: idmat(size(x0), size(x0))
 real(RP) :: smallx
 real(RP), allocatable :: Anorm(:)
+! @@@@@@@----------------------------------------> ////// WORKAROUND ///// <----------------------------------------@@@@@@@@
+real(RP), allocatable :: spread_array_workaround_variable_01(:,:)
+integer :: row_workaround_variable_02
+integer :: column_workaround_variable_03
+integer :: i 
 
 ! Sizes
 n = int(size(x0), kind(n))
@@ -754,7 +759,22 @@ bvec = max(bvec, [-x0(ixl), x0(ixu), -Aeqx0(ieq), Aeqx0(ieq), Aineqx0(iineq)])
 
 ! Normalize the linear constraints so that each constraint has a gradient of norm 1.
 Anorm = [Aeq_norm(ieq), Aeq_norm(ieq), Aineq_norm(iineq)]
-amat(:, mxl + mxu + 1:m) = amat(:, mxl + mxu + 1:m) / spread(Anorm, dim=1, ncopies=n)
+
+
+! @@@@@@@----------------------------------------> ////// WORKAROUND ///// <----------------------------------------@@@@@@@@
+allocate(spread_array_workaround_variable_01(n,size(anorm)))
+do row_workaround_variable_02 = 1, n
+    do column_workaround_variable_03 = 1 , size(anorm)
+        spread_array_workaround_variable_01(&
+        &row_workaround_variable_02,column_workaround_variable_03) = Anorm(column_workaround_variable_03)
+    end do
+end do
+amat(:, mxl + mxu + 1:m) = amat(:, mxl + mxu + 1:m) / spread_array_workaround_variable_01
+! amat(:, mxl + mxu + 1:m) = amat(:, mxl + mxu + 1:m) / spread(Anorm, dim=1, ncopies=n) ! >>>>>>>>>>>>>>>>>>>>>>>>>>>>This is the original code
+
+
+
+
 bvec(mxl + mxu + 1:m) = bvec(mxl + mxu + 1:m) / Anorm
 
 ! Deallocate memory.

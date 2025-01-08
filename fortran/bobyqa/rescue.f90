@@ -276,7 +276,10 @@ ptsaux(1, mask_) = ptsaux_(2, mask_)
 ptsaux(2, mask_) = ptsaux_(1, mask_)
 deallocate(mask_)
 mask = (abs(ptsaux(2, :)) < HALF * abs(ptsaux(1, :)))
-ptsaux(2, trueloc(mask)) = HALF * ptsaux(1, trueloc(mask))
+allocate(mask_(count(mask)))
+mask_ = trueloc(mask)
+ptsaux(2, mask_) = HALF * ptsaux(1, mask_)
+deallocate(mask_)
 
 ! Set the identifiers of the artificial interpolation points that are along a coordinate direction
 ! from XOPT, and set the corresponding nonzero elements of BMAT and ZMAT.
@@ -591,7 +594,10 @@ if (nprov > 0) then
         moderr = f - vquad
         gopt = gopt + moderr * bmat(:, kpt)
         pqinc = moderr * matprod(zmat, zmat(kpt, :))
-        pq(trueloc(ptsid <= 0)) = pq(trueloc(ptsid <= 0)) + pqinc(trueloc(ptsid <= 0))
+        allocate(tmp_output(count(ptsid <= 0)))
+        tmp_output = trueloc(ptsid <= 0)
+        pq(tmp_output) = pq(tmp_output) + pqinc(tmp_output)
+        deallocate(tmp_output)
         do k = 1, npt
             if (ptsid(k) <= 0) then
                 cycle

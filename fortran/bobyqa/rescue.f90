@@ -189,6 +189,7 @@ real(RP) :: xopt(size(xpt, 1))
 real(RP) :: xpt_(size(xpt, 1), size(xpt, 2))
 real(RP) :: xp
 real(RP) :: xq
+real(RP) :: min_value
 real(RP) :: xxpt(size(xpt, 2))
 
 n = int(size(xpt, 1), kind(n))
@@ -365,7 +366,16 @@ do iter = 1, maxiter
 
     ! Pick the index KORIG of an original point that has not yet replaced one of the provisional
     ! points, giving attention to the closeness to XOPT and to previous tries with KORIG.
-    korig = int(minloc(score, mask=(score > 0), dim=1), kind(korig))
+    ! korig = int(minloc(score, mask=(score > 0), dim=1), kind(korig))
+    min_value = 1.0e+30
+    do i = 1, size(score)
+        if (score(i) > 0) then
+            if (score(i) < min_value) then
+                min_value = score(i)
+                korig = i 
+            end if
+        end if
+    end do
 
     ! Calculate VLAG and BETA for the required updating of the H matrix if XPT(:, KORIG) is
     ! reinstated in the set of interpolation points, which means to replace a point in the

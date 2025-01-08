@@ -1153,6 +1153,8 @@ real(RP) :: tempb
 real(RP) :: v1(size(bmat, 1))
 real(RP) :: v2(size(bmat, 1))
 real(RP) :: vlag(size(bmat, 2))
+real(RP) :: zmat_(size(zmat,1), size(zmat, 2))
+real(RP) :: zmat_2(size(zmat,1), 2)
 
 ! Debugging variables
 !real(RP) :: beta_test
@@ -1277,9 +1279,8 @@ do j = 2, npt - n - 1_IK
     if (abs(zmat(knew, j)) > 1.0E-20 * maxval(abs(zmat))) then  ! Threshold comes from Powell's BOBYQA
         ! Multiply a Givens rotation to ZMAT from the right so that ZMAT(KNEW, [JL,J]) becomes [*,0].
         grot = planerot(zmat(knew, [jl, j]))  !!MATLAB: grot = planerot(zmat(knew, [jl, j])')
-        zmat(1:size(zmat,1), jl) = matprod(zmat(1:size(zmat,1), jl), transpose(grot))
-        zmat(1:size(zmat,1), j) = matprod(zmat(1:size(zmat,1), j), transpose(grot))
-
+        zmat_2 = zmat(1:size(zmat,1), [jl, j])
+        zmat(1:size(zmat,1), [jl, j]) = matprod(zmat_2, transpose(grot))
     end if
     zmat(knew, j) = ZERO
 end do
@@ -1406,8 +1407,9 @@ if (denom < 0) then
         ! Note that, in the case of (4.18), ZMAT(:, 1) (and implicitly S_1) rather than
         ! ZMAT(:, NPT-N-1) was updated by the code above.
         if (idz > 1) then
-            zmat(1:size(zmat,1), 1_IK) = zmat(1:size(zmat, 1), idz)
-            zmat(1:size(zmat,1), idz) = zmat(1:size(zmat, 1), 1_IK)
+            zmat_ = zmat
+            zmat(1:size(zmat,1), 1_IK) = zmat_(1:size(zmat, 1), idz)
+            zmat(1:size(zmat,1), idz) = zmat_(1:size(zmat, 1), 1_IK)
         end if
     end if
 end if

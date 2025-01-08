@@ -70,6 +70,7 @@ real(RP) :: v1(size(bmat, 1))
 real(RP) :: v2(size(bmat, 1))
 real(RP) :: vlag(size(bmat, 2))
 real(RP) :: temp1(size(zmat,1), size(zmat,2))
+real(RP) :: zmat_2(size(zmat,1), 2)
 
 ! Sizes.
 n = int(size(xpt, 1), kind(n))
@@ -155,7 +156,9 @@ call symmetrize(bmat(:, npt + 1:npt + n))
 do j = 2, npt - n - 1_IK
     if (abs(zmat(knew, j)) > 1.0E-20 * maxval(abs(zmat))) then  ! This threshold is by Powell
         grot = planerot(zmat(knew, [1_IK, j]))
-        zmat(:, [1_IK, j]) = matprod(zmat(:, [1_IK, j]), transpose(grot))
+        zmat_2 = zmat(1:size(zmat,1), [1_IK, j])
+        zmat(1:size(zmat,1), [1_IK, j]) = matprod(zmat_2, transpose(grot))
+        ! zmat(:, [1_IK, j]) = matprod(zmat(:, [1_IK, j]), transpose(grot))
     end if
     zmat(knew, j) = ZERO
 end do

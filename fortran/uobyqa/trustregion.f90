@@ -109,6 +109,7 @@ real(RP) :: phi
 real(RP) :: phil
 real(RP) :: phiu
 real(RP) :: piv(size(g))
+real(RP) :: tmp_piv(size(g))
 real(RP) :: slope
 real(RP) :: td(size(g))
 real(RP) :: tempa
@@ -275,7 +276,9 @@ do iter = 1, maxiter
     end if
 
     ! NEGCRV is TRUE iff H + PAR*I has at least one negative eigenvalue (CRV means curvature).
-    negcrv = any(piv < 0 .or. (piv <= 0 .and. abs([tn, 0.0_RP]) > 0))
+    tmp_piv = [tn, 0.0_RP]
+    negcrv = any(piv < 0 .or. (piv <= 0 .and. abs(tmp_piv) > 0))
+    ! negcrv = any(piv < 0 .or. (piv <= 0 .and. abs([tn, 0.0_RP]) > 0))
 
     ! Handle the case where H + PAR*I is positive semidefinite and the gradient at the trust region
     ! center is zero.
@@ -293,10 +296,14 @@ do iter = 1, maxiter
         ! a nonempty array when NEGCRV is TRUE, and hence K <= N; however, the Fortran code may not
         ! behave in this way when compiled with aggressive optimization options; on 20221220, it is
         ! observed that K = HUGE(K) = 32767 with Flang -Ofast.
-        k = minval([n, trueloc(piv < 0 .or. (piv <= 0 .and. abs([tn, 0.0_RP]) > 0))])
+        ! k = minval([n, trueloc(piv < 0 .or. (piv <= 0 .and. abs([tn, 0.0_RP]) > 0))])
+        tmp_piv = [tn, 0.0_RP]
+        k = minval([n, trueloc(piv < 0 .or. (piv <= 0 .and. abs(tmp_piv) > 0))])
     else
         ! Set K to the last index corresponding to a zero curvature; K = 0 if no such curvature exits.
-        k = maxval([0_IK, trueloc(abs(piv) + abs([tn, 0.0_RP]) <= 0)])
+        ! k = maxval([0_IK,  trueloc(abs(piv) + abs([tn, 0.0_RP]) <= 0)])
+        tmp_piv = [tn, 0.0_RP]
+        k = maxval([0_IK,  trueloc(abs(piv) + abs(tmp_piv) <= 0)])
     end if
 
     ! At this point, K == 0 iff H + PAR*I is positive definite.

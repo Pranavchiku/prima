@@ -59,12 +59,13 @@ integer(IK) :: knew
 
 ! Local variables
 character(len=*), parameter :: srname = 'SETDROP_TR'
-integer(IK) :: n
+integer(IK) :: n, k
 integer(IK) :: npt
 real(RP) :: distsq(size(xpt, 2))
 real(RP) :: score(size(xpt, 2))
 real(RP) :: vlag(size(xpt, 2))
 real(RP) :: weight(size(xpt, 2))
+real(RP) :: temp_xpt(size(xpt, 1))
 
 ! Sizes
 n = int(size(xpt, 1), kind(npt))
@@ -98,10 +99,18 @@ end if
 ! based on the distance to the un-updated "optimal point", which is unreasonable. This has been
 ! corrected in our implementation of LINCOA, yet it does not boost the performance.
 if (ximproved) then
-    distsq = sum((xpt - spread(xpt(:, kopt) + d, dim=2, ncopies=npt))**2, dim=1)
+    ! distsq = sum((xpt - spread(xpt(:, kopt) + d, dim=2, ncopies=npt))**2, dim=1)
+    do k = 1, npt
+        temp_xpt = xpt(:, kopt) + d
+        distsq(k) = sum((xpt(:, k) - temp_xpt)**2)
+    end do
     !!MATLAB: distsq = sum((xpt - (xpt(:, kopt) + d)).^2)  % d should be a column! Implicit expansion
 else
-    distsq = sum((xpt - spread(xpt(:, kopt), dim=2, ncopies=npt))**2, dim=1)
+    ! distsq = sum((xpt - spread(xpt(:, kopt), dim=2, ncopies=npt))**2, dim=1)
+    do k = 1, npt
+        temp_xpt = xpt(:, kopt)
+        distsq(k) = sum((xpt(:, k) - temp_xpt)**2)
+    end do
     !!MATLAB: distsq = sum((xpt - xpt(:, kopt)).^2)  % Implicit expansion
 end if
 

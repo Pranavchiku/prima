@@ -332,6 +332,10 @@ integer(IK) :: m
 integer(IK) :: n
 logical :: mask(size(b))
 real(RP) :: ax(size(b))
+! -----------------------------> ///////////// WORKAROUND /////////// <---------------------------------
+REAL(RP), allocatable :: ax_subtract_b_workaround_1(:)
+REAL(RP), allocatable :: rescon_added_to_dnorm_workaround_1(:)
+integer :: i
 
 ! Sizes
 m = int(size(b), kind(m))
@@ -360,14 +364,27 @@ if (.not. ximproved) then
     return
 end if
 
+! -----------------------------> ///////////// WORKAROUND /////////// <---------------------------------
+
+allocate(rescon_added_to_dnorm_workaround_1(size(rescon)))
+rescon_added_to_dnorm_workaround_1 = -abs(rescon) + dnorm
 mask = (abs(rescon) < dnorm + delta)
 ax(trueloc(mask)) = matprod(xopt, amat(:, trueloc(mask)))
-where (mask)
-    rescon = max(b - ax, ZERO)
-elsewhere
-    rescon = min(-abs(rescon) + dnorm, -delta)
-end where
-rescon(trueloc(rescon >= delta)) = -rescon(trueloc(rescon >= delta))
+!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ ////////////////WORKAROUND ////////////////@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+do i = 1, size(mask)
+    if (mask(i) .eqv. .true.) then
+        rescon(i) = max(b(i) - ax(i), ZERO)
+    else
+        rescon(i) = min(rescon_added_to_dnorm_workaround_1(i), -delta)
+    end if
+end do 
+! where (mask)
+!     rescon = max(b - ax, ZERO)
+! elsewhere
+!     rescon = min(-abs(rescon) + dnorm, -delta)
+! end where
+! rescon(trueloc(rescon >= delta)) = -rescon(trueloc(rescon >= delta))
 
 !!MATLAB:
 !!mask = (abs(rescon) < delta + dnorm);

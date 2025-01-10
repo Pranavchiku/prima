@@ -118,6 +118,7 @@ real(RP) :: tnz
 real(RP) :: wsq
 real(RP) :: wwsq
 real(RP) :: z(size(g))
+real(RP) :: tmp(size(g))
 real(RP) :: zsq
 
 ! Sizes.
@@ -199,7 +200,8 @@ call hessenberg(hh, td, tn)  !!MATLAB: [P, hh] = hess(hh); td = diag(hh); tn = d
 
 ! Form GG by applying the similarity transformation.
 do k = 1, n - 1_IK
-    gg(k + 1:n) = gg(k + 1:n) - inprod(gg(k + 1:n), hh(k + 1:n, k)) * hh(k + 1:n, k)
+    tmp(k + 1:n) = inprod(gg(k + 1:n), hh(k + 1:n, k))
+    gg(k + 1:n) = gg(k + 1:n) - tmp(k + 1:n) * hh(k + 1:n, k)
 end do
 !!MATLAB: gg = (gg'*P)';  % gg = P'*gg;
 
@@ -535,7 +537,8 @@ end do
 
 ! Apply the inverse Householder transformations to recover D.
 do k = n - 1_IK, 1, -1
-    d(k + 1:n) = d(k + 1:n) - inprod(d(k + 1:n), hh(k + 1:n, k)) * hh(k + 1:n, k)
+    tmp(k + 1:n) = inprod(d(k + 1:n), hh(k + 1:n, k))
+    d(k + 1:n) = d(k + 1:n) - tmp(k + 1:n) * hh(k + 1:n, k)
 end do
 !!MATLAB: d = P*d;
 

@@ -82,6 +82,7 @@ real(RP), intent(out) :: d(:)  ! D(N)
 character(len=*), parameter :: srname = 'TRSBOX'
 integer(IK) :: iact
 integer(IK) :: n
+integer(IK) :: i
 integer(IK) :: npt
 integer(IK) :: xbdi(size(gopt_in))
 integer(IK) :: grid_size
@@ -478,7 +479,12 @@ do iter = 1, maxiter
     where (sqdscr - s > 0) tanbd = min(tanbd, (xnew - sl) / (sqdscr - s))
     sqdscr = -REALMAX
     where (xbdi == 0 .and. su - xopt < sqrt(ssq)) sqdscr = sqrt(max(ZERO, ssq - (su - xopt)**2))
-    where (sqdscr + s > 0) tanbd = min(tanbd, (su - xnew) / (sqdscr + s))
+    ! where (sqdscr + s > 0) tanbd = min(tanbd, (su - xnew) / (sqdscr + s))
+    do i = 1, size(gopt_in)
+        if (sqdscr(i) + s(i) > 0.0_RP) then
+            tanbd(i) = min(tanbd(i), (su(i) - xnew(i)) / (sqdscr(i) + s(i)))
+        end if
+    end do
     tanbd(trueloc(is_nan(tanbd))) = ZERO
     !----------------------------------------------------------------------------------------------!
     !!MATLAB code for defining TANBD:

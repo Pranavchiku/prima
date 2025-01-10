@@ -81,5 +81,9 @@ program bobyqa_exmp
  x = x0
  call bobyqa(calfun, x, f, lb, ub, rhobeg=0.1_RP, iprint=1_IK, nf=nf, info=info)
 
- if(nf /= 234 .or. abs(f - 32.203053368830219_RP) > 1.0e-12_RP) error stop
+ if(abs(f - 32.203053368830219_RP) > 1.0e-12_RP) error stop
+ if(any(abs(x - [1.0_RP, 1.0_RP, 0.36160784864589629_RP, 1.0_RP, -0.36160789815759925_RP, &
+            1.0_RP, -1.0_RP, 1.0_RP, -1.0_RP, -8.7819855787179010e-09_RP,  -1.0_RP, &
+            -1.0_RP, -0.36160786618777696_RP, -1.0_RP, 0.36160788877752370_RP, &
+            -1.0_RP, 1.0_RP, -1.0_RP, 1.0_RP, 8.0771282481945382e-09_RP]) > 10e-6_RP)) error stop
 end program bobyqa_exmp

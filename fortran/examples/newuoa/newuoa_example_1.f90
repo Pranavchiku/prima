@@ -80,4 +80,5 @@ program newuoa_exmp
  
  if(abs(f - 1.5777218104420236e-30_RP) > 10e-12_RP) error stop
  if(any(abs(x - [5.0_RP, 4.0_RP]) > 10e-12_RP)) error stop
+ if(nf /= 22) error stop
 end program newuoa_exmp

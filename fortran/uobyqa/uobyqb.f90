@@ -94,7 +94,7 @@ real(RP), intent(out) :: xhist(:, :)  ! XHIST(N, MAXXHIST)
 ! Local variables
 character(len=*), parameter :: solver = 'UOBYQA'
 character(len=*), parameter :: srname = 'UOBYQB'
-integer(IK) :: k
+integer(IK) :: k, i
 integer(IK) :: knew_geo
 integer(IK) :: knew_tr
 integer(IK) :: kopt
@@ -137,6 +137,7 @@ real(RP) :: ratio
 real(RP) :: rho
 real(RP) :: xbase(size(x))
 real(RP) :: xdrop(size(x))
+real(RP) :: temp_xpt(size(x))
 real(RP) :: xpt(size(x), size(distsq))
 real(RP), allocatable :: pl(:, :)
 real(RP), parameter :: trtol = 1.0E-2_RP  ! Convergence tolerance of trust-region subproblem solver
@@ -272,7 +273,11 @@ do tr = 1, maxtr
     ! CLOSE_ITPSET: Are the interpolation points close to XOPT? It affects IMPROVE_GEO, REDUCE_RHO.
     ! N.B. (Zaikun 20240331): In Powell's algorithms, CLOSE_ITPSET is defined after XPT is updated
     ! according to the trust-region trial step.
-    distsq = sum((xpt - spread(xpt(:, kopt), dim=2, ncopies=npt))**2, dim=1)
+    ! distsq = sum((xpt - spread(xpt(:, kopt), dim=2, ncopies=npt))**2, dim=1)
+    do i = 1, npt
+        temp_xpt = xpt(:, kopt)
+        distsq(i) = sum((xpt(:, i) - temp_xpt)**2)
+    end do
     !!MATLAB: distsq = sum((xpt - xpt(:, kopt)).^2)  % Implicit expansion
     close_itpset = all(distsq <= 4.0_RP * delta**2)  ! Powell's NEWUOA code.
     ! Below are some alternative definitions of CLOSE_ITPSET.
@@ -452,7 +457,11 @@ do tr = 1, maxtr
     ! Improve the geometry of the interpolation set by removing a point and adding a new one.
     if (improve_geo) then
         ! XPT(:, KNEW_GEO) will become XOPT + D below. KNEW_GEO /= KOPT unless there is a bug.
-        distsq = sum((xpt - spread(xpt(:, kopt), dim=2, ncopies=npt))**2, dim=1)
+        ! distsq = sum((xpt - spread(xpt(:, kopt), dim=2, ncopies=npt))**2, dim=1)
+        do i = 1, npt
+            temp_xpt = xpt(:, kopt)
+            distsq(i) = sum((xpt(:, i) - temp_xpt)**2)
+        end do
         !!MATLAB: distsq = sum((xpt - xpt(:, kopt)).^2)  % Implicit expansion
         knew_geo = int(maxloc(distsq, dim=1), kind(knew_geo))
 

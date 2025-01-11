@@ -56,26 +56,25 @@ end module calfun_mod
 !---------------------------------------- THE MAIN PROGRAM ----------------------------------------!
 program uobyqa_exmp
 
-! ! The following line makes the solver available.
-! use uobyqa_mod, only : uobyqa
+ ! The following line makes the solver available.
+ use uobyqa_mod, only : uobyqa
+ ! The following line specifies which module provides CALFUN.
+ use calfun_mod, only : RP, IK, calfun
+ implicit none
+ integer, parameter :: n = 6
+ integer :: i, nf, info
+ real(RP) :: f, x(n)
+ ! The following lines illustrates how to call the solver to solve the Chebyquad problem.
+ x = [(real(i, RP) / real(n + 1, RP), i=1, n)]  ! Starting point
+ call uobyqa(calfun, x, f)  ! This call will not print anything.
+ ! In addition to the compulsory arguments, the following illustration specifies also RHOBEG and IPRINT,
+ ! which are optional. All the unspecified optional arguments (RHOEND, MAXFUN, etc.) will take their
+ ! default values coded in the solver.
+ x = [(real(i, RP) / real(n + 1, RP), i=1, n)]  ! Starting point
+ call uobyqa(calfun, x, f, rhobeg=0.2_RP * x(1), iprint=1_IK, nf=nf, info=info)
 
-! ! The following line specifies which module provides CALFUN.
-! use calfun_mod, only : RP, IK, calfun
-
-! implicit none
-
-! integer, parameter :: n = 6
-! integer :: i, nf, info
-! real(RP) :: f, x(n)
-
-! ! The following lines illustrates how to call the solver to solve the Chebyquad problem.
-! x = [(real(i, RP) / real(n + 1, RP), i=1, n)]  ! Starting point
-! call uobyqa(calfun, x, f)  ! This call will not print anything.
-
-! ! In addition to the compulsory arguments, the following illustration specifies also RHOBEG and IPRINT,
-! ! which are optional. All the unspecified optional arguments (RHOEND, MAXFUN, etc.) will take their
-! ! default values coded in the solver.
-! x = [(real(i, RP) / real(n + 1, RP), i=1, n)]  ! Starting point
-! call uobyqa(calfun, x, f, rhobeg=0.2_RP * x(1), iprint=1_IK, nf=nf, info=info)
-
+if(abs(f - 1.6664020829109574e-019_RP) > 10e-16_RP) error stop
+if(any(abs(x - [6.6876591069312111e-02_RP, 2.8874067344631787e-01_RP, &
+                3.6668229936071894e-01_RP, 6.3331770108638719e-01_RP, & 
+                7.1125932686675108e-01_RP, 9.3312340910478364e-01_RP]) > 10e-8_RP)) error stop
 end program uobyqa_exmp

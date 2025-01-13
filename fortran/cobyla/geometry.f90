@@ -240,6 +240,7 @@ real(RP) :: tmp_mtpr(size(conmat, 1) - size(bvec), size(simi, 1))
 real(RP) :: tmp_conmat(size(conmat, 1) - size(bvec), size(simi, 1))
 real(RP) :: cvnd
 real(RP) :: cvpd
+real(RP) :: d_norm
 real(RP) :: g(size(simi, 1))
 
 ! Sizes
@@ -271,7 +272,8 @@ end if
 ! SIMI(JDROP, :) is a vector perpendicular to the face of the simplex to the opposite of vertex
 ! JDROP. Set D to the vector in this direction and with length DELBAR.
 d = simi(jdrop, :)
-d = delbar * (d / norm(d))
+d_norm = norm(d)
+d = delbar * (d / d_norm)
 
 ! The code below chooses the direction of D according to an approximation of the merit function.
 ! See (17) of the COBYLA paper and  line 225 of Powell's cobylb.f.

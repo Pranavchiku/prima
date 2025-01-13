@@ -362,6 +362,7 @@ real(RP), allocatable :: bvec(:)  ! BVEC(M_LCON)
 real(RP), allocatable :: chist_loc(:)  ! CHIST_LOC(MAXCHIST)
 real(RP), allocatable :: conhist_loc(:, :)  ! CONHIST_LOC(M, MAXCONHIST)
 real(RP), allocatable :: constr_loc(:)  ! CONSTR_LOC(M)
+real(RP), allocatable :: tmp_constr_loc(:)  ! CONSTR_LOC(M)
 real(RP), allocatable :: fhist_loc(:)   ! FHIST_LOC(MAXFHIST)
 real(RP), allocatable :: xhist_loc(:, :)  ! XHIST_LOC(N, MAXXHIST)
 
@@ -513,7 +514,10 @@ else
     ! N.B.: Do NOT call FMSG, SAVEHIST, or SAVEFILT for the function/constraint evaluation at X0.
     ! They will be called during the initialization, which will read the function/constraint at X0.
 end if
-cstrv_loc = maximum([ZERO, constr_loc])
+allocate(tmp_constr_loc(size(constr_loc) + 1))
+tmp_constr_loc = [ZERO, constr_loc]
+cstrv_loc = maximum(tmp_constr_loc)
+deallocate(tmp_constr_loc)
 
 ! If RHOBEG is present, then RHOBEG_LOC is a copy of RHOBEG; otherwise, RHOBEG_LOC takes the default
 ! value for RHOBEG, taking the value of RHOEND into account. Note that RHOEND is considered only if

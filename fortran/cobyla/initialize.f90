@@ -78,6 +78,7 @@ integer(IK) :: maxxhist
 integer(IK) :: n
 integer(IK) :: subinfo
 real(RP) :: constr(size(conmat, 1))
+real(RP) :: tmp_constr(size(conmat, 1) + 1)
 real(RP) :: cstrv
 real(RP) :: f
 real(RP) :: x(size(x0))
@@ -158,7 +159,8 @@ do k = 1, n + 1_IK
         x(j) = x(j) + rhobeg
         call evaluate(calcfc, x, f, constr)
     end if
-    cstrv = maximum([ZERO, constr])
+    tmp_constr = [ZERO, constr]
+    cstrv = maximum(tmp_constr)
 
     ! Print a message about the function/constraint evaluation according to IPRINT.
     call fmsg(solver, 'Initialization', iprint, k, rhobeg, f, x, cstrv, constr)

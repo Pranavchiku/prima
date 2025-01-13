@@ -201,6 +201,9 @@ integer(IK) :: nfail
 real(RP) :: cviol
 !real(RP) :: cvold
 real(RP) :: cvsabs(size(b))
+real(RP) :: tmp_b1(size(b) + 1)
+real(RP) :: tmp_b2(size(A, 2))
+real(RP) :: tmp_b3(size(A, 2) + 1)
 real(RP) :: tmp_cvsabs(size(iact))
 real(RP) :: cvshift(size(b))
 real(RP) :: dd
@@ -257,7 +260,8 @@ if (stage == 1) then
     ! 2. In MATLAB, linspace(1, mcon, mcon) can also be written as (1:mcon).
     nact = 0
     d = ZERO
-    cviol = maximum([ZERO, -b])
+    tmp_b1 = [ZERO, -b]
+    cviol = maximum(tmp_b1)
     vmultc = cviol + b
     z = eye(n)
     if (mcon == 0 .or. cviol <= 0) then
@@ -286,7 +290,8 @@ else
 
     ! In Powell's code, stage 2 uses the ZDOTA and CVIOL calculated by stage 1. Here we re-calculate
     ! them so that they need not be passed from stage 1 to 2, and hence the coupling is reduced.
-    cviol = maximum([ZERO, matprod(d, A(:, 1:m)) - b(1:m)])
+    tmp_b2 = [ZERO, matprod(d, A(:, 1:m)) - b(1:m)]
+    cviol = maximum(tmp_b2)
 end if
 zdota(1:nact) = [(inprod(z(:, k), A(:, iact(k))), k=1, nact)]
 !!MATLAB: zdota(1:nact) = sum(z(:, 1:nact) .* A(:, iact(1:nact)), 1);  % Row vector
@@ -522,7 +527,8 @@ do iter = 1, maxiter
     dnew = d + step * sdirn
     if (stage == 1) then
         !cvold = cviol
-        cviol = maximum([ZERO, matprod(dnew, A(:, iact(1:nact))) - b(iact(1:nact))])
+        tmp_b3(1:nact) = [ZERO, matprod(dnew, A(:, iact(1:nact))) - b(iact(1:nact))]
+        cviol = maximum(tmp_b3(1:nact))
         ! N.B.: CVIOL will be used when calculating VMULTD(NACT+1 : MCON).
     end if
 
@@ -568,7 +574,8 @@ do iter = 1, maxiter
         !cviol = (ONE - frac) * cvold + frac * cviol  ! Powell's version
         ! In theory, CVIOL = MAXVAL([MATPROD(D, A) - B, ZERO]), yet the CVIOL updated as above
         ! can be quite different from this value if A has huge entries (e.g., > 1E20).
-        cviol = maximum([ZERO, matprod(d, A) - b])
+        tmp_b1 = [ZERO, matprod(d, A) - b]
+        cviol = maximum(tmp_b1)
     end if
 
     if (icon < 1 .or. icon > mcon) then

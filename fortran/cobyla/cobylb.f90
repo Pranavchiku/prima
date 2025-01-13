@@ -128,6 +128,7 @@ real(RP) :: actrem
 real(RP) :: cfilt(min(max(maxfilt, 1_IK), maxfun))
 real(RP) :: confilt(size(constr), size(cfilt))
 real(RP) :: conmat(size(constr), size(x) + 1)
+real(RP) :: tmp_constr(size(constr) + 1)
 real(RP) :: cpen  ! Penalty parameter for constraint in merit function (PARMU in Powell's code)
 real(RP) :: cval(size(x) + 1)
 real(RP) :: d(size(x))
@@ -146,6 +147,7 @@ real(RP) :: ratio  ! Reduction ratio: ACTREM/PREREM
 real(RP) :: rho
 real(RP) :: sim(size(x), size(x) + 1)
 real(RP) :: tmp_conmat(size(constr) - size(bvec), size(x))
+real(RP) :: tmp_conmat2(size(conmat, 1) + 1)
 real(RP) :: simi(size(x), size(x))
 real(RP) :: tmp_mtpr(size(constr) - size(bvec), size(x))
 real(RP) :: xfilt(size(x), size(cfilt))
@@ -372,7 +374,8 @@ do tr = 1, maxtr
     ! 2. PREREF may be negative or 0, but it should be positive when PREREC = 0 and SHORTD is FALSE.
     ! 3. Due to 2, in theory, MAXIMUM([PREREC, PREREF]) > 0 if SHORTD is FALSE.
     preref = -inprod(d, g)  ! Can be negative.
-    prerec = cval(n + 1) - maximum([ZERO, conmat(:, n + 1) + matprod(d, A)])
+    tmp_conmat2 = [ZERO, conmat(:, n + 1) + matprod(d, A)]
+    prerec = cval(n + 1) - maximum(tmp_conmat2)
 
     ! Evaluate PREREM, which is the predicted reduction in the merit function.
     ! In theory, PREREM >= 0 and it is 0 iff CPEN = 0 = PREREF. This may not be true numerically.
@@ -403,7 +406,8 @@ do tr = 1, maxtr
         else
             ! Evaluate the objective and constraints at X, taking care of possible Inf/NaN values.
             call evaluate(calcfc_internal, x, f, constr)
-            cstrv = maximum([ZERO, constr])
+            tmp_constr = [ZERO, constr]
+            cstrv = maximum(tmp_constr)
             nf = nf + 1_IK
             ! Save X, F, CONSTR, CSTRV into the history.
             call savehist(nf, x, xhist, f, fhist, cstrv, chist, constr, conhist)
@@ -595,7 +599,8 @@ do tr = 1, maxtr
         else
             ! Evaluate the objective and constraints at X, taking care of possible Inf/NaN values.
             call evaluate(calcfc_internal, x, f, constr)
-            cstrv = maximum([ZERO, constr])
+            tmp_constr = [ZERO, constr]
+            cstrv = maximum(tmp_constr)
             nf = nf + 1_IK
             ! Save X, F, CONSTR, CSTRV into the history.
             call savehist(nf, x, xhist, f, fhist, cstrv, chist, constr, conhist)
@@ -660,7 +665,8 @@ end do  ! End of DO TR = 1, MAXTR. The iterative procedure ends.
 x = sim(:, n + 1) + d
 if (info == SMALL_TR_RADIUS .and. shortd .and. norm(x - sim(:, n + 1)) > 1.0E-3_RP * rhoend .and. nf < maxfun) then
     call evaluate(calcfc_internal, x, f, constr)
-    cstrv = maximum([ZERO, constr])
+    tmp_constr = [ZERO, constr]
+    cstrv = maximum(tmp_constr)
     nf = nf + 1_IK
     ! Save X, F, CONSTR, CSTRV into the history.
     call savehist(nf, x, xhist, f, fhist, cstrv, chist, constr, conhist)
@@ -790,6 +796,7 @@ real(RP) :: preref
 real(RP) :: sim(size(sim_in, 1), size(sim_in, 2))
 real(RP) :: tmp_mtpr(size(conmat, 1) - size(bvec), size(sim, 1))
 real(RP) :: tmp_conmat(size(conmat, 1) - size(bvec), size(sim, 1))
+real(RP) :: tmp_conmat2(size(conmat, 1) + 1)
 real(RP) :: simi(size(simi_in, 1), size(simi_in, 2))
 real(RP), parameter :: itol = ONE
 
@@ -873,7 +880,8 @@ do iter = 1, n + 1_IK
 
     ! Predict the change to F (PREREF) and to the constraint violation (PREREC) due to D.
     preref = -inprod(d, g)  ! Can be negative.
-    prerec = cval(n + 1) - maximum([ZERO, conmat(:, n + 1) + matprod(d, A)])
+    tmp_conmat2 = [ZERO, conmat(:, n + 1) + matprod(d, A)]
+    prerec = cval(n + 1) - maximum(tmp_conmat2)
 
     if (.not. (prerec > 0 .and. preref < 0)) then  ! PREREC <= 0 or PREREF >= 0 or either is NaN.
         exit

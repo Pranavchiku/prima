@@ -240,6 +240,7 @@ real(RP) :: tmp_mtpr(size(conmat, 1) - size(bvec), size(simi, 1))
 real(RP) :: tmp_conmat(size(conmat, 1) - size(bvec), size(simi, 1))
 real(RP) :: cvnd
 real(RP) :: cvpd
+real(RP) :: tmp_cpvd(size(conmat, 1) + 1)
 real(RP) :: d_norm
 real(RP) :: g(size(simi, 1))
 
@@ -293,8 +294,10 @@ A(:, m_lcon + 1:m) = transpose(tmp_mtpr)
 ! A(:, m_lcon + 1:m) = transpose(matprod(conmat(m_lcon + 1:m, 1:n) - spread(conmat(m_lcon + 1:m, n + 1), dim=2, ncopies=n), simi))
 !!MATLAB: A(:, m_lcon+1:m) = simi'*(conmat(m_lcon+1:m, 1:n) - conmat(m_lcon+1:m, n+1))' % Implicit expansion for subtraction
 ! CVPD and CVND are the predicted constraint violation of D and -D by the linear models.
-cvpd = maximum([ZERO, conmat(:, n + 1) + matprod(d, A)])
-cvnd = maximum([ZERO, conmat(:, n + 1) - matprod(d, A)])
+tmp_cpvd = [ZERO, conmat(:, n + 1) + matprod(d, A)]
+cvpd = maximum(tmp_cpvd)
+tmp_cpvd = [ZERO, conmat(:, n + 1) - matprod(d, A)]
+cvnd = maximum(tmp_cpvd)
 ! Take -D if the linear models predict that its merit function value is lower.
 if (-inprod(d, g) + cpen * cvnd < inprod(d, g) + cpen * cvpd) then
     d = -d

@@ -352,6 +352,7 @@ real(RP) :: rhobeg_loc
 real(RP) :: rhoend_loc
 real(RP) :: xl_loc(size(x))
 real(RP) :: xu_loc(size(x))
+real(RP) :: tmp_constr(m_nlcon)
 real(RP), allocatable :: Aeq_loc(:, :)  ! Aeq_LOC(Meq, N)
 real(RP), allocatable :: Aineq_loc(:, :)  ! Aineq_LOC(Mineq, N)
 real(RP), allocatable :: amat(:, :)  ! AMAT(N, M_LCON); each column corresponds to a linear constraint
@@ -505,7 +506,10 @@ if (present(f0) .and. present(nlconstr0) .and. all(is_finite(x))) then
     constr_loc(m - m_nlcon + 1:m) = moderatec(nlconstr0)
 else
     x = moderatex(x)
-    call evaluate(calcfc, x, f_loc, constr_loc(m - m_nlcon + 1:m))
+    ! call evaluate(calcfc, x, f_loc, constr_loc(m - m_nlcon + 1:m))
+    tmp_constr = constr_loc(m - m_nlcon + 1:m)
+    call evaluate(calcfc, x, f_loc, tmp_constr)
+    constr_loc(m - m_nlcon + 1:m) = tmp_constr
     ! N.B.: Do NOT call FMSG, SAVEHIST, or SAVEFILT for the function/constraint evaluation at X0.
     ! They will be called during the initialization, which will read the function/constraint at X0.
 end if

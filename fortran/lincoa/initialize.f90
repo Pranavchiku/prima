@@ -105,11 +105,17 @@ integer(IK) :: subinfo
 integer(IK), allocatable :: ixl(:)
 integer(IK), allocatable :: ixu(:)
 logical :: feasible(size(xpt, 2))
-real(RP) :: constr(count(xl > -BOUNDMAX) + count(xu < BOUNDMAX) + 2 * size(beq) + size(bineq))
+! @@@@@@@----------------------------------------> ////// WORKAROUND ///// <----------------------------------------@@@@@@@@
+real(RP) ,allocatable:: constr(:) 
+
 real(RP) :: constr_leq(size(beq))
 real(RP) :: cstrv
 real(RP) :: f
 real(RP) :: x(size(x0))
+
+
+! @@@@@@@----------------------------------------> ////// WORKAROUND ///// <----------------------------------------@@@@@@@@
+allocate(constr(count(xl > -BOUNDMAX) + count(xu < BOUNDMAX) + 2 * size(beq) + size(bineq)))
 
 ! Sizes.
 m = int(size(b), kind(m))

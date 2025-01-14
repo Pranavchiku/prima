@@ -176,7 +176,7 @@ logical :: ximproved
 real(RP) :: b(size(bvec))
 real(RP) :: bmat(size(x), npt + size(x))
 real(RP) :: cfilt(maxfilt)
-real(RP) :: constr(count(xl > -BOUNDMAX) + count(xu < BOUNDMAX) + 2 * size(beq) + size(bineq))
+
 real(RP) :: constr_leq(size(beq))
 real(RP) :: cval(npt)
 real(RP) :: d(size(x))
@@ -206,6 +206,8 @@ real(RP) :: xdrop(size(x))
 real(RP) :: xfilt(size(x), maxfilt)
 real(RP) :: xosav(size(x))
 real(RP) :: xpt(size(x), npt)
+! @@@@@@@----------------------------------------> ////// WORKAROUND ///// <----------------------------------------@@@@@@@@
+real(RP) ,allocatable:: constr(:) 
 real(RP) :: zmat(npt, npt - size(x) - 1)
 real(RP), parameter :: trtol = 1.0E-2_RP  ! Convergence tolerance of trust-region subproblem solver
 
@@ -217,6 +219,8 @@ maxfhist = int(size(fhist), kind(maxfhist))
 maxchist = int(size(chist), kind(maxchist))
 maxhist = int(max(maxxhist, maxfhist, maxchist), kind(maxhist))
 
+! @@@@@@@----------------------------------------> ////// WORKAROUND ///// <----------------------------------------@@@@@@@@
+allocate(constr(count(xl > -BOUNDMAX) + count(xu < BOUNDMAX) + 2 * size(beq) + size(bineq)))
 ! Preconditions
 if (DEBUGGING) then
     call assert(abs(iprint) <= 3, 'IPRINT is 0, 1, -1, 2, -2, 3, or -3', srname)

@@ -149,7 +149,6 @@ real(RP) :: xdrop(size(x))
 real(RP) :: xosav(size(x))
 real(RP) :: xpt(size(x), npt)
 real(RP) :: temp_xpt(size(x))
-real(RP) :: temp_xpt(size(x))
 real(RP) :: zmat(npt, npt - size(x) - 1)
 real(RP), parameter :: trtol = 1.0E-2_RP  ! Convergence tolerance of trust-region subproblem solver
 

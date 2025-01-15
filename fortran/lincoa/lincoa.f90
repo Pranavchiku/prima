@@ -695,6 +695,18 @@ integer :: row_workaround_variable_02
 integer :: column_workaround_variable_03
 integer :: i 
 
+! @@@@@@@----------------------------------------> ////// WORKAROUND ///// <----------------------------------------@@@@@@@@
+REAL(RP), ALLOCATABLE :: workaround_variable_01_xl(:)
+REAL(RP), ALLOCATABLE :: workaround_variable_02_xu(:)
+REAL(RP), ALLOCATABLE :: workaround_variable_03_beq(:)
+REAL(RP), ALLOCATABLE :: workaround_variable_04_bineq(:)
+integer :: workaround_variable_05
+real(RP) , allocatable :: workaround_variable_06_x0(:)
+real(RP) , allocatable :: workaround_variable_07_x0_01(:) 
+real(RP) , allocatable :: workaround_variable_08_aeqx0(:)
+real(RP) , allocatable :: workaround_variable_09_aineqx0(:)
+real(RP) ,allocatable :: workaround_variable_10_Aeq_norm(:)
+real(RP) ,allocatable :: workaround_variable_11_Aineq_norm(:)
 ! Sizes
 n = int(size(x0), kind(n))
 
@@ -747,7 +759,28 @@ iineq = trueloc(Aineq_norm > 0)
 idmat = eye(n, n)
 amat = reshape(shape=shape(amat), source= &
     & [-idmat(:, ixl), idmat(:, ixu), -transpose(Aeq(ieq, :)), transpose(Aeq(ieq, :)), transpose(Aineq(iineq, :))])
-bvec = [-xl(ixl), xu(ixu), -beq(ieq), beq(ieq), bineq(iineq)]
+
+! @@@@@@@----------------------------------------> ////// WORKAROUND ///// <----------------------------------------@@@@@@@@
+
+allocate(workaround_variable_01_xl(size(ixl)))
+allocate(workaround_variable_02_xu(size(ixu)))
+allocate(workaround_variable_03_beq(size(ieq)))
+allocate(workaround_variable_04_bineq(size(iineq)))
+do workaround_variable_05 = 1, size(ixl)
+    workaround_variable_01_xl(workaround_variable_05) = xl(ixl(workaround_variable_05))
+end do
+do workaround_variable_05 = 1, size(ixu)
+    workaround_variable_02_xu(workaround_variable_05) = xu(ixu(workaround_variable_05))
+end do
+do workaround_variable_05 = 1, size(ieq)
+    workaround_variable_03_beq(workaround_variable_05) = beq(ieq(workaround_variable_05))
+end do
+do workaround_variable_05 = 1, size(iineq)
+    workaround_variable_04_bineq(workaround_variable_05) = bineq(iineq(workaround_variable_05))
+end do
+bvec = [-workaround_variable_01_xl, workaround_variable_02_xu, -workaround_variable_03_beq, workaround_variable_03_beq, &
+& workaround_variable_04_bineq]
+! bvec = [-xl(ixl), xu(ixu), -beq(ieq), beq(ieq), bineq(iineq)] ! >>>>>>>>>>>>>>>>>>>>>>>>>>>>This is the original code
 !!MATLAB code:
 !!amat = [-idmat(:, ixl), idmat(:, ixu), -Aeq(ieq, :)', Aeq(ieq, :)', Aineq(iineq, :)'];
 !!bvec = [-xl(ixl); xu(ixu); -beq(ieq); beq(ieq); bineq(iineq)];
@@ -755,10 +788,44 @@ bvec = [-xl(ixl), xu(ixu), -beq(ieq), beq(ieq), bineq(iineq)]
 ! Modify BVEC if necessary so that the initial point is feasible.
 Aeqx0 = matprod(Aeq, x0)
 Aineqx0 = matprod(Aineq, x0)
-bvec = max(bvec, [-x0(ixl), x0(ixu), -Aeqx0(ieq), Aeqx0(ieq), Aineqx0(iineq)])
+
+! @@@@@@@----------------------------------------> ////// WORKAROUND ///// <----------------------------------------@@@@@@@@
+allocate(workaround_variable_06_x0(size(ixl)))
+allocate(workaround_variable_07_x0_01(size(ixu)))
+allocate(workaround_variable_08_aeqx0(size(ieq)))
+allocate(workaround_variable_09_aineqx0(size(iineq)))
+do workaround_variable_05 = 1, size(ixl)
+    workaround_variable_06_x0(workaround_variable_05) = -x0(ixl(workaround_variable_05))
+end do
+do workaround_variable_05 = 1, size(ixu)
+    workaround_variable_07_x0_01(workaround_variable_05) = x0(ixu(workaround_variable_05))
+end do
+do workaround_variable_05 = 1, size(ieq)
+    workaround_variable_08_aeqx0(workaround_variable_05) = -Aeqx0(ieq(workaround_variable_05))
+end do
+do workaround_variable_05 = 1, size(iineq)
+    workaround_variable_09_aineqx0(workaround_variable_05) = Aineqx0(iineq(workaround_variable_05))
+end do
+bvec = max(bvec, [-workaround_variable_06_x0, workaround_variable_07_x0_01,&
+& -workaround_variable_08_aeqx0, workaround_variable_08_aeqx0, workaround_variable_09_aineqx0]) 
+! bvec = max(bvec, [-x0(ixl), x0(ixu), -Aeqx0(ieq), Aeqx0(ieq), Aineqx0(iineq)]) ! >>>>>>>>>>>>>>>>>>>>>>>>>>>>This is the original code
+
+
+
 
 ! Normalize the linear constraints so that each constraint has a gradient of norm 1.
-Anorm = [Aeq_norm(ieq), Aeq_norm(ieq), Aineq_norm(iineq)]
+! @@@@@@@----------------------------------------> ////// WORKAROUND ///// <----------------------------------------@@@@@@@@
+allocate(workaround_variable_10_Aeq_norm(size(ieq)))
+allocate(workaround_variable_11_Aineq_norm(size(iineq)))
+do workaround_variable_05 = 1, size(ieq)
+    workaround_variable_10_Aeq_norm(workaround_variable_05) = Aeq_norm(ieq(workaround_variable_05))
+end do
+do workaround_variable_05 = 1, size(iineq)
+    workaround_variable_11_Aineq_norm(workaround_variable_05) = Aineq_norm(iineq(workaround_variable_05))
+end do
+Anorm = [workaround_variable_10_Aeq_norm, workaround_variable_10_Aeq_norm, workaround_variable_11_Aineq_norm]
+! Anorm = [Aeq_norm(ieq), Aeq_norm(ieq), Aineq_norm(iineq)] ! >>>>>>>>>>>>>>>>>>>>>>>>>>>>This is the original code
+
 
 
 ! @@@@@@@----------------------------------------> ////// WORKAROUND ///// <----------------------------------------@@@@@@@@

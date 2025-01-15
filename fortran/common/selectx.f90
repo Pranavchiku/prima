@@ -62,12 +62,17 @@ integer(IK) :: index_to_keep(size(ffilt))
 integer(IK) :: kworst
 integer(IK) :: m
 integer(IK) :: maxfilt
-integer(IK) :: n
+integer(IK) :: tmp_nfilt
+integer(IK) :: n, i
 logical :: keep(nfilt)
 real(RP) :: cfilt_shifted(size(ffilt))
 real(RP) :: cref
 real(RP) :: fref
 real(RP) :: phi(size(ffilt))
+real(RP) :: tmp_ffilt(size(ffilt))
+real(RP) :: tmp_cfilt(size(cfilt))
+real(RP) :: tmp_xfilt(size(xfilt, 1), size(xfilt, 2))
+real(RP), allocatable :: tmp_confilt(:, :)
 real(RP) :: phimax
 
 ! Sizes
@@ -164,13 +169,29 @@ if (count(keep) == maxfilt) then  ! In this case, NFILT = SIZE(KEEP) = COUNT(KEE
     keep(kworst) = .false.
 end if
 
-nfilt = int(count(keep), kind(nfilt))
-index_to_keep(1:nfilt) = trueloc(keep)
-xfilt(:, 1:nfilt) = xfilt(:, index_to_keep(1:nfilt))
-ffilt(1:nfilt) = ffilt(index_to_keep(1:nfilt))
-cfilt(1:nfilt) = cfilt(index_to_keep(1:nfilt))
+tmp_nfilt = int(count(keep), kind(tmp_nfilt))
+index_to_keep(1:tmp_nfilt) = trueloc(keep)
+if(tmp_nfilt > 0) index_to_keep(1:tmp_nfilt) = trueloc(keep)
+nfilt = tmp_nfilt
+tmp_cfilt = cfilt
+tmp_ffilt = ffilt
+tmp_xfilt = xfilt
+! xfilt(:, 1:nfilt) = tmp_xfilt(:, index_to_keep(1:nfilt))
+! ffilt(1:nfilt) = tmp_ffilt(index_to_keep(1:nfilt))
+! cfilt(1:nfilt) = tmp_cfilt(index_to_keep(1:nfilt))
+do i = 1, nfilt
+    xfilt(:, i) = tmp_xfilt(:, index_to_keep(i))
+    ffilt(i) = tmp_ffilt(index_to_keep(i))
+    cfilt(i) = tmp_cfilt(index_to_keep(i))
+end do
 if (present(confilt) .and. present(constr)) then
-    confilt(:, 1:nfilt) = confilt(:, index_to_keep(1:nfilt))
+    allocate(tmp_confilt(size(confilt, 1), size(confilt, 2)))
+    tmp_confilt = confilt
+    ! confilt(:, 1:nfilt) = confilt(:, index_to_keep(1:nfilt))
+    do i = 1, nfilt
+        confilt(:, i) = tmp_confilt(:, index_to_keep(i))
+    end do
+    deallocate(tmp_confilt)
 end if
 
 nfilt = nfilt + 1_IK

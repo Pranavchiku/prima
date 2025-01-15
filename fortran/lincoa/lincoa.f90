@@ -689,13 +689,11 @@ real(RP) :: Aineqx0(size(Aineq, 1))
 real(RP) :: idmat(size(x0), size(x0))
 real(RP) :: smallx
 real(RP), allocatable :: Anorm(:)
-real(RP) :: Aeq_(size(Aeq, 1), size(Aeq, 2))
-real(RP) :: Aineq_(size(Aineq, 1), size(Aineq, 2))
+
 ! @@@@@@@----------------------------------------> ////// WORKAROUND ///// <----------------------------------------@@@@@@@@
 real(RP), allocatable :: spread_array_workaround_variable_01(:,:)
 integer :: row_workaround_variable_02
 integer :: column_workaround_variable_03
-integer :: i 
 
 ! @@@@@@@----------------------------------------> ////// WORKAROUND ///// <----------------------------------------@@@@@@@@
 REAL(RP), ALLOCATABLE :: workaround_variable_01_xl(:)
@@ -759,15 +757,8 @@ iineq = trueloc(Aineq_norm > 0)
 ! 1. The treatment of the equality constraints is naive. One may choose to eliminate them instead.
 ! 2. The code below is quite inefficient in terms of memory, but we prefer readability.
 idmat = eye(n, n)
-do i = 1, size(ieq)
-    Aeq_(i, :) = ieq(i)
-end do
-do i = 1, size(iineq)
-    Aineq_(i, :) = iineq(i)
-end do
 amat = reshape(shape=shape(amat), source= &
-    & [-idmat(:, ixl), idmat(:, ixu), -transpose(Aeq_), transpose(Aeq_), transpose(Aineq_)])
-
+& [-idmat(:, ixl), idmat(:, ixu), -transpose(Aeq(ieq, :)), transpose(Aeq(ieq, :)), transpose(Aineq(iineq, :))])
 ! @@@@@@@----------------------------------------> ////// WORKAROUND ///// <----------------------------------------@@@@@@@@
 
 allocate(workaround_variable_01_xl(size(ixl)))

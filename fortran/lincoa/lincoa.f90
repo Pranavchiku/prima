@@ -705,8 +705,8 @@ real(RP) , allocatable :: workaround_variable_06_x0(:)
 real(RP) , allocatable :: workaround_variable_07_x0_01(:) 
 real(RP) , allocatable :: workaround_variable_08_aeqx0(:)
 real(RP) , allocatable :: workaround_variable_09_aineqx0(:)
-real ,allocatable :: workaround_variable_10_Aeq_norm(:)
-real ,allocatable :: workaround_variable_11_Aineq_norm(:)
+real(RP) ,allocatable :: workaround_variable_10_Aeq_norm(:)
+real(RP) ,allocatable :: workaround_variable_11_Aineq_norm(:)
 ! Sizes
 n = int(size(x0), kind(n))
 

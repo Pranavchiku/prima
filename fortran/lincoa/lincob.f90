@@ -210,6 +210,14 @@ real(RP) :: xpt(size(x), npt)
 real(RP) ,allocatable:: constr(:) 
 real(RP) :: zmat(npt, npt - size(x) - 1)
 real(RP), parameter :: trtol = 1.0E-2_RP  ! Convergence tolerance of trust-region subproblem solver
+! @@@@@@@----------------------------------------> ////// WORKAROUND ///// <----------------------------------------@@@@@@@@
+real(RP) ,allocatable :: workaround_variable_01_xl_ixl(:)
+real(RP) ,allocatable :: workaround_variable_02_x_ixl(:)
+real(RP) ,allocatable :: workaround_variable_03_x_ixu(:)
+real(RP) ,allocatable :: workaround_variable_04_xu_ixu(:)
+integer :: i 
+
+
 
 ! Sizes.
 m = int(size(bvec), kind(m))
@@ -275,7 +283,28 @@ end if
 x = xbase + xpt(:, kopt)
 f = fval(kopt)
 constr_leq = matprod(Aeq, x) - beq
-constr = [xl(ixl) - x(ixl), x(ixu) - xu(ixu), -constr_leq, constr_leq, matprod(Aineq, x) - bineq]
+
+! @@@@@@@----------------------------------------> ////// WORKAROUND ///// <----------------------------------------@@@@@@@@
+if(allocated(workaround_variable_01_xl_ixl)) then
+    deallocate(workaround_variable_01_xl_ixl,workaround_variable_02_x_ixl,&
+    &workaround_variable_03_x_ixu,workaround_variable_04_xu_ixu)
+end if
+allocate(workaround_variable_01_xl_ixl(size(ixl)))
+allocate(workaround_variable_02_x_ixl(size(ixl)))
+allocate(workaround_variable_03_x_ixu(size(ixu)))
+allocate(workaround_variable_04_xu_ixu(size(ixu)))
+do i =1, size(ixl)
+    workaround_variable_01_xl_ixl(i) = xl(ixl(i))
+    workaround_variable_02_x_ixl(i) = x(ixl(i))
+end do
+do i =1, size(ixu)
+    workaround_variable_03_x_ixu(i) = x(ixu(i))
+    workaround_variable_04_xu_ixu(i) = xu(ixu(i))
+end do
+constr = [workaround_variable_01_xl_ixl - workaround_variable_02_x_ixl, &
+&workaround_variable_03_x_ixu - workaround_variable_04_xu_ixu, -constr_leq, constr_leq, matprod(Aineq, x) - bineq]
+! constr = [xl(ixl) - x(ixl), x(ixu) - xu(ixu), -constr_leq, constr_leq, matprod(Aineq, x) - bineq] --> Original Code
+
 cstrv = maximum([ZERO, constr])
 
 ! Initialize the filter, including XFILT, FFILT, CONFILT, CFILT, and NFILT.
@@ -318,7 +347,27 @@ if (subinfo /= INFO_DFT) then
     x = xfilt(:, kopt)
     f = ffilt(kopt)
     constr_leq = matprod(Aeq, x) - beq
-    constr = [xl(ixl) - x(ixl), x(ixu) - xu(ixu), -constr_leq, constr_leq, matprod(Aineq, x) - bineq]
+    ! @@@@@@@----------------------------------------> ////// WORKAROUND ///// <----------------------------------------@@@@@@@@
+    if(allocated(workaround_variable_01_xl_ixl)) then
+        deallocate(workaround_variable_01_xl_ixl,workaround_variable_02_x_ixl,&
+        &workaround_variable_03_x_ixu,workaround_variable_04_xu_ixu)
+    end if
+    allocate(workaround_variable_01_xl_ixl(size(ixl)))
+    allocate(workaround_variable_02_x_ixl(size(ixl)))
+    allocate(workaround_variable_03_x_ixu(size(ixu)))
+    allocate(workaround_variable_04_xu_ixu(size(ixu)))
+    do i =1, size(ixl)
+        workaround_variable_01_xl_ixl(i) = xl(ixl(i))
+        workaround_variable_02_x_ixl(i) = x(ixl(i))
+    end do
+    do i =1, size(ixu)
+        workaround_variable_03_x_ixu(i) = x(ixu(i))
+        workaround_variable_04_xu_ixu(i) = xu(ixu(i))
+    end do
+    constr = [workaround_variable_01_xl_ixl - workaround_variable_02_x_ixl,&
+    & workaround_variable_03_x_ixu - workaround_variable_04_xu_ixu, -constr_leq, constr_leq, matprod(Aineq, x) - bineq]
+    ! constr = [xl(ixl) - x(ixl), x(ixu) - xu(ixu), -constr_leq, constr_leq, matprod(Aineq, x) - bineq] --> Original Code
+
     cstrv = maximum([ZERO, constr])
     call retmsg(solver, info, iprint, nf, f, x, cstrv, constr)
     ! Arrange CHIST, FHIST, and XHIST so that they are in the chronological order.
@@ -455,7 +504,27 @@ do tr = 1, maxtr
 
         ! Evaluate the constraints. They are used only for printing messages.
         constr_leq = matprod(Aeq, x) - beq
-        constr = [xl(ixl) - x(ixl), x(ixu) - xu(ixu), -constr_leq, constr_leq, matprod(Aineq, x) - bineq]
+! @@@@@@@----------------------------------------> ////// WORKAROUND ///// <----------------------------------------@@@@@@@@
+        if(allocated(workaround_variable_01_xl_ixl)) then
+            deallocate(workaround_variable_01_xl_ixl,workaround_variable_02_x_ixl,&
+            &workaround_variable_03_x_ixu,workaround_variable_04_xu_ixu)
+        end if
+        allocate(workaround_variable_01_xl_ixl(size(ixl)))
+        allocate(workaround_variable_02_x_ixl(size(ixl)))
+        allocate(workaround_variable_03_x_ixu(size(ixu)))
+        allocate(workaround_variable_04_xu_ixu(size(ixu)))
+        do i =1, size(ixl)
+            workaround_variable_01_xl_ixl(i) = xl(ixl(i))
+            workaround_variable_02_x_ixl(i) = x(ixl(i))
+        end do
+        do i =1, size(ixu)
+            workaround_variable_03_x_ixu(i) = x(ixu(i))
+            workaround_variable_04_xu_ixu(i) = xu(ixu(i))
+        end do
+        constr = [workaround_variable_01_xl_ixl - workaround_variable_02_x_ixl,&
+        & workaround_variable_03_x_ixu - workaround_variable_04_xu_ixu, -constr_leq, constr_leq, matprod(Aineq, x) - bineq]
+        ! constr = [xl(ixl) - x(ixl), x(ixu) - xu(ixu), -constr_leq, constr_leq, matprod(Aineq, x) - bineq] --> Original Code
+
         cstrv = maximum([ZERO, constr])
 
         ! Print a message about the function evaluation according to IPRINT.
@@ -612,7 +681,27 @@ do tr = 1, maxtr
 
         ! Evaluate the constraints. They are used only for printing messages.
         constr_leq = matprod(Aeq, x) - beq
-        constr = [xl(ixl) - x(ixl), x(ixu) - xu(ixu), -constr_leq, constr_leq, matprod(Aineq, x) - bineq]
+        ! @@@@@@@----------------------------------------> ////// WORKAROUND ///// <----------------------------------------@@@@@@@@
+        if(allocated(workaround_variable_01_xl_ixl)) then
+            deallocate(workaround_variable_01_xl_ixl,workaround_variable_02_x_ixl,&
+            &workaround_variable_03_x_ixu,workaround_variable_04_xu_ixu)
+        end if
+        allocate(workaround_variable_01_xl_ixl(size(ixl)))
+        allocate(workaround_variable_02_x_ixl(size(ixl)))
+        allocate(workaround_variable_03_x_ixu(size(ixu)))
+        allocate(workaround_variable_04_xu_ixu(size(ixu)))
+        do i =1, size(ixl)
+            workaround_variable_01_xl_ixl(i) = xl(ixl(i))
+            workaround_variable_02_x_ixl(i) = x(ixl(i))
+        end do
+        do i =1, size(ixu)
+            workaround_variable_03_x_ixu(i) = x(ixu(i))
+            workaround_variable_04_xu_ixu(i) = xu(ixu(i))
+        end do
+        constr = [workaround_variable_01_xl_ixl - workaround_variable_02_x_ixl,&
+        & workaround_variable_03_x_ixu - workaround_variable_04_xu_ixu, -constr_leq, constr_leq, matprod(Aineq, x) - bineq]
+        ! constr = [xl(ixl) - x(ixl), x(ixu) - xu(ixu), -constr_leq, constr_leq, matprod(Aineq, x) - bineq] --> Original Code
+
         cstrv = maximum([ZERO, constr])
 
         ! Print a message about the function evaluation according to IPRINT.
@@ -710,7 +799,26 @@ if (info == SMALL_TR_RADIUS .and. shortd .and. dnorm > TENTH * rhoend .and. nf <
     call evaluate(calfun, x, f)
     nf = nf + 1_IK
     constr_leq = matprod(Aeq, x) - beq
-    constr = [xl(ixl) - x(ixl), x(ixu) - xu(ixu), -constr_leq, constr_leq, matprod(Aineq, x) - bineq]
+    ! @@@@@@@----------------------------------------> ////// WORKAROUND ///// <----------------------------------------@@@@@@@@
+    if(allocated(workaround_variable_01_xl_ixl)) then
+        deallocate(workaround_variable_01_xl_ixl,workaround_variable_02_x_ixl,&
+        &workaround_variable_03_x_ixu,workaround_variable_04_xu_ixu)
+    end if
+    allocate(workaround_variable_01_xl_ixl(size(ixl)))
+    allocate(workaround_variable_02_x_ixl(size(ixl)))
+    allocate(workaround_variable_03_x_ixu(size(ixu)))
+    allocate(workaround_variable_04_xu_ixu(size(ixu)))
+    do i =1, size(ixl)
+        workaround_variable_01_xl_ixl(i) = xl(ixl(i))
+        workaround_variable_02_x_ixl(i) = x(ixl(i))
+    end do
+    do i =1, size(ixu)
+        workaround_variable_03_x_ixu(i) = x(ixu(i))
+        workaround_variable_04_xu_ixu(i) = xu(ixu(i))
+    end do
+    constr = [workaround_variable_01_xl_ixl - workaround_variable_02_x_ixl,&
+    & workaround_variable_03_x_ixu - workaround_variable_04_xu_ixu, -constr_leq, constr_leq, matprod(Aineq, x) - bineq]
+    ! constr = [xl(ixl) - x(ixl), x(ixu) - xu(ixu), -constr_leq, constr_leq, matprod(Aineq, x) - bineq] --> Original Code 
     cstrv = maximum([ZERO, constr])
     ! Print a message about the function evaluation according to IPRINT.
     ! Zaikun 20230512: DELTA has been updated. RHO is only indicative here. TO BE IMPROVED.
@@ -726,7 +834,27 @@ kopt = selectx(ffilt(1:nfilt), cfilt(1:nfilt), cweight, ctol)
 x = xfilt(:, kopt)
 f = ffilt(kopt)
 constr_leq = matprod(Aeq, x) - beq
-constr = [xl(ixl) - x(ixl), x(ixu) - xu(ixu), -constr_leq, constr_leq, matprod(Aineq, x) - bineq]
+! create allocatable array variables to hold the return of the array being indexed using another array (e.g. `xl(ixl)`)
+if(allocated(workaround_variable_01_xl_ixl)) then
+    deallocate(workaround_variable_01_xl_ixl,workaround_variable_02_x_ixl,&
+    &workaround_variable_03_x_ixu,workaround_variable_04_xu_ixu)
+end if
+allocate(workaround_variable_01_xl_ixl(size(ixl)))
+allocate(workaround_variable_02_x_ixl(size(ixl)))
+allocate(workaround_variable_03_x_ixu(size(ixu)))
+allocate(workaround_variable_04_xu_ixu(size(ixu)))
+do i =1, size(ixl)
+    workaround_variable_01_xl_ixl(i) = xl(ixl(i))
+    workaround_variable_02_x_ixl(i) = x(ixl(i))
+end do
+do i =1, size(ixu)
+    workaround_variable_03_x_ixu(i) = x(ixu(i))
+    workaround_variable_04_xu_ixu(i) = xu(ixu(i))
+end do
+constr = [workaround_variable_01_xl_ixl - workaround_variable_02_x_ixl,&
+& workaround_variable_03_x_ixu - workaround_variable_04_xu_ixu, -constr_leq, constr_leq, matprod(Aineq, x) - bineq]
+! constr = [xl(ixl) - x(ixl), x(ixu) - xu(ixu), -constr_leq, constr_leq, matprod(Aineq, x) - bineq] --> Original Code
+
 cstrv = maximum([ZERO, constr])
 
 ! Deallocate IXL and IXU as they have finished their job.

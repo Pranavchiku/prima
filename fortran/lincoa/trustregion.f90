@@ -298,7 +298,7 @@ do iter = 1, maxiter  ! Powell's code is essentially a DO WHILE loop. We impose 
 
                 ! Reduce GAMMA so that the move along DPROJ also satisfies the linear constraints.
                 ad = -ONE
-                ad(trueloc(resnew > 0)) = matprod(d, amat(:, trueloc(resnew > 0)))
+                ad(trueloc(resnew > 0)) = matprod(dproj, amat(:, trueloc(resnew > 0)))
                 
                 frac = ONE
                 restmp(trueloc(ad > 0)) = resnew(trueloc(ad > 0)) - matprod(psd, amat(:, trueloc(ad > 0)))

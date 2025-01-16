@@ -1,0 +1,2 @@
+FC="lfortran --cpp" cmake -S . -B build -DCMAKE_INSTALL_PREFIX=$(pwd)/install -DCMAKE_Fortran_FLAGS="" -DCMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS="" -DCMAKE_MACOSX_RPATH=OFF -DCMAKE_SKIP_INSTALL_RPATH=ON -DCMAKE_SKIP_RPATH=ON && cmake --build build --target install -j8
+./build/fortran/example_lincoa_fortran_1_exe

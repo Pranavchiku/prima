@@ -327,7 +327,7 @@ A = A + outprod(alpha * x, y) + outprod(beta * u, v)
 end subroutine r2
 
 
-function matprod12(x, y) result(z)
+function matprod12(x, y) result(z_)
 !--------------------------------------------------------------------------------------------------!
 ! This procedure calculates the matrix product of X and Y, where X is an M-dimensional vector
 ! considered as a row, and Y is an M-by-N matrix.
@@ -341,7 +341,8 @@ real(RP), intent(in) :: x(:)
 real(RP), intent(in) :: y(:, :)
 real(RP) :: tmp(size(y, 1))
 ! Outputs
-real(RP) :: z(size(y, 2))
+! real(RP) :: z(size(y, 2)) --> Original Code
+real(RP), allocatable :: z_(:)
 ! Local variables
 character(len=*), parameter :: srname = 'MATPROD12'
 integer(IK) :: j
@@ -354,13 +355,13 @@ end if
 !====================!
 ! Calculation starts !
 !====================!
-
+allocate(z_(size(y, 2)))
 do j = 1, int(size(y, 2), kind(j))
     ! When interfaced with MATLAB, the following seems more efficient than a loop, which is strange
     ! since inprod itself is implemented by a loop. This may depend on the machine (e.g., cache
     ! size), compiler, compiling options, and MATLAB version.
     tmp = y(:, j)
-    z(j) = inprod(x, tmp)
+    z_(j) = inprod(x, tmp)
 end do
 
 !====================!
@@ -369,7 +370,7 @@ end do
 
 ! Postconditions
 if (DEBUGGING) then
-    call assert(size(z) == size(y, 2), 'SIZE(Z) == SIZE(Y, 2)', srname)
+    call assert(size(z_) == size(y, 2), 'SIZE(Z) == SIZE(Y, 2)', srname)
 end if
 end function matprod12
 

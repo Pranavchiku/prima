@@ -309,21 +309,6 @@ real(RP) :: tol
 real(RP) :: vlagabs(size(xpt, 2))
 real(RP) :: xopt(size(xpt, 1))
 
-!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ ////////////////WORKAROUND ////////////////@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-logical, allocatable :: restat_BinOperation_res_workaround(:)
-integer(IK), allocatable :: trueloc_res_workaround(:)
-integer(IK) :: count_workaround
-real(RP),allocatable :: amat_indexed_workaround(:,:)
-
-logical, allocatable :: restat_BinOperation_res_workaround_2(:)
-integer(IK), allocatable :: trueloc_res_workaround_2(:)
-integer(IK) :: count_workaround_2
-real(RP),allocatable :: amat_indexed_workaround_2(:,:)
-
-logical, allocatable :: restat_BinOperation_res_workaround_3(:)
-integer(IK),allocatable :: trueloc_res_workaround_3(:)
-integer(IK) :: count_workaround_3
-real(RP), allocatable :: amat_indexed_workaround_3(:,:)
 
 ! Sizes.
 m = int(size(amat, 2), kind(m))
@@ -422,19 +407,7 @@ rstat = 1  ! Inactive and relevant
 rstat(trueloc(abs(rescon) >= delbar)) = -1  ! Irrelevant
 rstat(iact(1:nact)) = 0  ! Active
 
-!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ ////////////////WORKAROUND ////////////////@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-allocate(restat_BinOperation_res_workaround(size(rstat)))
-restat_BinOperation_res_workaround = rstat >= 0
-count_workaround = INT(count(restat_BinOperation_res_workaround), IK)
-
-allocate(trueloc_res_workaround(count_workaround))
-trueloc_res_workaround = trueloc(restat_BinOperation_res_workaround)
-allocate(amat_indexed_workaround(size(amat,1),count_workaround))
-amat_indexed_workaround = amat(:,trueloc_res_workaround)
-! Set FEASIBLE for the calculated S.
-cstrv = maximum([ZERO, matprod(s, amat_indexed_workaround) - rescon(trueloc_res_workaround)])
-deallocate(restat_BinOperation_res_workaround, trueloc_res_workaround, amat_indexed_workaround)
-! cstrv = maximum([ZERO, matprod(s, amat(:, trueloc(rstat >= 0))) - rescon(trueloc(rstat >= 0))]) --> Original Code 
+cstrv = maximum([ZERO, matprod(s, amat(:, trueloc(rstat >= 0))) - rescon(trueloc(rstat >= 0))])
 feasible = (cstrv <= 0)
 
 ! If NACT <= 0 or NACT >= N, the calculation has finished. Otherwise, define PGSTP by maximizing
@@ -456,18 +429,8 @@ if (nact > 0 .and. gnorm > EPS .and. is_finite(gnorm)) then
     ! Decide whether to replace S with PGSTP and set FEASIBLE accordingly. CSTRV is the constraint
     ! violation of XOPT+PGSTP. Note that we only need to check the constraints that are inactive and
     ! relevant, as the value of the active constraints is not changed by moving along PGSTP.
-    !@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ ////////////////WORKAROUND ////////////////@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    allocate(restat_BinOperation_res_workaround_2(size(rstat)))
-    restat_BinOperation_res_workaround_2 = (rstat == 1)
-    count_workaround_2 = INT(count(restat_BinOperation_res_workaround_2), IK)
-    allocate(trueloc_res_workaround_2(count_workaround_2))
-    trueloc_res_workaround_2 = trueloc(rstat == 1)
 
-    allocate(amat_indexed_workaround_2(size(amat,1),count_workaround_2))
-    amat_indexed_workaround_2 = amat(:,trueloc_res_workaround_2)
-    cstrv = maximum([ZERO, matprod(pgstp, amat_indexed_workaround_2) - rescon(trueloc_res_workaround_2)])
-    deallocate(restat_BinOperation_res_workaround_2,trueloc_res_workaround_2, amat_indexed_workaround_2)
-    ! cstrv = maximum([ZERO, matprod(pgstp, amat(:, trueloc(rstat == 1))) - rescon(trueloc(rstat == 1))]) --> Original Code
+    cstrv = maximum([ZERO, matprod(pgstp, amat(:, trueloc(rstat == 1))) - rescon(trueloc(rstat == 1))])
     ! The purpose of CVTOL below is to provide a check on feasibility that includes a tolerance for
     ! contributions from computer rounding errors.
     ! Powell's code is as follows. Note that MATPROD(PGSTP, AMAT(:, IACT(1:NACT))) is 0 in theory.
@@ -491,17 +454,7 @@ if (sum(abs(s)) <= 0 .or. .not. is_finite(sum(abs(s)))) then
     s = xpt(:, knew) - xopt
     scaling = delbar / norm(s)
     s = max(0.6_RP * scaling, min(HALF, scaling)) * s  ! 0.6: ensure |D| > DELBAR/2
-    !@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ ////////////////WORKAROUND ////////////////@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    allocate(restat_BinOperation_res_workaround_3(size(rstat)))
-    restat_BinOperation_res_workaround_3 = (rstat >= 0)
-    count_workaround_3 = INT(count(restat_BinOperation_res_workaround_3), IK)
-    allocate(trueloc_res_workaround_3(count_workaround_3))
-    trueloc_res_workaround_3 = trueloc(rstat >= 0)
-    allocate(amat_indexed_workaround_3(size(amat,1), count_workaround_3))
-    amat_indexed_workaround_3 = amat(:, trueloc_res_workaround_3)
-    cstrv = maximum([ZERO, matprod(s, amat_indexed_workaround_3) - rescon(trueloc_res_workaround_3)])
-    deallocate(restat_BinOperation_res_workaround_3, trueloc_res_workaround_3, amat_indexed_workaround_3)
-    ! cstrv = maximum([ZERO, matprod(s, amat(:, trueloc(rstat >= 0))) - rescon(trueloc(rstat >= 0))]) ---> Original Code
+    cstrv = maximum([ZERO, matprod(s, amat(:, trueloc(rstat >= 0))) - rescon(trueloc(rstat >= 0))])
 
     feasible = (cstrv <= 0)
 end if

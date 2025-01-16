@@ -1669,7 +1669,11 @@ else
     end if
 end if
 
-G = reshape([c, -s, s, c], [2, 2])  !!MATLAB: G = [c, s; -s, c]
+G(1,1) = c
+G(2,1) = -s
+G(1,2) = s
+G(2,2) = c
+! G = reshape([c, -s, s, c], [2, 2])  !!MATLAB: G = [c, s; -s, c]
 
 !====================!
 !  Calculation ends  !

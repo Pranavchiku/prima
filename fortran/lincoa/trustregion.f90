@@ -124,12 +124,17 @@ real(RP) :: ss
 logical, allocatable :: resnew_BinOperation_res_workaround(:)
 integer(IK), allocatable :: trueloc_return_array_workaround(:)
 integer(IK) :: count_workaround
+REAl(RP), allocatable :: amat_indexed_workaround(:,:)
+
 logical, allocatable :: ad_BinOperation_res_workaround(:)
 integer(IK), allocatable :: trueloc_return_array_workaround_2(:)
 integer(IK) :: count_workaround_2
+REAl(RP), allocatable :: amat_indexed_workaround_2(:,:)
+
 logical, allocatable :: resnew_BinOperation_res_workaround_2(:)
 integer(IK), allocatable :: trueloc_return_array_workaround_3(:)
 integer(IK) :: count_workaround_3
+REAl(RP), allocatable :: amat_indexed_workaround_3(:,:)
 
 ! Sizes.
 m = int(size(amat, 2), kind(m))
@@ -300,8 +305,10 @@ do iter = 1, maxiter  ! Powell's code is essentially a DO WHILE loop. We impose 
 
                 allocate(trueloc_return_array_workaround(count_workaround))
                 trueloc_return_array_workaround = trueloc(resnew_BinOperation_res_workaround)
-                ad(trueloc_return_array_workaround) = matprod(dproj, amat(:, trueloc_return_array_workaround))
-                deallocate(resnew_BinOperation_res_workaround,trueloc_return_array_workaround)
+                allocate(amat_indexed_workaround(size(amat,1), count_workaround))
+                amat_indexed_workaround = amat(:, trueloc_return_array_workaround)
+                ad(trueloc_return_array_workaround) = matprod(dproj, amat_indexed_workaround)
+                deallocate(resnew_BinOperation_res_workaround,trueloc_return_array_workaround,amat_indexed_workaround)
                 ! ad(trueloc(resnew > 0)) = matprod(d, amat(:, trueloc(resnew > 0))) -----------> Original Code
                 
                 
@@ -313,9 +320,11 @@ do iter = 1, maxiter  ! Powell's code is essentially a DO WHILE loop. We impose 
 
                 allocate(trueloc_return_array_workaround_2(count_workaround_2))
                 trueloc_return_array_workaround_2 = trueloc(ad_BinOperation_res_workaround)
+                allocate(amat_indexed_workaround_2(size(amat,1), count_workaround_2))
+                amat_indexed_workaround_2 = amat(:, trueloc_return_array_workaround_2)
                 restmp(trueloc_return_array_workaround_2) = &
-                        &resnew(trueloc_return_array_workaround_2) - matprod(psd, amat(:, trueloc_return_array_workaround_2))
-                deallocate(ad_BinOperation_res_workaround,trueloc_return_array_workaround_2)
+                        &resnew(trueloc_return_array_workaround_2) - matprod(psd, amat_indexed_workaround_2)
+                deallocate(ad_BinOperation_res_workaround, trueloc_return_array_workaround_2, amat_indexed_workaround_2)
                 ! restmp(trueloc(ad > 0)) = resnew(trueloc(ad > 0)) - matprod(psd, amat(:, trueloc(ad > 0))) ----> Original Code
 
                 frac(trueloc(ad > 0)) = restmp(trueloc(ad > 0)) / ad(trueloc(ad > 0))
@@ -390,8 +399,10 @@ do iter = 1, maxiter  ! Powell's code is essentially a DO WHILE loop. We impose 
 
     allocate(trueloc_return_array_workaround_3(count_workaround_3))
     trueloc_return_array_workaround_3 = trueloc(resnew_BinOperation_res_workaround_2)
-    ad(trueloc_return_array_workaround_3) = matprod(d, amat(:, trueloc_return_array_workaround_3))
-    deallocate(resnew_BinOperation_res_workaround_2, trueloc_return_array_workaround_3)
+    allocate(amat_indexed_workaround_3(size(amat,1), count_workaround_3))
+    amat_indexed_workaround_3 = amat(:, trueloc_return_array_workaround_3)
+    ad(trueloc_return_array_workaround_3) = matprod(d, amat_indexed_workaround_3)
+    deallocate(resnew_BinOperation_res_workaround_2, trueloc_return_array_workaround_3, amat_indexed_workaround_3)
     ! ad(trueloc(resnew > 0)) = matprod(d, amat(:, trueloc(resnew > 0))) !--> Original Code
     
     frac = alpha

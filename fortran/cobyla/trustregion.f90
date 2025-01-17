@@ -201,6 +201,7 @@ integer(IK) :: nfail
 real(RP) :: cviol
 !real(RP) :: cvold
 real(RP) :: cvsabs(size(b))
+real(RP) :: tmp_cvsabs(size(iact))
 real(RP) :: tmp_b1(size(b) + 1)
 real(RP) :: tmp_b2(size(A, 2))
 real(RP) :: tmp_b3(size(A, 2) + 1)
@@ -544,7 +545,8 @@ do iter = 1, maxiter
     end if
     ! Complete VMULTD by finding the new constraint residuals. (Powell wrote "Complete VMULTC ...")
     cvshift = cviol - (matprod(dnew, A(:, iact)) - b(iact))  ! Only CVSHIFT(nact+1:mcon) is needed.
-    cvsabs = matprod(abs(dnew), abs(A(:, iact))) + abs(b(iact)) + cviol
+    tmp_cvsabs = matprod(abs(dnew), abs(A(:, iact)))
+    cvsabs = tmp_cvsabs + abs(b(iact)) + cviol
     cvshift(trueloc(isminor(cvshift, cvsabs))) = ZERO
     !!MATLAB: cvshift(isminor(cvshift, cvsabs)) = 0;
     vmultd(nact + 1:mcon) = cvshift(nact + 1:mcon)

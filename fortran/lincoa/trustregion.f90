@@ -120,6 +120,16 @@ real(RP) :: restmp(size(amat, 2))
 real(RP) :: sold(size(s))
 real(RP) :: sqrtd
 real(RP) :: ss
+!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ ////////////////WORKAROUND ////////////////@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+logical, allocatable :: resnew_BinOperation_res_workaround(:)
+integer(IK), allocatable :: trueloc_return_array_workaround(:)
+integer(IK) :: count_workaround
+logical, allocatable :: ad_BinOperation_res_workaround(:)
+integer(IK), allocatable :: trueloc_return_array_workaround_2(:)
+integer(IK) :: count_workaround_2
+logical, allocatable :: resnew_BinOperation_res_workaround_2(:)
+integer(IK), allocatable :: trueloc_return_array_workaround_3(:)
+integer(IK) :: count_workaround_3
 
 ! Sizes.
 m = int(size(amat, 2), kind(m))
@@ -283,9 +293,31 @@ do iter = 1, maxiter  ! Powell's code is essentially a DO WHILE loop. We impose 
 
                 ! Reduce GAMMA so that the move along DPROJ also satisfies the linear constraints.
                 ad = -ONE
-                ad(trueloc(resnew > 0)) = matprod(dproj, amat(:, trueloc(resnew > 0)))
+                !@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ ////////////////WORKAROUND ////////////////@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                allocate(resnew_BinOperation_res_workaround(size(resnew)))
+                resnew_BinOperation_res_workaround = (resnew > 0)
+                count_workaround = int(count(resnew_BinOperation_res_workaround),IK)
+
+                allocate(trueloc_return_array_workaround(count_workaround))
+                trueloc_return_array_workaround = trueloc(resnew_BinOperation_res_workaround)
+                ad(trueloc_return_array_workaround) = matprod(dproj, amat(:, trueloc_return_array_workaround))
+                deallocate(resnew_BinOperation_res_workaround,trueloc_return_array_workaround)
+                ! ad(trueloc(resnew > 0)) = matprod(d, amat(:, trueloc(resnew > 0))) -----------> Original Code
+                
+                
                 frac = ONE
-                restmp(trueloc(ad > 0)) = resnew(trueloc(ad > 0)) - matprod(psd, amat(:, trueloc(ad > 0)))
+                !@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ ////////////////WORKAROUND ////////////////@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                allocate(ad_BinOperation_res_workaround(size(ad)))
+                ad_BinOperation_res_workaround = (ad > 0)
+                count_workaround_2 = int(count(ad_BinOperation_res_workaround),IK)
+
+                allocate(trueloc_return_array_workaround_2(count_workaround_2))
+                trueloc_return_array_workaround_2 = trueloc(ad_BinOperation_res_workaround)
+                restmp(trueloc_return_array_workaround_2) = &
+                        &resnew(trueloc_return_array_workaround_2) - matprod(psd, amat(:, trueloc_return_array_workaround_2))
+                deallocate(ad_BinOperation_res_workaround,trueloc_return_array_workaround_2)
+                ! restmp(trueloc(ad > 0)) = resnew(trueloc(ad > 0)) - matprod(psd, amat(:, trueloc(ad > 0))) ----> Original Code
+
                 frac(trueloc(ad > 0)) = restmp(trueloc(ad > 0)) / ad(trueloc(ad > 0))
                 gamma = minval([gamma, ONE, frac])  ! GAMMA = MINVAL([GAMMA, ONE, FRAC(TRUELOC(AD>0))])
             end if
@@ -351,7 +383,17 @@ do iter = 1, maxiter  ! Powell's code is essentially a DO WHILE loop. We impose 
     ! Make a further reduction in ALPHA if necessary to preserve feasibility.
     alphm = alpha
     ad = -ONE
-    ad(trueloc(resnew > 0)) = matprod(d, amat(:, trueloc(resnew > 0)))
+    !@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ ////////////////WORKAROUND ////////////////@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    allocate(resnew_BinOperation_res_workaround_2(size(resnew)))
+    resnew_BinOperation_res_workaround_2 = (resnew > 0)
+    count_workaround_3 = int(count(resnew_BinOperation_res_workaround_2),IK)
+
+    allocate(trueloc_return_array_workaround_3(count_workaround_3))
+    trueloc_return_array_workaround_3 = trueloc(resnew_BinOperation_res_workaround_2)
+    ad(trueloc_return_array_workaround_3) = matprod(d, amat(:, trueloc_return_array_workaround_3))
+    deallocate(resnew_BinOperation_res_workaround_2, trueloc_return_array_workaround_3)
+    ! ad(trueloc(resnew > 0)) = matprod(d, amat(:, trueloc(resnew > 0))) !--> Original Code
+    
     frac = alpha
     frac(trueloc(ad > 0)) = resnew(trueloc(ad > 0)) / ad(trueloc(ad > 0))
     frac(trueloc(is_nan(frac))) = alpha

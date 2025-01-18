@@ -333,6 +333,9 @@ integer(IK) :: n
 logical :: mask(size(b))
 real(RP) :: ax(size(b))
 
+!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ ////////////////WORKAROUND ////////////////@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+integer(IK) :: count_mask_workaround
+integer(IK) ,allocatable :: trueloc_mask_res_workaround(:)
 ! Sizes
 m = int(size(b), kind(m))
 n = int(size(xopt), kind(n))
@@ -361,7 +364,14 @@ if (.not. ximproved) then
 end if
 
 mask = (abs(rescon) < dnorm + delta)
-ax(trueloc(mask)) = matprod(xopt, amat(:, trueloc(mask)))
+!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ ////////////////WORKAROUND ////////////////@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+count_mask_workaround = INT(count(mask),IK)
+allocate(trueloc_mask_res_workaround(count_mask_workaround))
+trueloc_mask_res_workaround = trueloc(mask)
+ax(trueloc_mask_res_workaround) = matprod(xopt, amat(:, trueloc_mask_res_workaround))
+deallocate(trueloc_mask_res_workaround)
+! ax(trueloc(mask)) = matprod(xopt, amat(:, trueloc(mask))) ---> Original Code
+
 where (mask)
     rescon = max(b - ax, ZERO)
 elsewhere

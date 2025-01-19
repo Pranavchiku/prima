@@ -123,7 +123,10 @@ real(RP) :: violmx
 real(RP) :: vlam(size(g))
 real(RP) :: vmu(size(g))
 real(RP) :: vmult
-
+REAl(RP), allocatable :: solve_workaround(:)
+        ! --------------> ///////////////////// WORKAROUND //////////////////// <-------------------------------
+integer :: i,j
+real(RP), allocatable :: rfac__(:,:)
 ! Sizes.
 m = int(size(amat, 2), kind(m))
 n = int(size(g), kind(n))
@@ -311,7 +314,20 @@ do iter = 1, maxiter
         v(1:nact - 1) = ZERO
         v(nact) = ONE / rfac(nact, nact) ! This is why we must ensure NACT > 0.
         ! Solve the linear system RFAC(1:NACT, 1:NACT) * VMU(1:NACT) = V(1:NACT) .
-        vmu(1:nact) = solve(rfac(1:nact, 1:nact), v(1:nact)) ! VMU(NACT) = V(NACT)/RFAC(NACT,NACT)>0
+        ! --------------> ///////////////////// WORKAROUND //////////////////// <-------------------------------
+        allocate(solve_workaround(nact))
+        allocate(rfac__(nact,nact))
+        do i = 1 , nact
+            do j= 1 , nact 
+                rfac__(i,j) = rfac(i,j)
+            end do
+        end do
+        solve_workaround  = solve(rfac__, v(1:nact))
+        ! solve_workaround  = solve(rfac(1:nact, 1:nact), v(1:nact)) ! --> Original Code
+        deallocate(rfac__)
+        vmu(1:nact) = solve_workaround ! VMU(NACT) = V(NACT)/RFAC(NACT,NACT)>0
+        deallocate(solve_workaround)
+        ! vmu(1:nact) = solve(rfac(1:nact, 1:nact), v(1:nact)) ! VMU(NACT) = V(NACT)/RFAC(NACT,NACT)>0 --> Original Code
         !!MATLAB: vmu(1:nact) = rfac(1:nact, 1:nact) \ v(1:nact);
 
         ! Calculate the multiple of VMU to subtract from VLAM, and update VLAM.

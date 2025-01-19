@@ -327,7 +327,7 @@ A = A + outprod(alpha * x, y) + outprod(beta * u, v)
 end subroutine r2
 
 
-function matprod12(x, y) result(z)
+function matprod12(x, y) result(z_)
 !--------------------------------------------------------------------------------------------------!
 ! This procedure calculates the matrix product of X and Y, where X is an M-dimensional vector
 ! considered as a row, and Y is an M-by-N matrix.
@@ -341,7 +341,8 @@ real(RP), intent(in) :: x(:)
 real(RP), intent(in) :: y(:, :)
 real(RP) :: tmp(size(y, 1))
 ! Outputs
-real(RP) :: z(size(y, 2))
+! real(RP) :: z(size(y, 2)) --> Original Code
+real(RP), allocatable :: z_(:)
 ! Local variables
 character(len=*), parameter :: srname = 'MATPROD12'
 integer(IK) :: j
@@ -354,13 +355,13 @@ end if
 !====================!
 ! Calculation starts !
 !====================!
-
+allocate(z_(size(y, 2)))
 do j = 1, int(size(y, 2), kind(j))
     ! When interfaced with MATLAB, the following seems more efficient than a loop, which is strange
     ! since inprod itself is implemented by a loop. This may depend on the machine (e.g., cache
     ! size), compiler, compiling options, and MATLAB version.
     tmp = y(:, j)
-    z(j) = inprod(x, tmp)
+    z_(j) = inprod(x, tmp)
 end do
 
 !====================!
@@ -369,12 +370,12 @@ end do
 
 ! Postconditions
 if (DEBUGGING) then
-    call assert(size(z) == size(y, 2), 'SIZE(Z) == SIZE(Y, 2)', srname)
+    call assert(size(z_) == size(y, 2), 'SIZE(Z) == SIZE(Y, 2)', srname)
 end if
 end function matprod12
 
 
-function matprod21(x, y) result(z)
+function matprod21(x, y) result(z_)
 !--------------------------------------------------------------------------------------------------!
 ! This procedure calculates the matrix product of X and Y, where X is an M-by-N matrix, and Y is an
 ! M-dimensional vector considered as a column.
@@ -388,7 +389,8 @@ real(RP), intent(in) :: x(:, :)
 real(RP), intent(in) :: y(:)
 real(RP) :: tmp(size(x, 1))
 ! Outputs
-real(RP) :: z(size(x, 1))
+! real(RP) :: z(size(x, 1)) --> Original Code
+real(RP), allocatable :: z_(:) 
 ! Local variables
 character(len=*), parameter :: srname = 'MATPROD21'
 integer(IK) :: j
@@ -401,11 +403,13 @@ end if
 !====================!
 ! Calculation starts !
 !====================!
-
-z = ZERO
+allocate(z_(size(x, 1)))
+z_ = ZERO
+! z = ZERO --> Original Code
 do j = 1, int(size(x, 2), kind(j))
     tmp = x(:, j)
-    z = z + tmp * y(j)
+    z_ = z_ + tmp * y(j)
+    ! z = z + tmp * y(j) --> Original Code
 end do
 
 !====================!
@@ -414,12 +418,13 @@ end do
 
 ! Postconditions
 if (DEBUGGING) then
-    call assert(size(z) == size(x, 1), 'SIZE(Z) == SIZE(X, 1)', srname)
+    call assert(size(z_) == size(x, 1), 'SIZE(Z) == SIZE(X, 1)', srname)
+    ! call assert(size(z) == size(x, 1), 'SIZE(Z) == SIZE(X, 1)', srname) --> Original Code
 end if
 end function matprod21
 
 
-function matprod22(x, y) result(z)
+function matprod22(x, y) result(z_)
 !--------------------------------------------------------------------------------------------------!
 ! This procedure calculates the matrix product of X and Y, where X is an M-by-P matrix, and Y is a
 ! P-by-N matrix.
@@ -433,7 +438,8 @@ real(RP), intent(in) :: x(:, :)
 real(RP), intent(in) :: y(:, :)
 real(RP) :: tmp_x(size(x, 1))
 ! Outputs
-real(RP) :: z(size(x, 1), size(y, 2))
+! real(RP) :: z(size(x, 1), size(y, 2))
+real(RP) ,allocatable :: z_(:,:)
 real(RP) :: tmp_z(size(x, 1))
 ! Local variables
 character(len=*), parameter :: srname = 'MATPROD22'
@@ -447,13 +453,13 @@ end if
 !====================!
 ! Calculation starts !
 !====================!
-
-z = ZERO
+allocate(z_(size(x, 1), size(y, 2)))
+z_ = ZERO
 do j = 1, int(size(y, 2), kind(j))
     do i = 1, int(size(x, 2), kind(i))
         tmp_x = x(:, i)
-        tmp_z = z(:, j)
-        z(:, j) = tmp_z + tmp_x * y(i, j)
+        tmp_z = z_(:, j)
+        z_(:, j) = tmp_z + tmp_x * y(i, j)
     end do
 end do
 
@@ -463,7 +469,7 @@ end do
 
 ! Postconditions
 if (DEBUGGING) then
-    call assert(size(z, 1) == size(x, 1) .and. size(z, 2) == size(y, 2), '[SIZE(Z) == SIZE(X, 1), SIZE(Y, 2)]', srname)
+    call assert(size(z_, 1) == size(x, 1) .and. size(z_, 2) == size(y, 2), '[SIZE(Z) == SIZE(X, 1), SIZE(Y, 2)]', srname)
 end if
 end function matprod22
 

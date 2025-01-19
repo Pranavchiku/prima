@@ -131,6 +131,9 @@ logical, allocatable :: resnew_BinOperation_res_workaround_2(:)
 integer(IK), allocatable :: trueloc_return_array_workaround_3(:)
 integer(IK) :: count_workaround_3
 
+! ----------------------------------------------> /////////// WORKAROUND /////////////// <---------------------------------------------
+real(RP), allocatable :: solve_workaround_1(:)
+
 ! Sizes.
 m = int(size(amat, 2), kind(m))
 n = int(size(gopt_in), kind(n))
@@ -264,7 +267,12 @@ do iter = 1, maxiter  ! Powell's code is essentially a DO WHILE loop. We impose 
         if (any(resact(1:nact) > 1.0E-4_RP * delta)) then
             ! Set DPROJ to the shortest move (projection step) from S to the boundaries of the
             ! active constraints. We will use DPROJ to modify PSD.
-            dproj = matprod(qfac(:, 1:nact), solve(transpose(rfac(1:nact, 1:nact)), resact(1:nact)))
+            ! ----------------------------------------------> /////////// WORKAROUND /////////////// <---------------------------------------------
+            allocate(solve_workaround_1(nact))
+            solve_workaround_1 = solve(transpose(rfac(1:nact, 1:nact)), resact(1:nact))
+            dproj = matprod(qfac(:, 1:nact), solve_workaround_1)
+            deallocate(solve_workaround_1)
+            ! dproj = matprod(qfac(:, 1:nact), solve(transpose(rfac(1:nact, 1:nact)), resact(1:nact))) ! --> Original Code
             !!MATLAB: dproj = qfac(:, 1:nact) * (rfac(1:nact, 1:nact)' \ resact(1:nact))
 
             ! The vector DPROJ is also the shortest move from S + PSD to the boundaries of the

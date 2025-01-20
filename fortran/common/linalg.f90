@@ -921,9 +921,9 @@ do j = 1, n
         G = transpose(planerot(T(j, [j, i])))
         T(j, [j, i]) = [hypotenuse(T(j, j), T(j, i)), ZERO]  !T(j, [j, i]) = [sqrt(T(j, j)**2 + T(j, i)**2), ZERO]
         T(j + 1:n, [j, i]) = matprod(T(j + 1:n, [j, i]), G)
-        Q_loc(:, j) = matprod(Q_loc(:, j), G)
-        Q_loc(:, i) = matprod(Q_loc(:, i), G)
-        ! Q_loc(:, [j, i]) = matprod(Q_loc(:, [j, i]), G)
+        ! Q_loc(:, j) = matprod(Q_loc(:, j), G)
+        ! Q_loc(:, i) = matprod(Q_loc(:, i), G)
+        Q_loc(:, [j, i]) = matprod(Q_loc(:, [j, i]), G)
     end do
 end do
 

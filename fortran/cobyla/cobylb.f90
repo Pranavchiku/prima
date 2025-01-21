@@ -721,18 +721,6 @@ end if
 contains
 
 
-subroutine calcfc_c(x, f, constr)
-    implicit none
-    ! Inputs
-    real(RP), intent(in) :: x(:)
-    ! Outputs
-    real(RP), intent(out) :: f
-    real(RP), intent(out) :: constr(:)
-    f = (x(1) - 5.0_RP)**2 + (x(2) - 4.0_RP)**2
-    ! We add a constraint we know will be active in order to demonstrate usage
-    ! The constraint is x(1)**2 - 9 <= 0, meaning |x1| <= 3.
-    constr(1) = x(1)**2 - 9.0_RP
-end subroutine calcfc_c
 subroutine calcfc_internal(x_internal, f_internal, constr_internal)
 !--------------------------------------------------------------------------------------------------!
 ! This internal subroutine evaluates the objective function and ALL the constraints.
@@ -748,7 +736,7 @@ real(RP), allocatable :: tmp_constr(:)
 if(m_lcon > 0) constr_internal(1:m_lcon) = matprod(x_internal, amat) - bvec
 allocate(tmp_constr(m - m_lcon))
 tmp_constr = constr_internal(m_lcon + 1:m)
-call calcfc_c(x_internal, f_internal, tmp_constr)
+call calcfc(x_internal, f_internal, tmp_constr)
 constr_internal(m_lcon + 1:m) = tmp_constr
 deallocate(tmp_constr)
 end subroutine calcfc_internal

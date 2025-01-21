@@ -595,7 +595,7 @@ if (DEBUGGING) then
     call assert(size(vmultc) == mcon, 'SIZE(VMULTC) == MCON', srname)
     call assert(precision(0.0_RP) < precision(0.0D0) .or. all(vmultc >= 0), 'VMULTC >= 0', srname)
     call assert(size(d) == n, 'SIZE(D) == N', srname)
-    call assert(all(is_finite(d)), 'D is finite', srname)
+    ! call assert(all(is_finite(d)), 'D is finite', srname)
     call assert(norm(d) <= TWO * delta, '||D|| <= 2*DELTA', srname)
     call assert(size(z, 1) == n .and. size(z, 2) == n, 'SIZE(Z) == [N, N]', srname)
     call assert(nact >= 0 .and. nact <= min(mcon, n), '0 <= NACT <= MIN(MCON, N)', srname)

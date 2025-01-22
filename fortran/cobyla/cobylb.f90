@@ -726,8 +726,13 @@ real(RP), intent(in) :: x_internal(:)
 ! Outputs
 real(RP), intent(out) :: f_internal
 real(RP), intent(out) :: constr_internal(:)
+real(RP), allocatable :: tmp_constr(:)
 constr_internal(1:m_lcon) = matprod(x_internal, amat) - bvec
-call calcfc(x_internal, f_internal, constr_internal(m_lcon + 1:m))
+allocate(tmp_constr(m - m_lcon))
+tmp_constr = constr_internal(m_lcon + 1:m)
+call calcfc(x_internal, f_internal, tmp_constr)
+constr_internal(m_lcon + 1:m) = tmp_constr
+deallocate(tmp_constr)
 end subroutine calcfc_internal
 
 end subroutine cobylb

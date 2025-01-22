@@ -62,7 +62,8 @@ integer(IK) :: index_to_keep(size(ffilt))
 integer(IK) :: kworst
 integer(IK) :: m
 integer(IK) :: maxfilt
-integer(IK) :: n
+integer(IK) :: tmp_nfilt
+integer(IK) :: n, i
 logical :: keep(nfilt)
 real(RP) :: cfilt_shifted(size(ffilt))
 real(RP) :: cref
@@ -164,8 +165,10 @@ if (count(keep) == maxfilt) then  ! In this case, NFILT = SIZE(KEEP) = COUNT(KEE
     keep(kworst) = .false.
 end if
 
-nfilt = int(count(keep), kind(nfilt))
-index_to_keep(1:nfilt) = trueloc(keep)
+tmp_nfilt = nfilt
+tmp_nfilt = int(count(keep), kind(tmp_nfilt))
+index_to_keep(1:tmp_nfilt) = trueloc(keep)
+nfilt = tmp_nfilt
 xfilt(:, 1:nfilt) = xfilt(:, index_to_keep(1:nfilt))
 ffilt(1:nfilt) = ffilt(index_to_keep(1:nfilt))
 cfilt(1:nfilt) = cfilt(index_to_keep(1:nfilt))

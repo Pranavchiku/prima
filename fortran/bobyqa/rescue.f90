@@ -167,7 +167,9 @@ real(RP) :: hdiag(size(xpt, 2))
 real(RP) :: moderr
 real(RP) :: pqinc(size(xpt, 2))
 real(RP) :: ptsaux(2, size(xpt, 1))
+real(RP) :: ptsaux_(2, size(xpt, 1))
 real(RP) :: ptsid(size(xpt, 2))
+integer(IK), allocatable :: mask_(:)
 real(RP) :: score(size(xpt, 2))
 real(RP) :: scoreinc
 real(RP) :: sfrac
@@ -255,7 +257,13 @@ call r2update(hq, ONE, xopt, v)
 ptsaux(1, :) = min(delta, su)
 ptsaux(2, :) = max(-delta, sl)
 mask = (ptsaux(1, :) + ptsaux(2, :) < 0)
-ptsaux([1, 2], trueloc(mask)) = ptsaux([2, 1], trueloc(mask))
+! ptsaux([1, 2], trueloc(mask)) = ptsaux([2, 1], trueloc(mask))
+allocate(mask_(count(mask)))
+mask_ = trueloc(mask)
+ptsaux_ = ptsaux
+ptsaux(1, mask_) = ptsaux_(2, mask_)
+ptsaux(2, mask_) = ptsaux_(1, mask_)
+deallocate(mask_)
 mask = (abs(ptsaux(2, :)) < HALF * abs(ptsaux(1, :)))
 ptsaux(2, trueloc(mask)) = HALF * ptsaux(1, trueloc(mask))
 

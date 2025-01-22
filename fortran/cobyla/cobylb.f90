@@ -726,7 +726,7 @@ real(RP), intent(in) :: x_internal(:)
 ! Outputs
 real(RP), intent(out) :: f_internal
 real(RP), intent(out) :: constr_internal(:)
-constr_internal(1:m_lcon) = matprod(x_internal, amat) - bvec
+if(m_lcon > 0) constr_internal(1:m_lcon) = matprod(x_internal, amat) - bvec
 call calcfc(x_internal, f_internal, constr_internal(m_lcon + 1:m))
 end subroutine calcfc_internal
 

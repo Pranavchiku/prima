@@ -87,45 +87,56 @@ end module calcfc_mod
 !---------------------------------------- THE MAIN PROGRAM ----------------------------------------!
 program cobyla_exmp
 
-! ! The following line makes the solver available.
-! use cobyla_mod, only : cobyla
+! The following line makes the solver available.
+use cobyla_mod, only : cobyla
 
-! ! The following line specifies which module provides CALCFC.
-! use calcfc_mod, only : RP, IK, calcfc_chebyquad, calcfc_hexagon
+! The following line specifies which module provides CALCFC.
+use calcfc_mod, only : RP, IK, calcfc_chebyquad, calcfc_hexagon
 
-! implicit none
+implicit none
 
-! integer, parameter :: n_chebyquad = 6
-! real(RP) :: x_chebyquad(n_chebyquad)
-! integer, parameter :: n_hexagon = 9
-! real(RP) :: x_hexagon(n_hexagon)
-! real(RP) :: f, cstrv
-! real(RP), allocatable :: constr(:)
-! integer :: m, i, nf, info
+integer, parameter :: n_chebyquad = 6
+real(RP) :: x_chebyquad(n_chebyquad)
+integer, parameter :: n_hexagon = 9
+real(RP) :: x_hexagon(n_hexagon)
+real(RP) :: f, cstrv
+real(RP), allocatable :: constr(:)
+integer :: m, i, nf, info
 
-! ! The following lines illustrates how to call the solver to solve the Chebyquad problem.
-! x_chebyquad = [(real(i, RP) / real(n_chebyquad + 1, RP), i=1, n_chebyquad)] ! Starting point
-! m = 0  ! Dimension of constraints. M must the specified correctly, or the program will crash!
-! call cobyla(calcfc_chebyquad, m, x_chebyquad, f, cstrv)  ! This call will not print anything.
+! The following lines illustrates how to call the solver to solve the Chebyquad problem.
+x_chebyquad = [(real(i, RP) / real(n_chebyquad + 1, RP), i=1, n_chebyquad)] ! Starting point
+m = 0  ! Dimension of constraints. M must the specified correctly, or the program will crash!
+call cobyla(calcfc_chebyquad, m, x_chebyquad, f, cstrv)  ! This call will not print anything.
 
-! ! In addition to the compulsory arguments, the following illustration specifies also CONSTR, RHOBEG,
-! ! and IPRINT, which are optional. All the unspecified optional arguments (RHOEND, MAXFUN, etc.) will
-! ! take their default values coded in the solver.
-! x_chebyquad = [(real(i, RP) / real(n_chebyquad + 1, RP), i=1, n_chebyquad)] ! Starting point
-! call cobyla(calcfc_chebyquad, m, x_chebyquad, f, cstrv, rhobeg=0.2_RP * x_chebyquad(1), iprint=1_IK, nf=nf, info=info)
+! In addition to the compulsory arguments, the following illustration specifies also CONSTR, RHOBEG,
+! and IPRINT, which are optional. All the unspecified optional arguments (RHOEND, MAXFUN, etc.) will
+! take their default values coded in the solver.
+x_chebyquad = [(real(i, RP) / real(n_chebyquad + 1, RP), i=1, n_chebyquad)] ! Starting point
+call cobyla(calcfc_chebyquad, m, x_chebyquad, f, cstrv, rhobeg=0.2_RP * x_chebyquad(1), iprint=1_IK, nf=nf, info=info)
 
-! ! The following lines illustrates how to call the solver to solve the Hexagon problem.
-! x_hexagon = 2.0_RP  ! Starting point.
-! m = 14  ! Dimension of constraints. M must the specified correctly, or the program will crash!
-! call cobyla(calcfc_hexagon, m, x_hexagon, f, cstrv)  ! This call will not print anything.
+if(abs(f - 2.4033264619582621e-013_RP) > 10e-12_RP) error stop
+if(any(abs(x_chebyquad - [6.6876543475137093e-02_RP, 0.28874031650816656_RP, &
+            0.36668257153425948_RP, 0.63331747223191381_RP, 0.71125972503449386_RP, &
+            0.93312350226053409_RP]) > 10e-6_RP)) error stop
 
-! ! In addition to the compulsory arguments, the following illustration specifies also CONSTR, RHOBEG,
-! ! and IPRINT, which are optional. All the unspecified optional arguments (RHOEND, MAXFUN, etc.) will
-! ! take their default values coded in the solver. Note that CONSTR is an output, which will be set to
-! ! the value of CONSTR(X_HEXAGON) when the solver returns.
-! x_hexagon = 2.0_RP  ! Starting point.
-! allocate (constr(m))
-! call cobyla(calcfc_hexagon, m, x_hexagon, f, cstrv, nlconstr=constr, rhobeg=1.0_RP, iprint=1_IK, nf=nf, info=info)
-! deallocate (constr) ! Deallocate the array CONSTR, which is allocated by the solver. Otherwise, memory leaks.
+! The following lines illustrates how to call the solver to solve the Hexagon problem.
+x_hexagon = 2.0_RP  ! Starting point.
+m = 14  ! Dimension of constraints. M must the specified correctly, or the program will crash!
+call cobyla(calcfc_hexagon, m, x_hexagon, f, cstrv)  ! This call will not print anything.
+
+! In addition to the compulsory arguments, the following illustration specifies also CONSTR, RHOBEG,
+! and IPRINT, which are optional. All the unspecified optional arguments (RHOEND, MAXFUN, etc.) will
+! take their default values coded in the solver. Note that CONSTR is an output, which will be set to
+! the value of CONSTR(X_HEXAGON) when the solver returns.
+x_hexagon = 2.0_RP  ! Starting point.
+allocate (constr(m))
+call cobyla(calcfc_hexagon, m, x_hexagon, f, cstrv, nlconstr=constr, rhobeg=1.0_RP, iprint=1_IK, nf=nf, info=info)
+if(abs(f - (-0.86602541468304584_RP)) > 10e-12_RP) error stop
+if(abs(cstrv - 1.4312227569757141e-08_RP) > 10e-12_RP) error stop
+if(any(abs(x_hexagon - [0.89832144518526202_RP, 1.3560481629085774_RP, &
+            0.068683873026401360_RP, 0.99763848156292179_RP, 0.89832220534068807_RP, &
+            0.43933726190905370_RP, 0.068682150282716403_RP, 1.9143479490601716_RP, &
+            0.91670935062202175_RP]) > 10e-12_RP)) error stop
+deallocate (constr) ! Deallocate the array CONSTR, which is allocated by the solver. Otherwise, memory leaks.
 
 end program cobyla_exmp

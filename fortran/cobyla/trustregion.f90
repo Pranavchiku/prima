@@ -196,6 +196,7 @@ real(RP) :: cviol
 !real(RP) :: cvold
 real(RP) :: cvsabs(size(b))
 real(RP) :: cvshift(size(b))
+real(RP) :: tmp_b(size(b))
 real(RP) :: dd
 real(RP) :: dnew(size(d))
 real(RP) :: dold(size(d))
@@ -250,7 +251,8 @@ if (stage == 1) then
     ! 2. In MATLAB, linspace(1, mcon, mcon) can also be written as (1:mcon).
     nact = 0
     d = ZERO
-    cviol = maximum([ZERO, -b])
+    tmp_b = -b
+    cviol = maximum([ZERO, tmp_b])
     vmultc = cviol + b
     z = eye(n)
     if (mcon == 0 .or. cviol <= 0) then

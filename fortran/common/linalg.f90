@@ -966,7 +966,7 @@ real(RP), intent(in) :: b(:) ! B(M)
 real(RP), intent(in), optional :: Q(:, :) ! Q(M, :), SIZE(Q, 2) = M or MIN(M, N)
 real(RP), intent(in), optional :: Rdiag(:) ! Rdiag(MIN(M, N))
 ! Outputs
-real(RP) :: x(size(A, 2))
+real(RP), allocatable :: x(:)
 ! Local variables
 character(len=*), parameter :: srname = 'LSQR_RDIAG'
 logical :: pivot
@@ -987,6 +987,7 @@ real(RP) :: yqa
 m = int(size(A, 1), kind(m))
 n = int(size(A, 2), kind(n))
 
+allocate(x(size(A,2)))
 ! Preconditions
 if (DEBUGGING) then
     call assert(size(b) == m, 'SIZE(B) == M', srname)

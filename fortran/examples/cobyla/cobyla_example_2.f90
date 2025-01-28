@@ -131,12 +131,12 @@ call cobyla(calcfc_hexagon, m, x_hexagon, f, cstrv)  ! This call will not print 
 x_hexagon = 2.0_RP  ! Starting point.
 allocate (constr(m))
 call cobyla(calcfc_hexagon, m, x_hexagon, f, cstrv, nlconstr=constr, rhobeg=1.0_RP, iprint=1_IK, nf=nf, info=info)
-! if(abs(f - (-0.86602541468304584_RP)) > 10e-6_RP) error stop
-! if(abs(cstrv - 1.4312227569757141e-08_RP) > 10e-8_RP) error stop
-! if(any(abs(x_hexagon - [0.89832144518526202_RP, 1.3560481629085774_RP, &
-!             0.068683873026401360_RP, 0.99763848156292179_RP, 0.89832220534068807_RP, &
-!             0.43933726190905370_RP, 0.068682150282716403_RP, 1.9143479490601716_RP, &
-!             0.91670935062202175_RP]) > 10e-6_RP)) error stop
+if(abs(f - (-0.86602541468304584_RP)) > 10e-12_RP) error stop
+if(abs(cstrv - 1.4312227569757141e-08_RP) > 10e-12_RP) error stop
+if(any(abs(x_hexagon - [0.89832144518526202_RP, 1.3560481629085774_RP, &
+            0.068683873026401360_RP, 0.99763848156292179_RP, 0.89832220534068807_RP, &
+            0.43933726190905370_RP, 0.068682150282716403_RP, 1.9143479490601716_RP, &
+            0.91670935062202175_RP]) > 10e-12_RP)) error stop
 deallocate (constr) ! Deallocate the array CONSTR, which is allocated by the solver. Otherwise, memory leaks.
 
 end program cobyla_exmp

@@ -162,7 +162,7 @@ CHCKTST := $(TOOLS_DIR)/checktest
 # Decide whether to test QP, i.e., REAL128.
 # Classic Flang 17.0 and nvfortran 24.1 do not support REAL128;
 # AOCC Flang 4.2 complains about a symbol lookup error: undefined symbol: "fort_rnumq_i8";
-TESTS_QP = atest gtest ntest itest stest 9test xtest
+TESTS_QP = atest gtest lftest ntest itest stest 9test xtest
 TESTS_NO_QP = dtest ftest rtest vtest
 TESTS = $(TESTS_QP) $(TESTS_NO_QP)
 # When listing the tests, we first put the ones that are more likely to raise errors.
@@ -186,7 +186,7 @@ $(foreach TST, $(TESTS), $(eval $(TST): TST_C := $(TST)_c))
 
 # The following tests compile the code but do not run the binary. This is useful if we want to
 # check whether the code can compile.
-TESTS_C_QP = atest_c gtest_c ntest_c itest_c stest_c 9test_c xtest_c
+TESTS_C_QP = atest_c gtest_c lftest_c ntest_c itest_c stest_c 9test_c xtest_c
 TESTS_C_NO_QP = dtest_c ftest_c rtest_c vtest_c
 TESTS_C = $(TESTS_C_QP) $(TESTS_C_NO_QP)
 $(foreach TST, $(TESTS_C_QP), $(eval $(TST): SUBTESTS_C := \
@@ -211,6 +211,7 @@ $(foreach TST, $(TESTS_C_NO_QP), $(eval $(TST): SUBTESTS_C := \
 # surely) to be OK, because the only difference in the code is the integer kind. Similar for others.
 TESTS_INT_QP = atest_i2 atest_i4 atest_i8 \
 			   gtest_i2 gtest_i4 gtest_i8 \
+			   lftest_i2 lftest_i4 lftest_i8 \
 			   ntest_i2 ntest_i4 ntest_i8 \
 			   itest_i2 itest_i4 itest_i8 \
 			   stest_i2 stest_i4 stest_i8 \
@@ -235,6 +236,7 @@ $(foreach TST, $(TESTS_INT), $(eval $(TST): TST_C := $(TST)_c))
 # check whether the code can compile.
 TESTS_INT_C_QP = atest_i2_c atest_i4_c atest_i8_c \
 				 gtest_i2_c gtest_i4_c gtest_i8_c \
+				 lftest_i2_c lftest_i4_c lftest_i8_c \
 				 ntest_i2_c ntest_i4_c ntest_i8_c \
 				 itest_i2_c itest_i4_c itest_i8_c \
 				 stest_i2_c stest_i4_c stest_i8_c \
@@ -480,6 +482,41 @@ gtest_i2_r16_d1_tst_c gtest_i4_r16_d1_tst_c gtest_i8_r16_d1_tst_c gtest_i2_r16_d
 	FCG := $(GFORT) $(FFLAGSG) -ffpe-trap=zero,invalid,overflow#,underflow,denorm
 gtest_i2_r16_d1_tst_c gtest_i4_r16_d1_tst_c gtest_i8_r16_d1_tst_c gtest_i2_r16_d0_tst_c gtest_i4_r16_d0_tst_c gtest_i8_r16_d0_tst_c: \
 	FCF := $(GFORT) -Wno-function-elimination -ffpe-trap=zero,invalid $(GFF)
+
+# LFortran
+LFORT := "lfortran --cpp"
+GFSTD := $(shell  [[ $$(($(LFORT) -dumpversion 2>/dev/null || echo 0) | sed 's|\..*||') -gt 8 ]] && ([ $(FS) -lt 18 ] && echo -std=f2018 || echo -std=f20$(FS)) || echo "")
+WE := $(shell if [[ $$(($(GFORT) -dumpversion 2>/dev/null || echo 0) | sed 's|\..*||') -gt 11 || $$(($(GFORT) -dumpversion 2>/dev/null || echo 0) | sed 's|\..*||') -gt 8 && -z '$(FFLAGSG)' ]] ; then echo "-Werror"; else echo ""; fi)
+LFORT := $(LFORT) $(WE)
+ifeq ($(TESTDIM),small)
+       LFORT := $(LFORT)
+else
+       LFORT := $(LFORT)
+endif
+FSAN := $(shell if [[ $$(($(LFORT) -dumpversion 2>/dev/null || echo 0) | sed 's|\..*||') -gt 9 && $(OSTYPE) != 'MAC' && $(OSTYPE) != 'FREEBSD' ]] ; then echo "-fsanitize=undefined"; else echo ""; fi)
+LFORT := $(LFORT) $(GFSTD) \
+       $(FSAN)
+
+lftest_i2_r4_d1_tst_c lftest_i4_r4_d1_tst_c lftest_i8_r4_d1_tst_c lftest_i2_r4_d0_tst_c lftest_i4_r4_d0_tst_c lftest_i8_r4_d0_tst_c: \
+	FCO := $(LFORT) $(FFLAGSO)
+lftest_i2_r4_d1_tst_c lftest_i4_r4_d1_tst_c lftest_i8_r4_d1_tst_c lftest_i2_r4_d0_tst_c lftest_i4_r4_d0_tst_c lftest_i8_r4_d0_tst_c: \
+	FCG := $(LFORT) $(FFLAGSG) 
+lftest_i2_r4_d1_tst_c lftest_i4_r4_d1_tst_c lftest_i8_r4_d1_tst_c lftest_i2_r4_d0_tst_c lftest_i4_r4_d0_tst_c lftest_i8_r4_d0_tst_c: \
+	FCF := $(LFORT) 
+
+lftest_i2_r8_d1_tst_c lftest_i4_r8_d1_tst_c lftest_i8_r8_d1_tst_c lftest_i2_r8_d0_tst_c lftest_i4_r8_d0_tst_c lftest_i8_r8_d0_tst_c: \
+	FCO := $(LFORT) $(FFLAGSO)
+lftest_i2_r8_d1_tst_c lftest_i4_r8_d1_tst_c lftest_i8_r8_d1_tst_c lftest_i2_r8_d0_tst_c lftest_i4_r8_d0_tst_c lftest_i8_r8_d0_tst_c: \
+	FCG := $(LFORT) $(FFLAGSG) 
+lftest_i2_r8_d1_tst_c lftest_i4_r8_d1_tst_c lftest_i8_r8_d1_tst_c lftest_i2_r8_d0_tst_c lftest_i4_r8_d0_tst_c lftest_i8_r8_d0_tst_c: \
+	FCF := $(LFORT) 
+
+lftest_i2_r16_d1_tst_c lftest_i4_r16_d1_tst_c lftest_i8_r16_d1_tst_c lftest_i2_r16_d0_tst_c lftest_i4_r16_d0_tst_c lftest_i8_r16_d0_tst_c: \
+	FCO := $(LFORT) $(FFLAGSO) 
+lftest_i2_r16_d1_tst_c lftest_i4_r16_d1_tst_c lftest_i8_r16_d1_tst_c lftest_i2_r16_d0_tst_c lftest_i4_r16_d0_tst_c lftest_i8_r16_d0_tst_c: \
+	FCG := $(LFORT) $(FFLAGSG) 
+lftest_i2_r16_d1_tst_c lftest_i4_r16_d1_tst_c lftest_i8_r16_d1_tst_c lftest_i2_r16_d0_tst_c lftest_i4_r16_d0_tst_c lftest_i8_r16_d0_tst_c: \
+	FCF := $(LFORT) ,invalid $(GFF)
 
 # Intel ifort
 # -standard-semantics: enforce the compiler to behave according to the current standard (F2018 as of June 2023).
@@ -992,6 +1029,10 @@ source_%: $(SRC_DIRS)
 	# Check it again when new versions are available. Make a test using
 	# https://github.com/zequipe/test_compiler/blob/master/test_solve.f90
 	@if echo $@ | grep -q "gtest" && echo $(FFLAGS) | grep -q "fast"; then \
+		printf "\nPreparing the source code for $@.\n" ; \
+		bash $(TOOLS_DIR)/gsrc ./ ; \
+	fi
+	@if echo $@ | grep -q "lftest" && echo $(FFLAGS) | grep -q "fast"; then \
 		printf "\nPreparing the source code for $@.\n" ; \
 		bash $(TOOLS_DIR)/gsrc ./ ; \
 	fi

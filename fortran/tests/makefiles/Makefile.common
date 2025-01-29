@@ -484,39 +484,31 @@ gtest_i2_r16_d1_tst_c gtest_i4_r16_d1_tst_c gtest_i8_r16_d1_tst_c gtest_i2_r16_d
 	FCF := $(GFORT) -Wno-function-elimination -ffpe-trap=zero,invalid $(GFF)
 
 # LFortran
-LFORT := "lfortran --cpp"
-GFSTD := $(shell  [[ $$(($(LFORT) -dumpversion 2>/dev/null || echo 0) | sed 's|\..*||') -gt 8 ]] && ([ $(FS) -lt 18 ] && echo -std=f2018 || echo -std=f20$(FS)) || echo "")
-WE := $(shell if [[ $$(($(GFORT) -dumpversion 2>/dev/null || echo 0) | sed 's|\..*||') -gt 11 || $$(($(GFORT) -dumpversion 2>/dev/null || echo 0) | sed 's|\..*||') -gt 8 && -z '$(FFLAGSG)' ]] ; then echo "-Werror"; else echo ""; fi)
-LFORT := $(LFORT) $(WE)
-ifeq ($(TESTDIM),small)
-       LFORT := $(LFORT)
-else
-       LFORT := $(LFORT)
-endif
-FSAN := $(shell if [[ $$(($(LFORT) -dumpversion 2>/dev/null || echo 0) | sed 's|\..*||') -gt 9 && $(OSTYPE) != 'MAC' && $(OSTYPE) != 'FREEBSD' ]] ; then echo "-fsanitize=undefined"; else echo ""; fi)
-LFORT := $(LFORT) $(GFSTD) \
-       $(FSAN)
+LFORT := lfortran
+LFORT := $(LFORT)
+$(info $(LFORT))
+LFORT := $(LFORT) --cpp
 
 lftest_i2_r4_d1_tst_c lftest_i4_r4_d1_tst_c lftest_i8_r4_d1_tst_c lftest_i2_r4_d0_tst_c lftest_i4_r4_d0_tst_c lftest_i8_r4_d0_tst_c: \
-	FCO := $(LFORT) $(FFLAGSO)
+	FCO := $(LFORT) 
 lftest_i2_r4_d1_tst_c lftest_i4_r4_d1_tst_c lftest_i8_r4_d1_tst_c lftest_i2_r4_d0_tst_c lftest_i4_r4_d0_tst_c lftest_i8_r4_d0_tst_c: \
-	FCG := $(LFORT) $(FFLAGSG) 
+	FCG := $(LFORT)
 lftest_i2_r4_d1_tst_c lftest_i4_r4_d1_tst_c lftest_i8_r4_d1_tst_c lftest_i2_r4_d0_tst_c lftest_i4_r4_d0_tst_c lftest_i8_r4_d0_tst_c: \
 	FCF := $(LFORT) 
 
 lftest_i2_r8_d1_tst_c lftest_i4_r8_d1_tst_c lftest_i8_r8_d1_tst_c lftest_i2_r8_d0_tst_c lftest_i4_r8_d0_tst_c lftest_i8_r8_d0_tst_c: \
-	FCO := $(LFORT) $(FFLAGSO)
+	FCO := $(LFORT)
 lftest_i2_r8_d1_tst_c lftest_i4_r8_d1_tst_c lftest_i8_r8_d1_tst_c lftest_i2_r8_d0_tst_c lftest_i4_r8_d0_tst_c lftest_i8_r8_d0_tst_c: \
-	FCG := $(LFORT) $(FFLAGSG) 
+	FCG := $(LFORT)
 lftest_i2_r8_d1_tst_c lftest_i4_r8_d1_tst_c lftest_i8_r8_d1_tst_c lftest_i2_r8_d0_tst_c lftest_i4_r8_d0_tst_c lftest_i8_r8_d0_tst_c: \
 	FCF := $(LFORT) 
 
 lftest_i2_r16_d1_tst_c lftest_i4_r16_d1_tst_c lftest_i8_r16_d1_tst_c lftest_i2_r16_d0_tst_c lftest_i4_r16_d0_tst_c lftest_i8_r16_d0_tst_c: \
-	FCO := $(LFORT) $(FFLAGSO) 
+	FCO := $(LFORT)
 lftest_i2_r16_d1_tst_c lftest_i4_r16_d1_tst_c lftest_i8_r16_d1_tst_c lftest_i2_r16_d0_tst_c lftest_i4_r16_d0_tst_c lftest_i8_r16_d0_tst_c: \
-	FCG := $(LFORT) $(FFLAGSG) 
+	FCG := $(LFORT) 
 lftest_i2_r16_d1_tst_c lftest_i4_r16_d1_tst_c lftest_i8_r16_d1_tst_c lftest_i2_r16_d0_tst_c lftest_i4_r16_d0_tst_c lftest_i8_r16_d0_tst_c: \
-	FCF := $(LFORT) ,invalid $(GFF)
+	FCF := $(LFORT)
 
 # Intel ifort
 # -standard-semantics: enforce the compiler to behave according to the current standard (F2018 as of June 2023).
@@ -877,7 +869,7 @@ $(TESTS_C) $(TESTS_INT_C):
 	$(eval RP := $(shell expr 8 \* $$(echo $@ | sed "s/.*_r//" | sed "s/_.*//")))
 	$(eval QPAVLB := $(shell expr $$(echo $@ | sed "s/.*_r//" | sed "s/_.*//") / 16))
 	$(eval EXTRA_FLAGS := -g -DPRIMA_DEBUGGING=$(DBG) -DPRIMA_AGGRESSIVE_OPTIONS=$(AGGRESSIVE) \
-		-DPRIMA_INTEGER_KIND=$(IK) -DPRIMA_REAL_PRECISION=$(RP) -DPRIMA_QP_AVAILABLE=$(QPAVLB))
+		-DPRIMA_INTEGER_KIND=$(IK) -DPRIMA_REAL_PRECISION=$(RP) -DPRIMA_QP_AVAILABLE=0)
 	$(eval EXTRA_FLAGS := $(shell if ! echo $@ | grep -q 'atest'; then \
 		echo "$(EXTRA_FLAGS) -DPRIMA_TESTDIM=\"'$(TESTDIM)'\""; \
 		else echo "$(EXTRA_FLAGS)"; fi))

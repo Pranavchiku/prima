@@ -111,7 +111,8 @@ else
 end if
 !distsq = sum((xpt - spread(xpt(:, kopt), dim=2, ncopies=npt))**2, dim=1)  ! Powell's code
 
-weight = max(ONE, distsq / max(TENTH * delta, rho)**2)**3  ! Powell's NEWUOA code
+weight = max(ONE, distsq / (max(TENTH * delta, rho)**2))  ! Powell's NEWUOA code
+weight = weight * weight * weight
 ! Other possible definitions of WEIGHT.
 ! !weight = distsq**2  ! Powell's code. WRONG.
 ! !weight = max(ONE, distsq / max(TENTH * delta, rho)**2)**2.5  ! Worse than power 3

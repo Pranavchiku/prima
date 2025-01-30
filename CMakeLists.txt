@@ -44,6 +44,8 @@ if (PRIMA_HEAP_ARRAYS)
     set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -Mnostack_arrays -Mrecursive")
   endif ()
 endif ()
+set (CMAKE_Fortran_FLAGS_RELEASE "")
+set (CMAKE_Fortran_FLAGS "")
 
 # Set additional linker flags
 # Zaikun 20240217: Fix https://github.com/libprima/prima/issues/158, which is due to the new linker

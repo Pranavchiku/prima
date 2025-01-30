@@ -36,6 +36,8 @@ integer :: j
 integer, parameter :: np = 50
 real(RP) :: theta(np), xp(np), yp(np), zp(np), xs, ys, zs, ss
 real(RP) :: v12, v13, v14, v23, v24, v34, del1, del2, del3, del4, tmp
+!@@@@@@@@@@@@@@@@@@ ///////// WORKAROUND ///////////@@@@@@@@@@@@@@
+real(rp) :: sum_res
 
 theta = 4.0_RP * atan(1.0_RP)*[(real(j - 1, RP) / real(np - 1, RP), j=1, np)]
 xp = cos(theta) * cos(2.0_RP * theta)
@@ -48,7 +50,9 @@ xs = minval([0.0_RP, xp])
 ys = minval([0.0_RP, yp])
 zs = minval([0.0_RP, zp])
 ss = maxval([0.0_RP, xp + yp + zp])
-f = (ss - xs - ys - zs)**3 / 6.0_RP
+!@@@@@@@@@@@@@@@@@@ ///////// WORKAROUND ///////////@@@@@@@@@@@@@@
+sum_res = (ss - xs - ys - zs)
+f = (sum_res * sum_res * sum_res) / 6.0_RP
 
 v12 = x(1) * x(5) - x(4) * x(2)
 v13 = x(1) * x(8) - x(7) * x(2)
@@ -64,7 +68,9 @@ del3 = -v14 * x(6) + v24 * x(3) + v12 * x(12)
 if (del3 <= 0) return
 del4 = -v12 * x(9) + v13 * x(6) - v23 * x(3)
 if (del4 <= 0) return
-tmp = (del1 + del2 + del3 + del4)**3 / (del1 * del2 * del3 * del4)
+!@@@@@@@@@@@@@@@@@@ ///////// WORKAROUND ///////////@@@@@@@@@@@@@@
+sum_res = (del1 + del2 + del3 + del4)
+tmp = (sum_res * sum_res * sum_res) / (del1 * del2 * del3 * del4)
 f = min(tmp / 6.0_RP, f)
 
 end subroutine calfun

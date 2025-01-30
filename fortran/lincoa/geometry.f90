@@ -66,6 +66,9 @@ real(RP) :: distsq(size(xpt, 2))
 real(RP) :: score(size(xpt, 2))
 real(RP) :: weight(size(xpt, 2))
 
+!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ ////////////////WORKAROUND ////////////////@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+real(RP) , allocatable :: spread_return(:,:)
+
 ! Sizes
 n = int(size(xpt, 1), kind(npt))
 npt = int(size(xpt, 2), kind(npt))
@@ -102,11 +105,16 @@ end if
 ! knowing KNEW (see lines 332-344 and 404--431 of lincob.f). Hence Powell's LINCOA code picks KNEW
 ! based on the distance to the un-updated "optimal point", which is unreasonable. This has been
 ! corrected in our implementation of LINCOA, yet it does not boost the performance.
+
+!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ ////////////////WORKAROUND ////////////////@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+allocate(spread_return(size(xpt,1), size(xpt,2)))
 if (ximproved) then
-    distsq = sum((xpt - spread(xpt(:, kopt) + d, dim=2, ncopies=npt))**2, dim=1)
+    spread_return = spread(xpt(:, kopt) + d, dim=2, ncopies=npt)
+    distsq = sum( (xpt - spread_return)**2, dim=1)
     !!MATLAB: distsq = sum((xpt - (xpt(:, kopt) + d)).^2)  % d should be a column!! Implicit expansion
 else
-    distsq = sum((xpt - spread(xpt(:, kopt), dim=2, ncopies=npt))**2, dim=1)
+    spread_return = spread(xpt(:, kopt), dim=2, ncopies=npt)
+    distsq = sum((xpt - spread_return)**2, dim=1)
     !!MATLAB: distsq = sum((xpt - xpt(:, kopt)).^2)  % Implicit expansion
 end if
 !distsq = sum((xpt - spread(xpt(:, kopt), dim=2, ncopies=npt))**2, dim=1)  ! Powell's code
@@ -309,6 +317,8 @@ real(RP) :: stplen(size(xpt, 2))
 real(RP) :: tol
 real(RP) :: vlagabs(size(xpt, 2))
 real(RP) :: xopt(size(xpt, 1))
+!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ ////////////////WORKAROUND ////////////////@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+real(rp) ,allocatable :: spread_return(:,:)
 
 ! Sizes.
 m = int(size(amat, 2), kind(m))
@@ -355,7 +365,10 @@ glag = bmat(:, knew) + hess_mul(xopt, xpt, pqlag)
 ! without considering the linear constraints. In the following, VLAGABS(K) is set to the maximum of
 ! |PHI_K(t)| subject to the trust-region constraint with PHI_K(t) = LFUNC((1-t)*XOPT + t*XPT(:, K)).
 dderiv = matprod(glag, xpt) - inprod(glag, xopt) ! The derivatives PHI_K'(0).
-distsq = sum((xpt - spread(xopt, dim=2, ncopies=npt))**2, dim=1)
+!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ ////////////////WORKAROUND ////////////////@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+allocate(spread_return(size(xpt,1), size(xpt,2)))
+spread_return = spread(xopt, dim=2, ncopies=npt)
+distsq = sum((xpt - spread_return)**2, dim=1)
 ! Set DISTSQ(KOPT) to a positive artificial value. Otherwise, the calculation of STPLEN will raise a
 ! floating point exception. This artificial value will NOT be used.
 distsq(kopt) = ONE

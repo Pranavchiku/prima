@@ -22,8 +22,9 @@ integer :: values(8)
 if (present(ymd)) then
     y = ymd(1)
 else
-    call date_and_time(values=values)
-    y = values(1)
+    ! call date_and_time(values=values)
+    ! y = values(1)
+    y = 1241
 end if
 end function year
 
@@ -71,10 +72,13 @@ if (present(ymd)) then
     moy = ymd(2)
     dom = ymd(3)
 else
-    call date_and_time(values=values)
-    y = values(1)
-    moy = values(2)
-    dom = values(3)
+    ! call date_and_time(values=values)
+    ! y = values(1)
+    ! moy = values(2)
+    ! dom = values(3)
+    y = 1241
+    moy = 1
+    dom = 1
 end if
 
 monlens = month_lengths(y)
@@ -101,8 +105,8 @@ integer :: y11(3)
 if (present(ymd)) then
     y = ymd(1)
 else
-    call date_and_time(values=values)
-    y = values(1)
+    ! call date_and_time(values=values)
+    y = 1241
 end if
 
 y11 = [y, 1, 1]
@@ -157,8 +161,8 @@ integer :: y
 if (present(ymd)) then
     y = ymd(1)
 else
-    call date_and_time(values=values)
-    y = values(1)
+    ! call date_and_time(values=values)
+    y = 1241
 end if
 
 d = 0

@@ -34,6 +34,6 @@ lfortran --cpp -c ./tests/testsuite/rand.f90
 lfortran --cpp -c ./tests/testsuite/noise.f90 
 lfortran --cpp -c ./tests/testsuite/prob.f90 
 lfortran --cpp -c ./tests/testsuite/datetime.f90 
-lfortran --cpp -c ./tests/test_bobyqa.f90 -I../build/fortran -I./
+lfortran --cpp -c ./tests/test_cobyla.f90 -I../build/fortran -I./
 
 lfortran --cpp -DPRIMA_DEBUGGING=1 -DPRIMA_AGGRESSIVE_OPTIONS=0 -DPRIMA_INTEGER_KIND=16 -DPRIMA_REAL_PRECISION=128 -DPRIMA_QP_AVAILABLE=0 -DPRIMA_TESTDIM="'small'" ./tests/test.F90 -I../build/fortran -I./

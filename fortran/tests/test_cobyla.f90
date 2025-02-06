@@ -51,6 +51,25 @@ public :: test_solver
 
 contains
 
+subroutine noisy_calcfc(x, f, constr)
+!--------------------------------------------------------------------------------------------------!
+! Noisy version of ORIG_CALCFC.
+!--------------------------------------------------------------------------------------------------!
+use, non_intrinsic :: consts_mod, only : RP
+use, non_intrinsic :: param_mod, only : NOISE_LEVEL_DFT, NOISE_TYPE_DFT
+use, non_intrinsic :: noise_mod, only : orig_calcfc, noisyfun
+implicit none
+real(RP), intent(in) :: x(:)
+real(RP), intent(out) :: f
+real(RP), intent(out) :: constr(:)
+call orig_calcfc(x, f, constr)
+f = noisyfun(x, f, noise_level=NOISE_LEVEL_DFT, noise_type=NOISE_TYPE_DFT)
+! N.B.: the constraints are CONSTR >= 0. In other words, we are "maximizing" CONSTR. Thus we impose
+! noise to -CONSTR and then take the negative. Otherwise, NOISYFUN tends to introduce +Inf into
+! CONSTR, which is not intended.
+constr = -noisyfun(x, -constr, noise_level=NOISE_LEVEL_DFT, noise_type=NOISE_TYPE_DFT)
+end subroutine noisy_calcfc
+
 
 subroutine test_solver(probs, mindim, maxdim, dimstride, nrand, randseed, testdim)
 
@@ -59,7 +78,7 @@ use, non_intrinsic :: consts_mod, only : RP, IK, TWO, TEN, ZERO, REALMAX
 use, non_intrinsic :: debug_mod, only : validate
 use, non_intrinsic :: infnan_mod, only : is_neginf
 use, non_intrinsic :: memory_mod, only : safealloc
-use, non_intrinsic :: noise_mod, only : noisy, noisy_calcfc, orig_calcfc
+use, non_intrinsic :: noise_mod, only : noisy, orig_calcfc
 use, non_intrinsic :: param_mod, only : MINDIM_DFT, MAXDIM_DFT, DIMSTRIDE_DFT, NRAND_DFT, RANDSEED_DFT
 use, non_intrinsic :: prob_mod, only : PNLEN, PROB_T, construct, destruct
 use, non_intrinsic :: rand_mod, only : setseed, rand, randn

@@ -60,12 +60,11 @@ use, non_intrinsic :: consts_mod, only : RP, IK, TWO, TEN, ZERO, REALMAX
 use, non_intrinsic :: debug_mod, only : validate
 use, non_intrinsic :: infnan_mod, only : is_neginf
 use, non_intrinsic :: memory_mod, only : safealloc
-use, non_intrinsic :: noise_mod, only : noisy, noisy_calfun!, orig_calfun
+use, non_intrinsic :: noise_mod, only : noisy, noisy_calfun, orig_calfun
 use, non_intrinsic :: param_mod, only : MINDIM_DFT, MAXDIM_DFT, DIMSTRIDE_DFT, NRAND_DFT, RANDSEED_DFT
 use, non_intrinsic :: prob_mod, only : PNLEN, PROB_T, construct, destruct
 use, non_intrinsic :: rand_mod, only : setseed, rand, randn
 use, non_intrinsic :: string_mod, only : strip, istr
-use, non_intrinsic :: recursive_mod, only : recursive_fun1
 
 implicit none
 
@@ -184,7 +183,7 @@ if (testdim_loc == 'big' .or. testdim_loc == 'large') then
         rhoend = max(1.0E-6_RP, rhobeg * 10.0_RP**(6.0_RP * rand() - 6.0_RP))
         call safealloc(x, n) ! Not all compilers support automatic allocation yet, e.g., Absoft.
         x = noisy(prob % x0)
-        ! orig_calfun => prob % calfun
+        orig_calfun => prob % calfun
 
         print '(/A, I0, A, I0, A, I0, A, I0)', &
             & strip(probname)//': N = ', n, ' NPT = ', npt, ', MAXFUN = ', maxfun, ', Random test ', irand
@@ -193,7 +192,7 @@ if (testdim_loc == 'big' .or. testdim_loc == 'large') then
             & ftarget=ftarget, iprint=iprint)
 
         deallocate (x)
-        ! nullify (orig_calfun)
+        nullify (orig_calfun)
     end do
     ! DESTRUCT deallocates allocated arrays/pointers and nullify the pointers. Must be called.
     call destruct(prob)  ! Destruct the testing problem.
@@ -257,7 +256,7 @@ else
                 end if
                 call safealloc(x0, n) ! Not all compilers support automatic allocation yet, e.g., Absoft.
                 x0 = noisy(prob % x0)
-                ! orig_calfun => prob % calfun
+                orig_calfun => prob % calfun
 
                 print '(/A, I0, A, I0, A, I0)', strip(probname)//': N = ', n, ' NPT = ', npt, ', Random test ', irand
 
@@ -277,7 +276,7 @@ else
                 end if
 
                 deallocate (x)
-                ! nullify (orig_calfun)
+                nullify (orig_calfun)
             end do
 
             ! DESTRUCT deallocates allocated arrays/pointers and nullify the pointers. Must be called.
@@ -300,7 +299,7 @@ call safealloc(xu, n)
 xu = 2.0_RP
 call safealloc(x, n)
 x = randn(n)
-call bobyqa(recursive_fun1, x, f, xl=xl, xu=xu, iprint=2_IK)
+call bobyqa(recursive_fun2, x, f, xl=xl, xu=xu, iprint=2_IK)
 deallocate (xl, xu, x)
 
 contains
@@ -312,7 +311,7 @@ real(RP), intent(in) :: x_internal(:)
 real(RP), intent(out) :: f_internal
 real(RP) :: x_loc(size(x_internal))
 x_loc = x_internal
-! call bobyqa(recursive_fun1, x_loc, f_internal, xl=xl, xu=xu)
+call bobyqa(recursive_fun1, x_loc, f_internal, xl=xl, xu=xu)
 end subroutine recursive_fun2
 
 end subroutine test_solver

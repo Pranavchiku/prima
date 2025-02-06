@@ -20,8 +20,7 @@ implicit none
 integer :: yw
 
 ! YW is the random seed for the tests. It is altered weekly to test the solvers as much as possible.
-! yw = 100 * modulo(year(), 100) + week()
-yw = 100 * 21 + 1
+yw = 100 * modulo(year(), 100) + week()
 print *, 'The random seed is', yw
 
 ! PRIMA_TESTDIM is the dimension of the test problem. It can be 'small', 'big', or 'large'.

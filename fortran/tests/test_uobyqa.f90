@@ -259,16 +259,25 @@ deallocate (x)
 contains
 
 subroutine recursive_fun2(x_internal, f_internal)
-use, non_intrinsic :: recursive_mod, only : recursive_fun1
-implicit none
-real(RP), intent(in) :: x_internal(:)
-real(RP), intent(out) :: f_internal
-real(RP) :: x_loc(size(x_internal))
-x_loc = x_internal
-call uobyqa(recursive_fun1, x_loc, f_internal)
+    implicit none
+    real(RP), intent(in) :: x_internal(:)
+    real(RP), intent(out) :: f_internal
+    real(RP) :: x_loc(size(x_internal))
+    x_loc = x_internal
+    call temp_uobyqa(x_loc, f_internal)
 end subroutine recursive_fun2
 
 end subroutine test_solver
+
+subroutine temp_uobyqa(x, f)
+    use uobyqa_mod, only : uobyqa
+    use consts_mod, only : RP
+    use, non_intrinsic::recursive_mod, only : recursive_fun1
+    real(RP), intent(in) :: x(:)
+    real(RP), intent(out) :: f
+    call uobyqa(recursive_fun1, x, f)
+end subroutine
+
 
 
 end module test_solver_mod

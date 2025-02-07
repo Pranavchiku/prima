@@ -165,11 +165,11 @@ end if
 ! Print the message.
 if (abs(iprint) >= 2) then
     ! message = newline//ret_message//nf_message//x_message//constr_message//newline
-    print *, "Return message: ", ret_message, " Number of function values: ", &
+    print *, " Number of function values: ", &
               nf, " The corresponding X: ", x
 else
     ! message = ret_message//nf_message//x_message//constr_message//newline
-    print *, "Return message: ", ret_message, " Number of function values: ", & 
+    print *, " Number of function values: ", & 
               nf, " The corresponding X: ", x
 end if
 ! if (len(fname) > 0) then

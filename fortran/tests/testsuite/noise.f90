@@ -12,7 +12,6 @@ module noise_mod
 use, non_intrinsic :: pintrf_mod, only : OBJ, OBJCON
 implicit none
 
-private
 public :: noisy
 public :: noisy_calfun, noisy_calcfc
 public :: orig_calfun, orig_calcfc

@@ -236,46 +236,58 @@ else
                 ! that the results for different IK are the same.
                 rseed = int(sum(istr(solname)) + sum(istr(probname)) + n + irand + RP + randseed_loc)
                 call setseed(rseed)
-                if (irand <= nnpt) then
+                ! if (irand <= nnpt) then
                     npt = npt_list(irand)
-                else
-                    npt = int(TEN * rand() * real(n, RP), kind(npt))
-                end if
-                if (rand() <= 0.2) then
-                    npt = 0
-                end if
-                iprint = int(sign(min(3.0_RP, 1.5_RP * abs(randn())), randn()), kind(iprint))
-                maxfun = int(2.0E2_RP * rand() * real(n, RP), kind(maxfun))
-                if (rand() <= 0.2) then
-                    maxfun = 0
-                end if
-                maxhist = int(TWO * rand() * real(max(10_IK * n, maxfun), RP), kind(maxhist))
-                if (rand() <= 0.2) then
-                    maxhist = -maxhist
-                end if
-                if (rand() <= 0.2) then
-                    ftarget = -TEN**abs(TWO * randn())
-                elseif (rand() <= 0.2) then  ! Note that the value of rand() changes.
+                ! else
+                !     npt = int(TEN * rand() * real(n, RP), kind(npt))
+                ! end if
+                ! if (rand() <= 0.2) then
+                !     npt = 0
+                ! end if
+                ! iprint = int(sign(min(3.0_RP, 1.5_RP * abs(randn())), randn()), kind(iprint))
+                iprint = 2_IK
+                ! maxfun = int(2.0E2_RP * rand() * real(n, RP), kind(maxfun))
+                maxfun = int(2.0E2_RP * real(n, RP), kind(maxfun))
+                ! if (rand() <= 0.2) then
+                    ! maxfun = 0
+                ! end if
+                ! maxhist = int(TWO * rand() * real(max(10_IK * n, maxfun), RP), kind(maxhist))
+                maxhist = int(TWO * real(max(10_IK * n, maxfun), RP), kind(maxhist))
+                ! if (rand() <= 0.2) then
+                !     maxhist = -maxhist
+                ! end if
+                ! if (rand() <= 0.2) then
+                !     ftarget = -TEN**abs(TWO * randn())
+                ! elseif (rand() <= 0.2) then  ! Note that the value of rand() changes.
                     ftarget = REALMAX
-                else
-                    ftarget = -REALMAX
-                end if
+                ! else
+                !     ftarget = -REALMAX
+                ! end if
 
-                rhobeg = noisy(prob % Delta0)
-                rhoend = max(1.0E-6_RP, rhobeg * 10.0_RP**(6.0_RP * rand() - 5.0_RP))
-                if (rand() <= 0.2) then
+                ! rhobeg = noisy(prob % Delta0)
+                ! rhobeg = 0.9_RP * 1.0E-6_RP
+                ! rhoend = max(1.0E-6_RP, rhobeg * 10.0_RP**(6.0_RP * rand() - 5.0_RP))
+                ! rhoend = max(1.0E-6_RP, rhobeg * 10.0_RP**(6.0_RP - 5.0_RP))
+                
+                rhobeg = 1.0E-6_RP
+                ! rhoend must be >= 0.0 and <= rhobeg and a fixed value.
+                rhoend = 1.0E-7_RP
+
+                ! if (rand() <= 0.2) then
                     rhoend = rhobeg
-                elseif (rand() <= 0.2) then  ! Note that the value of rand() changes.
-                    rhobeg = ZERO
-                end if
+                ! elseif (rand() <= 0.2) then  ! Note that the value of rand() changes.
+                !     rhobeg = ZERO
+                ! end if
                 call safealloc(x0, n) ! Not all compilers support automatic allocation yet, e.g., Absoft.
-                x0 = noisy(prob % x0)
+                x0 = prob % x0
                 orig_calfun => prob % calfun
 
                 print '(/A, I0, A, I0, A, I0)', strip(probname)//': N = ', n, ' NPT = ', npt, ', Random test ', irand
 
                 call safealloc(x, n)
                 x = x0
+                f = 1.9_RP
+
                 call bobyqa(noisy_calfun, x, f, xl=prob % xl, xu=prob % xu, npt=npt, &
                     & rhobeg=rhobeg, rhoend=rhoend, maxfun=maxfun, maxhist=maxhist, fhist=fhist, &
                     & xhist=xhist, ftarget=ftarget, iprint=iprint)

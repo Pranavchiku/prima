@@ -1,0 +1,5 @@
+set -ex
+
+gfortran -DPRIMA_DEBUGGING=1 -DPRIMA_AGGRESSIVE_OPTIONS=0 -DPRIMA_INTEGER_KIND=16 -DPRIMA_REAL_PRECISION=128 -DPRIMA_QP_AVAILABLE=0 -DPRIMA_TESTDIM="'small'" ./common/consts.F90 ./common/infos.f90 ./common/debug.F90 ./common/huge.F90 ./common/inf.F90 ./common/infnan.F90 ./common/memory.F90 ./common/string.f90 ./common/linalg.f90 ./common/univar.f90 ./common/ratio.f90 ./common/redrho.f90 ./common/xinbd.f90 ./common/history.f90 ./common/selectx.f90 ./common/checkexit.f90 ./common/fprint.f90 ./common/message.f90 ./common/preproc.f90 ./common/pintrf.f90 ./common/evaluate.f90 ./common/powalg.f90 ./common/shiftbase.f90 ./bobyqa/geometry.f90 ./bobyqa/initialize.f90 ./bobyqa/update.f90 ./bobyqa/rescue.f90 ./bobyqa/trustregion.f90 ./bobyqa/bobyqb.f90 ./bobyqa/bobyqa.f90 ./tests/testsuite/param.f90 ./tests/testsuite/rand.f90 ./tests/testsuite/noise.f90 ./tests/testsuite/prob.f90 ./tests/testsuite/datetime.f90 ./tests/test_bobyqa.f90 ./tests/test.F90 -I../build/fortran/mod -I./;
+./a.out
+

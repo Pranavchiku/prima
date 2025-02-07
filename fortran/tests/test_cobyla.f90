@@ -393,17 +393,30 @@ deallocate (x, nlconstr)
 contains
 
 subroutine recursive_fun2(x_internal, f_internal, constr_internal)
-use, non_intrinsic :: recursive_mod, only : recursive_fun1
 implicit none
 real(RP), intent(in) :: x_internal(:)
 real(RP), intent(out) :: f_internal
 real(RP), intent(out) :: constr_internal(:)
-real(RP) :: x_loc(size(x_internal))
-x_loc = x_internal
-call cobyla(recursive_fun1, int(size(x_internal) - 1, IK), x_loc, f_internal, nlconstr=constr_internal)
+! real(RP) :: x_loc(size(x_internal))
+! x_loc = x_internal
+! call cobyla(recursive_fun1, int(size(x_internal) - 1, IK), x_loc, f_internal, nlconstr=constr_internal)
+call temp_cobyla(x_internal, f_internal, constr_internal)
 end subroutine recursive_fun2
 
 end subroutine test_solver
+
+subroutine temp_cobyla(x_internal, f_internal, constr_internal)
+    use cobyla_mod, only : cobyla
+    use consts_mod, only : RP, IK
+    use, non_intrinsic::recursive_mod, only : recursive_fun1
+    implicit none
+    real(RP), intent(in) :: x_internal(:)
+    real(RP), intent(out) :: f_internal
+    real(RP), intent(out) :: constr_internal(:)
+    real(RP) :: x_loc(size(x_internal))
+    x_loc = x_internal
+    call cobyla(recursive_fun1, int(size(x_internal) - 1, IK), x_loc, f_internal, nlconstr=constr_internal)
+end subroutine
 
 
 end module test_solver_mod

@@ -65,8 +65,7 @@ if (.not. (alloc_status == 0 .and. allocated(seed))) then
     call errstop(srname, 'Memory allocation fails', MEMORY_ALLOCATION_FAILS)
 end if
 
-! call random_seed(get=seed)
-seed = 0
+call random_seed(get=seed)
 end subroutine getseed
 
 
@@ -113,8 +112,7 @@ deallocate (cos_seed)
 p = int(real(huge(0), DP) / 1.0E2_DP) + 1
 seed_to_put = modulo(seed_to_put, p) + 1
 
-! call random_seed(put=seed_to_put)
-seed_to_put = 0
+call random_seed(put=seed_to_put)
 deallocate (seed_to_put)
 
 end subroutine setseed0
@@ -151,11 +149,10 @@ if (present(seed)) then
 
     seed_to_put = 1
     seed_to_put(1:min(size(seed), n)) = seed(1:min(size(seed), n))
-    ! call random_seed(put=seed_to_put)
-    seed_to_put = 0
+    call random_seed(put=seed_to_put)
     deallocate (seed_to_put)
 else
-    ! call random_seed()
+    call random_seed()
 end if
 end subroutine setseed1
 
@@ -169,7 +166,7 @@ implicit none
 
 real(RP) :: x
 
-! call random_number(harvest=x)
+call random_number(harvest=x)
 end function rand0
 
 function rand1(n) result(x)
@@ -182,7 +179,7 @@ implicit none
 integer(IK), intent(in) :: n
 real(RP) :: x(max(n, 0_IK))
 
-! call random_number(harvest=x)
+call random_number(harvest=x)
 end function
 
 function rand2(m, n) result(x)
@@ -195,7 +192,7 @@ implicit none
 integer(IK), intent(in) :: m, n
 real(RP) :: x(max(m, 0_IK), max(n, 0_IK))
 
-! call random_number(harvest=x)
+call random_number(harvest=x)
 end function
 
 
@@ -211,8 +208,8 @@ real(RP) :: x
 real(RP) :: u
 real(RP) :: v
 
-! call random_number(harvest=u)
-! call random_number(harvest=v)
+call random_number(harvest=u)
+call random_number(harvest=v)
 x = sqrt(-TWO * log(ONE - u)) * cos(TWO * PI * v)
 end function randn0
 
@@ -229,8 +226,8 @@ real(RP) :: x(max(n, 0_IK))
 real(RP) :: u(size(x))
 real(RP) :: v(size(x))
 
-! call random_number(harvest=u)
-! call random_number(harvest=v)
+call random_number(harvest=u)
+call random_number(harvest=v)
 x = sqrt(-TWO * log(ONE - u)) * cos(TWO * PI * v)
 end function randn1
 
@@ -247,8 +244,8 @@ real(RP) :: x(max(m, 0_IK), max(n, 0_IK))
 real(RP) :: u(size(x, 1), size(x, 2))
 real(RP) :: v(size(x, 1), size(x, 2))
 
-! call random_number(harvest=u)
-! call random_number(harvest=v)
+call random_number(harvest=u)
+call random_number(harvest=v)
 x = sqrt(-TWO * log(ONE - u)) * cos(TWO * PI * v)
 end function randn2
 

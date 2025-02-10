@@ -23,16 +23,17 @@ lfortran --cpp -c ./common/pintrf.f90
 lfortran --cpp -c ./common/evaluate.f90 
 lfortran --cpp -c ./common/powalg.f90 
 lfortran --cpp -c ./common/shiftbase.f90 
-lfortran --cpp -c ./cobyla/update.f90 
-lfortran --cpp -c ./cobyla/initialize.f90 
-lfortran --cpp -c ./cobyla/trustregion.f90 
-lfortran --cpp -c ./cobyla/geometry.f90 
-lfortran --cpp -c ./cobyla/cobylb.f90 
-lfortran --cpp -c ./cobyla/cobyla.f90 
+lfortran --cpp -c ./lincoa/update.f90 
+lfortran --cpp -c ./lincoa/initialize.f90 
+lfortran --cpp -c ./lincoa/getact.f90 
+lfortran --cpp -c ./lincoa/trustregion.f90 
+lfortran --cpp -c ./lincoa/geometry.f90 
+lfortran --cpp -c ./lincoa/lincob.f90 
+lfortran --cpp -c ./lincoa/lincoa.f90 
 lfortran --cpp -c ./tests/testsuite/param.f90 
 lfortran --cpp -c ./tests/testsuite/rand.f90 
 lfortran --cpp -c ./tests/testsuite/noise.f90 
-lfortran --cpp -c ./tests/testsuite/prob.f90 
+lfortran --cpp -c ./tests/testsuite/prob.f90
 lfortran --cpp -c ./tests/testsuite/datetime.f90 
 lfortran --cpp -c ./tests/test_lincoa.f90 -I../build/fortran -I./
 

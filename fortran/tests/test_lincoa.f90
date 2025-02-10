@@ -70,17 +70,18 @@ module test_solver_mod
 ! Last Modified: Wednesday, December 27, 2023 AM05:16:11
 !--------------------------------------------------------------------------------------------------!
 
+use, non_intrinsic :: consts_mod, only : RP, IK, TWO, TEN, ZERO, REALMAX
 implicit none
 private
 public :: test_solver
 
+real(RP), allocatable :: x(:)
 
 contains
 
 
 subroutine test_solver(probs, mindim, maxdim, dimstride, nrand, randseed, testdim)
 
-use, non_intrinsic :: consts_mod, only : RP, IK, TWO, TEN, ZERO, REALMAX
 use, non_intrinsic :: debug_mod, only : validate
 use, non_intrinsic :: hilbert_mod, only : hilbert
 use, non_intrinsic :: infnan_mod, only : is_neginf
@@ -145,7 +146,6 @@ real(RP), allocatable :: Aeq(:, :)
 real(RP), allocatable :: beq(:)
 real(RP), allocatable :: chist(:)
 real(RP), allocatable :: fhist(:)
-real(RP), allocatable :: x(:)
 real(RP), allocatable :: x0(:)
 real(RP), allocatable :: x_alt(:)
 real(RP), allocatable :: xhist(:, :)
@@ -251,7 +251,7 @@ if (testdim_loc == 'big' .or. testdim_loc == 'large') then
             & xhist=xhist, chist=chist, ctol=ctol, ftarget=ftarget, maxfilt=maxfilt, iprint=iprint)
 
         deallocate (x)
-        nullify (orig_calfun)
+        ! nullify (orig_calfun)
         ! DESTRUCT deallocates allocated arrays/pointers and nullify the pointers. Must be called.
         call destruct(prob)  ! Destruct the testing problem.
     end do
@@ -382,7 +382,7 @@ else
                 end if
 
                 deallocate (x)
-                nullify (orig_calfun)
+                ! nullify (orig_calfun)
             end do
 
             ! DESTRUCT deallocates allocated arrays/pointers and nullify the pointers. Must be called.
@@ -409,16 +409,25 @@ call lincoa(recursive_fun2, x, f, Aineq=Aineq, bineq=bineq, iprint=2_IK)
 contains
 
 subroutine recursive_fun2(x_internal, f_internal)
-use, non_intrinsic :: recursive_mod, only : recursive_fun1
 implicit none
 real(RP), intent(in) :: x_internal(:)
 real(RP), intent(out) :: f_internal
 real(RP) :: x_loc(size(x_internal))
 x_loc = x_internal
-call lincoa(recursive_fun1, x_loc, f_internal, Aineq=Aineq, bineq=bineq)
+call temp_lincoa(f_internal, Aineq, bineq)
 end subroutine recursive_fun2
 
 end subroutine test_solver
+
+subroutine temp_lincoa(f, Aineq, bineq)
+    use lincoa_mod, only : lincoa
+    use consts_mod, only : RP
+    use, non_intrinsic::recursive_mod, only : recursive_fun1
+    real(RP), intent(out) :: f
+    real(RP), intent(in), optional :: Aineq(:, :)
+    real(RP), intent(in), optional :: bineq(:)
+    call lincoa(recursive_fun1, x, f, Aineq=Aineq, bineq=bineq)
+end subroutine
 
 
 end module test_solver_mod

@@ -192,7 +192,7 @@ if (testdim_loc == 'big' .or. testdim_loc == 'large') then
             & ftarget=ftarget, iprint=iprint)
 
         deallocate (x)
-        nullify (orig_calfun)
+        ! nullify (orig_calfun)
     end do
     ! DESTRUCT deallocates allocated arrays/pointers and nullify the pointers. Must be called.
     call destruct(prob)  ! Destruct the testing problem.
@@ -276,7 +276,7 @@ else
                 end if
 
                 deallocate (x)
-                nullify (orig_calfun)
+                ! nullify (orig_calfun)
             end do
 
             ! DESTRUCT deallocates allocated arrays/pointers and nullify the pointers. Must be called.

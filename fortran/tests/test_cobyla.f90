@@ -227,7 +227,7 @@ if (testdim_loc == 'big' .or. testdim_loc == 'large') then
 
         deallocate (x)
         deallocate (nlconstr)
-        nullify (orig_calcfc)
+        !nullify (orig_calcfc)
         ! DESTRUCT deallocates allocated arrays/pointers and nullify the pointers. Must be called.
         call destruct(prob)  ! Destruct the testing problem.
     end do
@@ -349,7 +349,7 @@ else
 
                 deallocate (x)
                 deallocate (nlconstr)
-                nullify (orig_calcfc)
+                !nullify (orig_calcfc)
             end do
 
             ! DESTRUCT deallocates allocated arrays/pointers and nullify the pointers. Must be called.

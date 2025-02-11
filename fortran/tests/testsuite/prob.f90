@@ -166,8 +166,8 @@ end if
 if (allocated(prob % bineq)) then
     deallocate (prob % bineq)
 end if
-nullify (prob % calfun)
-nullify (prob % calcfc)
+! nullify (prob % calfun)
+! nullify (prob % calcfc)
 end subroutine destruct
 
 include 'bigprob.f90'

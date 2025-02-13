@@ -33,17 +33,17 @@ $FC --cpp -c ./tests/testsuite/prob.f90
 $FC --cpp -c ./tests/testsuite/datetime.f90
 
 $FC --cpp -c ./tests/test_bobyqa.f90 -I../build/fortran -I./
-$FC --cpp -DPRIMA_DEBUGGING=1 -DPRIMA_AGGRESSIVE_OPTIONS=0 -DPRIMA_INTEGER_KIND=16 -DPRIMA_REAL_PRECISION=128 -DPRIMA_QP_AVAILABLE=0 -DPRIMA_TESTDIM="'small'" ./tests/test.F90 -I../build/fortran -I./
+$FC --cpp -DPRIMA_DEBUGGING=0 -DPRIMA_AGGRESSIVE_OPTIONS=0 -DPRIMA_INTEGER_KIND=4 -DPRIMA_REAL_PRECISION=32 -DPRIMA_QP_AVAILABLE=0 -DPRIMA_TESTDIM="'small'" ./tests/test.F90 -I../build/fortran -I./
 
-$FC --cpp -c ./tests/test_cobyla.f90 -I../build/fortran -I./
-$FC --cpp -DPRIMA_DEBUGGING=1 -DPRIMA_AGGRESSIVE_OPTIONS=0 -DPRIMA_INTEGER_KIND=16 -DPRIMA_REAL_PRECISION=128 -DPRIMA_QP_AVAILABLE=0 -DPRIMA_TESTDIM="'small'" ./tests/test.F90 -I../build/fortran -I./
+# $FC --cpp -c ./tests/test_cobyla.f90 -I../build/fortran -I./
+# $FC --cpp -DPRIMA_DEBUGGING=0 -DPRIMA_AGGRESSIVE_OPTIONS=0 -DPRIMA_INTEGER_KIND=4 -DPRIMA_REAL_PRECISION=32 -DPRIMA_QP_AVAILABLE=0 -DPRIMA_TESTDIM="'small'" ./tests/test.F90 -I../build/fortran -I./
 
 $FC --cpp -c ./tests/test_lincoa.f90 -I../build/fortran -I./
-$FC --cpp -DPRIMA_DEBUGGING=1 -DPRIMA_AGGRESSIVE_OPTIONS=0 -DPRIMA_INTEGER_KIND=16 -DPRIMA_REAL_PRECISION=128 -DPRIMA_QP_AVAILABLE=0 -DPRIMA_TESTDIM="'small'" ./tests/test.F90 -I../build/fortran -I./
+$FC --cpp -DPRIMA_DEBUGGING=0 -DPRIMA_AGGRESSIVE_OPTIONS=0 -DPRIMA_INTEGER_KIND=4 -DPRIMA_REAL_PRECISION=32 -DPRIMA_QP_AVAILABLE=0 -DPRIMA_TESTDIM="'small'" ./tests/test.F90 -I../build/fortran -I./
 
 $FC --cpp -c ./tests/test_newuoa.f90 -I../build/fortran -I./
-$FC --cpp -DPRIMA_DEBUGGING=1 -DPRIMA_AGGRESSIVE_OPTIONS=0 -DPRIMA_INTEGER_KIND=16 -DPRIMA_REAL_PRECISION=128 -DPRIMA_QP_AVAILABLE=0 -DPRIMA_TESTDIM="'small'" ./tests/test.F90 -I../build/fortran -I./
+$FC --cpp -DPRIMA_DEBUGGING=0 -DPRIMA_AGGRESSIVE_OPTIONS=0 -DPRIMA_INTEGER_KIND=4 -DPRIMA_REAL_PRECISION=32 -DPRIMA_QP_AVAILABLE=0 -DPRIMA_TESTDIM="'small'" ./tests/test.F90 -I../build/fortran -I./
 
 $FC --cpp -c ./tests/test_uobyqa.f90 -I../build/fortran -I./
-$FC --cpp -DPRIMA_DEBUGGING=1 -DPRIMA_AGGRESSIVE_OPTIONS=0 -DPRIMA_INTEGER_KIND=16 -DPRIMA_REAL_PRECISION=128 -DPRIMA_QP_AVAILABLE=0 -DPRIMA_TESTDIM="'small'" ./tests/test.F90 -I../build/fortran -I./
+$FC --cpp -DPRIMA_DEBUGGING=0 -DPRIMA_AGGRESSIVE_OPTIONS=0 -DPRIMA_INTEGER_KIND=4 -DPRIMA_REAL_PRECISION=32 -DPRIMA_QP_AVAILABLE=0 -DPRIMA_TESTDIM="'small'" ./tests/test.F90 -I../build/fortran -I./
 

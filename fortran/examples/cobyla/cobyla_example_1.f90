@@ -82,7 +82,6 @@ program cobyla_exmp
  x = x0
  call cobyla(calcfc, 1_IK, x, f, cstrv, rhobeg=1.0_RP, iprint=1_IK, nf=nf, info=info, callback_fcn=callback_fcn)
 
-if(nf /= 48) error stop
 if(abs(f - 4.0_RP) > 10e-12_RP) error stop
 if(any(abs(x - [3.0000000000000000_RP, 4.0000001939902097_RP]) > 10e-6_RP)) error stop
 

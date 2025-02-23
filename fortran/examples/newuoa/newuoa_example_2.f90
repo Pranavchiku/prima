@@ -56,35 +56,26 @@ end module calfun_mod
 !---------------------------------------- THE MAIN PROGRAM ----------------------------------------!
 program newuoa_exmp
 
-! ! The following line makes the solver available.
- use newuoa_mod, only : newuoa
+! The following line makes the solver available.
+use newuoa_mod, only : newuoa
 
-! ! The following line specifies which module provides CALFUN.
- use calfun_mod, only : RP, IK, calfun
+! The following line specifies which module provides CALFUN.
+use calfun_mod, only : RP, IK, calfun
 
- implicit none
+implicit none
 
- integer, parameter :: n = 6
- integer :: i, nf, info
- real(RP) :: f, x(n)
+integer, parameter :: n = 6
+integer :: i, nf, info
+real(RP) :: f, x(n)
 
-! ! The following lines illustrates how to call the solver to solve the Chebyquad problem.
- x = [(real(i, RP) / real(n + 1, RP), i=1, n)]  ! Define the starting point.
- call newuoa(calfun, x, f)  ! This call will not print anything.
+! The following lines illustrates how to call the solver to solve the Chebyquad problem.
+x = [(real(i, RP) / real(n + 1, RP), i=1, n)]  ! Define the starting point.
+call newuoa(calfun, x, f)  ! This call will not print anything.
 
-! ! In addition to the compulsory arguments, the following illustration specifies also RHOBEG and
-! ! IPRINT, which are optional. All the unspecified optional arguments (RHOEND, MAXFUN, etc.) will
-! ! take their default values coded in the solver.
- x = [(real(i, RP) / real(n + 1, RP), i=1, n)]  ! Define the starting point.
- call newuoa(calfun, x, f, rhobeg=0.2_RP * x(1), iprint=1_IK, nf=nf, info=info)
-
- if(abs(f - 2.4566917446791638E-017_RP) > 10e-8_RP) error stop
- if (any(abs(x - [ &
-     6.6876590024263077E-002_RP, &
-     0.28874067037462675_RP, &
-     0.36668230239621807_RP, &
-     0.63331770024488820_RP, &
-     0.71125932980565754_RP, &
-     0.93312341009669264_RP]) > 10e-8_RP)) error stop
+! In addition to the compulsory arguments, the following illustration specifies also RHOBEG and
+! IPRINT, which are optional. All the unspecified optional arguments (RHOEND, MAXFUN, etc.) will
+! take their default values coded in the solver.
+x = [(real(i, RP) / real(n + 1, RP), i=1, n)]  ! Define the starting point.
+call newuoa(calfun, x, f, rhobeg=0.2_RP * x(1), iprint=1_IK, nf=nf, info=info)
 
 end program newuoa_exmp

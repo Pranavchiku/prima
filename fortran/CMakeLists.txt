@@ -1,5 +1,5 @@
 
-add_library (primaf
+SET (SRC
   common/linalg.f90
   common/pintrf.f90
   common/string.f90
@@ -56,6 +56,21 @@ add_library (primaf
   uobyqa/uobyqb.f90
   uobyqa/uobyqa.f90
 )
+add_library(primaf ${SRC})
+install(TARGETS primaf EXPORT primaf-targets DESTINATION lib)
+
+# Copy *.mod files from fortran to c after the build
+add_custom_command(
+    TARGET primaf
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_BINARY_DIR}/fortran
+    ${CMAKE_BINARY_DIR}/c
+    COMMENT "Copying .mod files to /Users/pranavchiku/repos/prima/build/c"
+)
+
+add_custom_target(copy_mod_files ALL DEPENDS tests)
+add_dependencies(copy_mod_files tests)
+
 
 set (PRIMA_REAL_PRECISION "64" CACHE STRING "real precision")
 set (PRIMA_INTEGER_KIND "0" CACHE STRING "integer kind")
@@ -101,7 +116,7 @@ if (WIN32)
   set_target_properties(primaf PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 endif()
 
-install (DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/mod DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/prima)
+# install (DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/mod DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/prima)
 
 macro (prima_add_f_test name number)
   add_executable (example_${name}_fortran_${number}_exe EXCLUDE_FROM_ALL examples/${name}/${name}_example_${number}.f90)

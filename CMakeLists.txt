@@ -4,7 +4,7 @@ set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type")
 
 project (prima Fortran)
 
-option (BUILD_SHARED_LIBS "shared/static" ON)
+# option (BUILD_SHARED_LIBS "shared/static" ON)
 
 include (GNUInstallDirs)
 
@@ -97,7 +97,7 @@ add_custom_target (tests)
 add_dependencies(tests examples)
 add_subdirectory(fortran)
 
-option (PRIMA_ENABLE_C "C binding" ON)
+# option (PRIMA_ENABLE_C "C binding" ON)
 
 if (PRIMA_ENABLE_C)
   enable_language(C)

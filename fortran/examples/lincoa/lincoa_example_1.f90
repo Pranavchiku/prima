@@ -88,4 +88,6 @@ call lincoa(calfun, x, f, cstrv, Aineq, bineq)  ! This call will not print anyth
 x = x0
 call lincoa(calfun, x, f, cstrv, Aineq, bineq, rhobeg=1.0_RP, iprint=1_IK, nf=nf, info=info, callback_fcn=callback_fcn)
 
+if(abs(f - 0.5_RP) > 1.0E-12_RP) error stop 
+if(any(abs(x - [4.5_RP, 3.5_RP]) > 1.0E-12_RP)) error stop
 end program lincoa_exmp

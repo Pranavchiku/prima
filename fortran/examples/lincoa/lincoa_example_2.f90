@@ -141,4 +141,8 @@ call lincoa(calfun, x, f, cstrv, Aineq, bineq)  ! This call will not print anyth
 x = x0
 call lincoa(calfun, x, f, cstrv, Aineq, bineq, rhobeg=1.0_RP, iprint=1_IK, nf=nf, info=info)
 
+print *, sum(x)
+print *, f
+if (abs(sum(x) - (-6.6067281292185087E-002)) > 10e-6_RP) error stop
+if (abs(f - 2.7613125232095332) > 10e-6_RP) error stop
 end program lincoa_exmp

@@ -73,7 +73,7 @@ implicit none
 
 integer, parameter :: n = 2
 integer :: nf, info
-real(RP) :: f, x(n), x0(n), cstrv
+real(RP) :: f, x(n), x0(n), cstrv, tol1 = 10e-14_RP, tol2 = 10e-16_RP
 
 ! Define the starting point.
 x0 = 0.0_RP
@@ -88,6 +88,12 @@ call cobyla(calcfc, 1_IK, x, f, cstrv)  ! This call will not print anything.
 x = x0
 call cobyla(calcfc, 1_IK, x, f, cstrv, rhobeg=1.0_RP, iprint=1_IK, nf=nf, info=info, callback_fcn=callback_fcn)
 
-if(abs(f - 4.0_RP) > 10e-14_RP) error stop
-if(any(abs(x - [3.0000000000000000_RP, 4.0000001939902097_RP]) > 10e-16_RP)) error stop
+if (index(compiler_options(), '--fast') /= 0) then
+    print *, '--fast is specified'
+    tol1 = 10e-12_RP
+    tol2 = 10e-6_RP
+end if
+
+if(abs(f - 4.0_RP) > tol1) error stop
+if(any(abs(x - [3.0000000000000000_RP, 4.0000001939902097_RP]) > tol2)) error stop
 end program cobyla_exmp

@@ -85,6 +85,6 @@ x = x0
 call uobyqa(calfun, x, f, rhobeg=1.0_RP, iprint=1_IK, nf=nf, info=info, callback_fcn=callback_fcn)
 
 if(nf /= 21) error stop
-if (any(abs(x - [5.0_RP, 4.0_RP]) > 1.0e-12_RP)) error stop
-if (abs(f - 0.0_RP) > 1.0e-12_RP)  error stop
+if (any(abs(x - [5.0_RP, 4.0_RP]) > 1.0e-15_RP)) error stop
+if (abs(f - 0.0_RP) > 1.0e-15_RP)  error stop
 end program uobyqa_exmp

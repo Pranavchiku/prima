@@ -73,7 +73,7 @@ implicit none
 
 integer, parameter :: n = 2
 integer :: nf, info
-real(RP) :: f, x(n), x0(n), cstrv, tol1 = 10e-14_RP, tol2 = 10e-16_RP
+real(RP) :: f, x(n), x0(n), cstrv, tol1 = 10e-16_RP, tol2 = 10e-16_RP
 
 ! Define the starting point.
 x0 = 0.0_RP

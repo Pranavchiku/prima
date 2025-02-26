@@ -87,9 +87,9 @@ call bobyqa(calfun, x, f, lb, ub)  ! This call will not print anything.
 x = x0
 call bobyqa(calfun, x, f, lb, ub, rhobeg=0.1_RP, iprint=1_IK, nf=nf, info=info)
 
-if(abs(f - 32.203053368830219_RP) > 1.0e-13_RP) error stop
-if(any(abs(x - [1.0_RP, 1.0_RP, 0.36160784864589629_RP, 1.0_RP, -0.36160789815759925_RP, &
-           1.0_RP, -1.0_RP, 1.0_RP, -1.0_RP, -8.7819855787179010e-09_RP,  -1.0_RP, &
-           -1.0_RP, -0.36160786618777696_RP, -1.0_RP, 0.36160788877752370_RP, &
-           -1.0_RP, 1.0_RP, -1.0_RP, 1.0_RP, 8.0771282481945382e-09_RP]) > 10e-8_RP)) error stop
+if(abs(f - 3.2203053368830226E+001_RP) > 1.0e-16_RP) error stop
+if(any(abs(x - [1.0_RP, 1.0_RP, 0.36160790377470897_RP, 1.0_RP, -0.36160785022201314_RP, &
+           1.0_RP, -1.0_RP, 1.0_RP, -1.0_RP, 2.4151840470357202E-008_RP,  -1.0_RP, &
+           -1.0_RP, -0.36160789517568331_RP, -1.0_RP, 0.36160787375830539_RP, &
+           -1.0_RP, 1.0_RP, -1.0_RP, 1.0_RP, 3.6423373975548509E-008_RP]) > 10e-16_RP)) error stop
 end program bobyqa_exmp

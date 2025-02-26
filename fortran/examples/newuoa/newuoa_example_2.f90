@@ -78,12 +78,12 @@ call newuoa(calfun, x, f)  ! This call will not print anything.
 x = [(real(i, RP) / real(n + 1, RP), i=1, n)]  ! Define the starting point.
 call newuoa(calfun, x, f, rhobeg=0.2_RP * x(1), iprint=1_IK, nf=nf, info=info)
 
-if(abs(f - 2.4566917446791638E-017_RP) > 10e-8_RP) error stop
+if(abs(f - 1.1739938836959886E-017_RP) > 10e-16_RP) error stop
 if (any(abs(x - [ &
-    6.6876590024263077E-002_RP, &
-    0.28874067037462675_RP, &
-    0.36668230239621807_RP, &
-    0.63331770024488820_RP, &
-    0.71125932980565754_RP, &
-    0.93312341009669264_RP]) > 10e-8_RP)) error stop
+    6.6876590937130970E-002_RP, &
+    2.8874067085136379E-001_RP, &
+    3.6668230004311192E-001_RP, &
+    6.3331770016699662E-001_RP, &
+    7.1125932620233134E-001_RP, &
+    9.3312340889577616E-001_RP]) > 10e-16_RP)) error stop
 end program newuoa_exmp

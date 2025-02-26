@@ -89,7 +89,7 @@ program cobyla_exmp
 
 ! The following line makes the solver available.
 use cobyla_mod, only : cobyla
-
+use iso_fortran_env
 ! The following line specifies which module provides CALCFC.
 use calcfc_mod, only : RP, IK, calcfc_chebyquad, calcfc_hexagon
 
@@ -126,6 +126,10 @@ call cobyla(calcfc_hexagon, m, x_hexagon, f, cstrv)  ! This call will not print 
 x_hexagon = 2.0_RP  ! Starting point.
 allocate (constr(m))
 call cobyla(calcfc_hexagon, m, x_hexagon, f, cstrv, nlconstr=constr, rhobeg=1.0_RP, iprint=1_IK, nf=nf, info=info)
+if (index(compiler_options(), '--fast') /= 0) then
+    print *, '--fast is specified'
+    tol = 10e-8_RP
+end if
 if(abs(f - (-0.86602541468304584_RP)) > tol) error stop
 if(abs(cstrv - 1.4312227569757141e-08_RP) > tol) error stop
 if(any(abs(x_hexagon - [0.89832144518526202_RP, 1.3560481629085774_RP, &

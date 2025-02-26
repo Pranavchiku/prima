@@ -58,7 +58,7 @@ program bobyqa_exmp
 
 ! The following line makes the solver available.
 use bobyqa_mod, only : bobyqa
-
+use iso_fortran_env
 ! The following line specifies which module provides CALFUN.
 use calfun_mod, only : RP, IK, calfun
 
@@ -88,6 +88,11 @@ call bobyqa(calfun, x, f, lb, ub)  ! This call will not print anything.
 x = x0
 call bobyqa(calfun, x, f, lb, ub, rhobeg=0.1_RP, iprint=1_IK, nf=nf, info=info)
 
+if (index(compiler_options(), '--fast') /= 0) then
+    print *, '--fast is specified'
+    tol1 = 10e-14_RP
+    tol2 = 10e-8_RP
+end if
 call get_environment_variable('LFORTRAN_RUNNER_OS', lfortran_runner_os)
 if (lfortran_runner_os == 'macos') then
 print *, "Testing value for MacOS"

@@ -58,7 +58,7 @@ program newuoa_exmp
 
 ! The following line makes the solver available.
 use newuoa_mod, only : newuoa
-
+use iso_fortran_env
 ! The following line specifies which module provides CALFUN.
 use calfun_mod, only : RP, IK, calfun
 
@@ -78,6 +78,11 @@ call newuoa(calfun, x, f)  ! This call will not print anything.
 ! take their default values coded in the solver.
 x = [(real(i, RP) / real(n + 1, RP), i=1, n)]  ! Define the starting point.
 call newuoa(calfun, x, f, rhobeg=0.2_RP * x(1), iprint=1_IK, nf=nf, info=info)
+
+if (index(compiler_options(), '--fast') /= 0) then
+    print *, '--fast is specified'
+    tol = 10e-8_RP
+end if
 
 call get_environment_variable('LFORTRAN_RUNNER_OS', lfortran_runner_os)
 if (lfortran_runner_os == 'macos') then

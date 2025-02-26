@@ -65,7 +65,7 @@ program cobyla_exmp
 
 ! The following line makes the solver available.
 use cobyla_mod, only : cobyla
-
+use iso_fortran_env
 ! The following line specifies which module provides CALCFC and CALLBACK_FCN.
 use calcfc_mod, only : RP, IK, calcfc, callback_fcn
 
@@ -87,6 +87,12 @@ call cobyla(calcfc, 1_IK, x, f, cstrv)  ! This call will not print anything.
 ! take their default values coded in the solver.
 x = x0
 call cobyla(calcfc, 1_IK, x, f, cstrv, rhobeg=1.0_RP, iprint=1_IK, nf=nf, info=info, callback_fcn=callback_fcn)
+
+if (index(compiler_options(), '--fast') /= 0) then
+    print *, '--fast is specified'
+    tol1 = 10e-12_RP
+    tol2 = 10e-6_RP
+end if
 
 if(abs(f - 4.0_RP) > tol1) error stop
 if(any(abs(x - [3.0000000000000000_RP, 4.0000001939902097_RP]) > tol2)) error stop

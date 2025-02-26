@@ -69,7 +69,7 @@ implicit none
 
 integer, parameter :: n = 2
 integer :: nf, info
-real(RP) :: f, x(n), x0(n)
+real(RP) :: f, x(n), x0(n), tol = 10e-16_RP
 
 ! Define the starting point.
 x0 = 0.0_RP
@@ -84,4 +84,7 @@ call newuoa(calfun, x, f)  ! This call will not print anything.
 x = x0
 call newuoa(calfun, x, f, rhobeg=1.0_RP, iprint=1_IK, nf=nf, info=info, callback_fcn=callback_fcn)
 
+if(abs(f - 1.5777218104420236e-30_RP) > tol) error stop
+if(any(abs(x - [5.0_RP, 4.0_RP]) > tol)) error stop
+if(nf /= 22) error stop
 end program newuoa_exmp

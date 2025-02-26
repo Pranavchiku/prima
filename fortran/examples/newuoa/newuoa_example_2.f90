@@ -66,7 +66,8 @@ implicit none
 
 integer, parameter :: n = 6
 integer :: i, nf, info
-real(RP) :: f, x(n)
+real(RP) :: f, x(n), tol = 10e-16_RP
+CHARACTER(len=255) :: lfortran_runner_os
 
 ! The following lines illustrates how to call the solver to solve the Chebyquad problem.
 x = [(real(i, RP) / real(n + 1, RP), i=1, n)]  ! Define the starting point.
@@ -78,4 +79,25 @@ call newuoa(calfun, x, f)  ! This call will not print anything.
 x = [(real(i, RP) / real(n + 1, RP), i=1, n)]  ! Define the starting point.
 call newuoa(calfun, x, f, rhobeg=0.2_RP * x(1), iprint=1_IK, nf=nf, info=info)
 
+call get_environment_variable('LFORTRAN_RUNNER_OS', lfortran_runner_os)
+if (lfortran_runner_os == 'macos') then
+print *, 'Testing values for MacOS'
+if(abs(f - 1.1739938836959886E-017_RP) > tol) error stop
+if (any(abs(x - [ &
+    6.6876590937130970E-002_RP, &
+    2.8874067085136379E-001_RP, &
+    3.6668230004311192E-001_RP, &
+    6.3331770016699662E-001_RP, &
+    7.1125932620233134E-001_RP, &
+    9.3312340889577616E-001_RP]) > tol)) error stop
+else if (lfortran_runner_os == 'linux') then
+print *, 'Testing values for Linux'
+if (any(abs(x - [ &
+    6.6876590024263077E-002_RP, &
+    0.28874067037462675_RP, &
+    0.36668230239621807_RP, &
+    0.63331770024488820_RP, &
+    0.71125932980565754_RP, &
+    0.93312341009669264_RP]) > tol)) error stop
+end if
 end program newuoa_exmp

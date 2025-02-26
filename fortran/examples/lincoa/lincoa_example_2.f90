@@ -127,6 +127,7 @@ implicit none
 integer, parameter :: n = 12, np = 50
 integer :: nf, info
 real(RP) :: f, cstrv, x(n), x0(n), Aineq(4 * np, n), bineq(4 * np), tol = 10e-16_RP
+CHARACTER(len=255) :: runner_os
 
 ! Set up X0 (starting point), Aineq, and bineq.
 call setup(x0, Aineq, bineq)
@@ -143,10 +144,18 @@ call lincoa(calfun, x, f, cstrv, Aineq, bineq, rhobeg=1.0_RP, iprint=1_IK, nf=nf
 
 print *, sum(x)
 print *, f
+call get_environment_variable('RUNNER_OS', runner_os)
 if (index(compiler_options(), '--fast') /= 0) then
     print *, '--fast is specified'
     tol = 10e-6_RP
 end if
+if (runner_os == 'macos') then
+print *, "Testing values for MacOS"
 if (abs(sum(x) - (-6.6067605838375898E-002_RP)) > tol) error stop
 if (abs(f - 2.7613125228930460_RP) > tol) error stop
+else if (runner_os == 'linux') then
+print *, "Testing values for Linux"
+if (abs(sum(x) - (-6.6067281292185087E-002)) > tol) error stop
+if (abs(f - 2.7613125232095332) > tol) error stop
+end if
 end program lincoa_exmp

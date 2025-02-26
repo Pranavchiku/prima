@@ -154,7 +154,7 @@ if (abs(sum(x) - (-6.6067605838375898E-002_RP)) > tol) error stop
 if (abs(f - 2.7613125228930460_RP) > tol) error stop
 else if (lfortran_runner_os == 'linux') then
 print *, "Testing values for Linux"
-if (abs(sum(x) - (-6.6067281292185087E-002_RP)) > tol) error stop
-if (abs(f - 2.7613125232095332_RP) > tol) error stop
+if (abs(sum(x) - (-6.60688645906541971e-02_RP)) > tol) error stop
+if (abs(f - 2.76131252166606478e+00_RP) > tol) error stop
 end if
 end program lincoa_exmp

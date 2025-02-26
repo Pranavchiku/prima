@@ -61,6 +61,7 @@ program newuoa_exmp
 
 ! The following line makes the solver available.
 use newuoa_mod, only : newuoa
+use iso_fortran_env!, only : compiler_options
 
 ! The following line specifies which module provides CALFUN.
 use calfun_mod, only : RP, IK, calfun, callback_fcn

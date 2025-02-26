@@ -89,7 +89,7 @@ program cobyla_exmp
 
 ! The following line makes the solver available.
 use cobyla_mod, only : cobyla
-
+use iso_fortran_env!, only : compiler_options
 ! The following line specifies which module provides CALCFC.
 use calcfc_mod, only : RP, IK, calcfc_chebyquad, calcfc_hexagon
 

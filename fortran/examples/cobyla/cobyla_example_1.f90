@@ -64,6 +64,7 @@ end module calcfc_mod
 program cobyla_exmp
 
 ! The following line makes the solver available.
+use iso_fortran_env!, only : compiler_options
 use cobyla_mod, only : cobyla
 
 ! The following line specifies which module provides CALCFC and CALLBACK_FCN.

@@ -118,7 +118,7 @@ program lincoa_exmp
 
 ! The following line makes the solver available.
 use lincoa_mod, only : lincoa
-
+use iso_fortran_env
 ! The following line specifies which module provides CALFUN.
 use tetrahedron_mod, only : RP, IK, calfun, setup
 
@@ -126,7 +126,7 @@ implicit none
 
 integer, parameter :: n = 12, np = 50
 integer :: nf, info
-real(RP) :: f, cstrv, x(n), x0(n), Aineq(4 * np, n), bineq(4 * np)
+real(RP) :: f, cstrv, x(n), x0(n), Aineq(4 * np, n), bineq(4 * np), tol = 10e-16_RP
 
 ! Set up X0 (starting point), Aineq, and bineq.
 call setup(x0, Aineq, bineq)
@@ -143,6 +143,10 @@ call lincoa(calfun, x, f, cstrv, Aineq, bineq, rhobeg=1.0_RP, iprint=1_IK, nf=nf
 
 print *, sum(x)
 print *, f
-if (abs(sum(x) - (-6.6067605838375898E-002_RP)) > 10e-16_RP) error stop
-if (abs(f - 2.7613125228930460_RP) > 10e-16_RP) error stop
+if (index(compiler_options(), '--fast') /= 0) then
+    print *, '--fast is specified'
+    tol = 10e-6_RP
+end if
+if (abs(sum(x) - (-6.6067605838375898E-002_RP)) > tol) error stop
+if (abs(f - 2.7613125228930460_RP) > tol) error stop
 end program lincoa_exmp

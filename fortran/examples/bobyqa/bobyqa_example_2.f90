@@ -58,7 +58,7 @@ program bobyqa_exmp
 
 ! The following line makes the solver available.
 use bobyqa_mod, only : bobyqa
-
+use iso_fortran_env
 ! The following line specifies which module provides CALFUN.
 use calfun_mod, only : RP, IK, calfun
 
@@ -66,7 +66,7 @@ implicit none
 
 integer, parameter :: n = 20
 integer :: i, nf, info
-real(RP) :: f, x(n), x0(n), lb(n), ub(n), angle
+real(RP) :: f, x(n), x0(n), lb(n), ub(n), angle, tol1 = 1.0e-16_RP, tol2 = 1.0e-16_RP
 
 ! Define the starting point.
 do i = 1, n / 2
@@ -87,9 +87,14 @@ call bobyqa(calfun, x, f, lb, ub)  ! This call will not print anything.
 x = x0
 call bobyqa(calfun, x, f, lb, ub, rhobeg=0.1_RP, iprint=1_IK, nf=nf, info=info)
 
-if(abs(f - 3.2203053368830226E+001_RP) > 1.0e-16_RP) error stop
+if (index(compiler_options(), '--fast') /= 0) then
+    print *, '--fast is specified'
+    tol1 = 10e-14_RP
+    tol2 = 10e-8_RP
+end if
+if(abs(f - 3.2203053368830226E+001_RP) > tol1) error stop
 if(any(abs(x - [1.0_RP, 1.0_RP, 0.36160790377470897_RP, 1.0_RP, -0.36160785022201314_RP, &
            1.0_RP, -1.0_RP, 1.0_RP, -1.0_RP, 2.4151840470357202E-008_RP,  -1.0_RP, &
            -1.0_RP, -0.36160789517568331_RP, -1.0_RP, 0.36160787375830539_RP, &
-           -1.0_RP, 1.0_RP, -1.0_RP, 1.0_RP, 3.6423373975548509E-008_RP]) > 10e-16_RP)) error stop
+           -1.0_RP, 1.0_RP, -1.0_RP, 1.0_RP, 3.6423373975548509E-008_RP]) > tol2)) error stop
 end program bobyqa_exmp

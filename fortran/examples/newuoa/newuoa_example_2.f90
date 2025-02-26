@@ -58,7 +58,7 @@ program newuoa_exmp
 
 ! The following line makes the solver available.
 use newuoa_mod, only : newuoa
-
+use iso_fortran_env
 ! The following line specifies which module provides CALFUN.
 use calfun_mod, only : RP, IK, calfun
 
@@ -66,7 +66,7 @@ implicit none
 
 integer, parameter :: n = 6
 integer :: i, nf, info
-real(RP) :: f, x(n)
+real(RP) :: f, x(n), tol = 10e-16_RP
 
 ! The following lines illustrates how to call the solver to solve the Chebyquad problem.
 x = [(real(i, RP) / real(n + 1, RP), i=1, n)]  ! Define the starting point.
@@ -78,12 +78,17 @@ call newuoa(calfun, x, f)  ! This call will not print anything.
 x = [(real(i, RP) / real(n + 1, RP), i=1, n)]  ! Define the starting point.
 call newuoa(calfun, x, f, rhobeg=0.2_RP * x(1), iprint=1_IK, nf=nf, info=info)
 
-if(abs(f - 1.1739938836959886E-017_RP) > 10e-16_RP) error stop
+if (index(compiler_options(), '--fast') /= 0) then
+    print *, '--fast is specified'
+    tol = 10e-8_RP
+end if
+
+if(abs(f - 1.1739938836959886E-017_RP) > tol) error stop
 if (any(abs(x - [ &
     6.6876590937130970E-002_RP, &
     2.8874067085136379E-001_RP, &
     3.6668230004311192E-001_RP, &
     6.3331770016699662E-001_RP, &
     7.1125932620233134E-001_RP, &
-    9.3312340889577616E-001_RP]) > 10e-16_RP)) error stop
+    9.3312340889577616E-001_RP]) > tol)) error stop
 end program newuoa_exmp
